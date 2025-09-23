@@ -1,56 +1,47 @@
-# {{crew_name}} Crew
+# Makalah Automation via Language-model Assisted System (MALAS)
+MALAS (Makalah Automation via Language-model Assisted System) is a project designed to automate the process of writing academic papers ("makalah" in Indonesian). By leveraging a multi-agent system built with the `crewAI` framework, MALAS streamlines the entire workflow from research and content generation to final formatting. This system aims to assist users in producing well-structured and comprehensive academic documents efficiently.
 
-Welcome to the {{crew_name}} Crew project, powered by [crewAI](https://crewai.com). This template is designed to help you set up a multi-agent AI system with ease, leveraging the powerful and flexible framework provided by crewAI. Our goal is to enable your agents to collaborate effectively on complex tasks, maximizing their collective intelligence and capabilities.
+## Fitur
 
-## Installation
+- **Riset Otomatis**: Mengumpulkan informasi relevan dari web berdasarkan topik yang diberikan.
+- **Penulisan Konten**: Menghasilkan draf konten untuk setiap bagian makalah (Pendahuluan, Pembahasan, Kesimpulan).
+- **Struktur Dokumen**: Menyusun hasil akhir dalam format Markdown yang terstruktur.
+- **Sistem Multi-Agen**: Menggunakan agen-agen khusus (Peneliti, Penulis, Peninjau) untuk menangani tugas-tugas spesifik.
 
-Ensure you have Python >=3.10 <3.14 installed on your system. This project uses [UV](https://docs.astral.sh/uv/) for dependency management and package handling, offering a seamless setup and execution experience.
+## Instalasi
 
-First, if you haven't already, install uv:
+### Prasyarat
+- Python 3.8+
+- API Key dari penyedia LLM yang didukung (misalnya, OpenAI, Groq).
 
-```bash
-pip install uv
-```
+### Langkah-langkah
+1.  **Clone repository ini:**
+    ```bash
+    git clone https://github.com/your-username/malas.git
+    cd malas
+    ```
 
-Next, navigate to your project directory and install the dependencies:
+2.  **Buat dan aktifkan virtual environment (disarankan):**
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # Di Windows, gunakan `venv\Scripts\activate`
+    ```
 
-(Optional) Lock the dependencies and install them by using the CLI command:
-```bash
-crewai install
-```
+3.  **Instal dependensi yang diperlukan:**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-### Customizing
+4.  **Konfigurasi Environment Variables:**
+    Buat file `.env` di direktori root proyek dan tambahkan API key Anda.
+    ```env
+    # Contoh untuk OpenAI
+    OPENAI_API_KEY="ganti_dengan_api_key_anda"
 
-**Add your `OPENAI_API_KEY` into the `.env` file**
+    # Contoh untuk Groq
+    # GROQ_API_KEY="ganti_dengan_api_key_anda"
+    ```
 
-- Modify `src/malas/config/agents.yaml` to define your agents
-- Modify `src/malas/config/tasks.yaml` to define your tasks
-- Modify `src/malas/crew.py` to add your own logic, tools and specific args
-- Modify `src/malas/main.py` to add custom inputs for your agents and tasks
+## ⚠️ Coming soon!
 
-## Running the Project
-
-To kickstart your flow and begin execution, run this from the root folder of your project:
-
-```bash
-crewai run
-```
-
-This command initializes the malas Flow as defined in your configuration.
-
-This example, unmodified, will run the create a `report.md` file with the output of a research on LLMs in the root folder.
-
-## Understanding Your Crew
-
-The malas Crew is composed of multiple AI agents, each with unique roles, goals, and tools. These agents collaborate on a series of tasks, defined in `config/tasks.yaml`, leveraging their collective skills to achieve complex objectives. The `config/agents.yaml` file outlines the capabilities and configurations of each agent in your crew.
-
-## Support
-
-For support, questions, or feedback regarding the {{crew_name}} Crew or crewAI.
-
-- Visit our [documentation](https://docs.crewai.com)
-- Reach out to us through our [GitHub repository](https://github.com/joaomdmoura/crewai)
-- [Join our Discord](https://discord.com/invite/X4JWnZnxPb)
-- [Chat with our docs](https://chatg.pt/DWjSBZn)
-
-Let's create wonders together with the power and simplicity of crewAI.
+> Masih dalam tahap pengembangan!
