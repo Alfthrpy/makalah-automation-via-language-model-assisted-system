@@ -1,0 +1,34 @@
+write_content_task:
+  description: >
+    Berdasarkan dokumen perencanaan yang berisi outline dan referensi ({dokumen_rencana}),
+    tulis konten lengkap untuk setiap sub-bab dari Bab 1 hingga Bab 3. dan sekarang anda perlu membuat untuk  bab {bab_now} dengan subab {subab_now}
+    
+    Peraturan Penting:
+    1. Untuk Bab 2, WAJIB gunakan referensi yang telah disediakan.
+    2. Lakukan sitasi dalam teks (in-text citation) menggunakan format APA 7th Edition.
+    3. Pastikan setiap bagian mengalir secara logis ke bagian berikutnya.
+    4. Buat juga daftar pustaka di bagian akhir berdasarkan referensi yang digunakan.
+    5. Gunakan bahasa Indonesia formal yang sesuai untuk karya ilmiah.
+    6. output berupa content lengkap untuk subab {subab_now} pada bab {bab_now} saja.
+  expected_output: >
+    Objek JSON perencanaan awal, yang kini diperkaya dengan properti "content" pada
+    setiap sub-bab berisi teks lengkap, dan sebuah properti "daftar_pustaka" di level
+    atas berisi daftar referensi yang diformat APA 7.
+  agent: content_writer
+
+
+review_output_task:
+  description: >
+    Lakukan review final terhadap konteks Jinja2 yang dihasilkan.
+    
+    Periksa hal-hal berikut:
+    1. Kelengkapan: Apakah semua key yang dibutuhkan template ada?
+    2. Konsistensi: Apakah isi konten sesuai dengan judul dan outline?
+    3. Formatting: Apakah format daftar pustaka sudah benar-benar APA 7?
+    4. Kualitas: Apakah ada kesalahan tik atau tata bahasa yang fatal?
+  expected_output: >
+    Konteks Jinja2 yang asli jika semua pengecekan lolos. Jika tidak, kembalikan
+    sebuah dictionary dengan feedback yang jelas untuk revisi.
+  agent: quality_reviewer
+  context:
+    - format_content_task
