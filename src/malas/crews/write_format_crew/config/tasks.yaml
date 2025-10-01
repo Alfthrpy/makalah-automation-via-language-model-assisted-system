@@ -1,23 +1,23 @@
 write_content_task:
   description: >
-    Berdasarkan dokumen perencanaan yang berisi outline dan referensi ({dokumen_rencana}),
-    tulis konten lengkap untuk setiap sub-bab dari Bab 1 hingga Bab 3. dan sekarang anda perlu membuat untuk  bab {bab_now} dengan subab {subab_now}
+    Berdasarkan dokumen perencanaan yang berisi outline dan referensi,
+    tulis konten lengkap untuk setiap sub-bab dari Bab 1 hingga Bab 3. dan sekarang anda perlu membuat untuk  bab : {bab_now} dengan subab : {subbab_now} menyesuaikan dengan konten subab sebelumnya jika perlu.
     
     Peraturan Penting:
     1. Untuk Bab 2, WAJIB gunakan referensi yang telah disediakan.
     2. Lakukan sitasi dalam teks (in-text citation) menggunakan format APA 7th Edition.
     3. Pastikan setiap bagian mengalir secara logis ke bagian berikutnya.
-    4. Buat juga daftar pustaka di bagian akhir berdasarkan referensi yang digunakan.
     5. Gunakan bahasa Indonesia formal yang sesuai untuk karya ilmiah.
-    6. output berupa content lengkap untuk subab {subab_now} pada bab {bab_now} saja.
+    6. output berupa content lengkap untuk subab {subbab_now} pada bab {bab_now} saja.
+
+    {previous_subab_contents}
+    referensi yang disediakan : {references}
   expected_output: >
-    Objek JSON perencanaan awal, yang kini diperkaya dengan properti "content" pada
-    setiap sub-bab berisi teks lengkap, dan sebuah properti "daftar_pustaka" di level
-    atas berisi daftar referensi yang diformat APA 7.
+    sebuah konten subab yang lengkap dan terstruktur dengan baik, mengalir dari konten sebelumnya dan sesuai dengan outline. dan output sesuai dengan pydantic model subbab yang telah ditentukan.
   agent: content_writer
 
 
-review_output_task:
+review_content_task:
   description: >
     Lakukan review final terhadap konteks Jinja2 yang dihasilkan.
     
@@ -30,5 +30,3 @@ review_output_task:
     Konteks Jinja2 yang asli jika semua pengecekan lolos. Jika tidak, kembalikan
     sebuah dictionary dengan feedback yang jelas untuk revisi.
   agent: quality_reviewer
-  context:
-    - format_content_task

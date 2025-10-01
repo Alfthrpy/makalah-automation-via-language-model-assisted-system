@@ -3,7 +3,33 @@
 from crewai import BaseLLM
 from pydantic import BaseModel
 from typing import Any, Dict, List, Union
+
+import re
 from malas.mock.dummy_factory import create_dummy_instance
+
+def parse_context_from_description(description: str) -> Dict[str, str]:
+    """
+    Fungsi helper untuk mengekstrak variabel dari deskripsi task
+    menggunakan pola spesifik.
+    """
+    context = {}
+    
+    # Pola Regex untuk mengekstrak nilai dari 'bab : {bab_now}'
+    # Ia akan menangkap semua teks di antara "bab : " dan " dengan subab"
+    bab_match = re.search(r"bab : (.*?) dengan subab", description)
+    
+    # Pola Regex untuk mengekstrak nilai dari 'subab : {subbab_now}'
+    # Ia akan menangkap semua teks di antara "subab : " dan " menyesuaikan"
+    subbab_match = re.search(r"subab : (.*?) menyesuaikan", description)
+
+    if bab_match:
+        # group(1) mengambil teks yang ada di dalam kurung (...) pertama
+        context['bab_now'] = bab_match.group(1).strip()
+        
+    if subbab_match:
+        context['subbab_now'] = subbab_match.group(1).strip()
+        
+    return context
 
 class AutoFakeLLM(BaseLLM):
     """
@@ -26,9 +52,10 @@ class AutoFakeLLM(BaseLLM):
             raise ValueError("AutoFakeLLM requires the task to have 'output_pydantic' set.")
 
         expected_model_class = task.output_pydantic
+        task_context = parse_context_from_description(task.description)
         
         # Panggil pabrik untuk membuat instance dummy secara on-the-fly
-        dummy_instance = create_dummy_instance(expected_model_class)
+        dummy_instance = create_dummy_instance(expected_model_class,context=task_context)
         
         return dummy_instance.model_dump_json(indent=2)
 

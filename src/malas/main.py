@@ -6,58 +6,17 @@ from malas.crews.planner_crew.planner_crew import PlannerCrew
 
 
 from pydantic import BaseModel, Field
-from typing import List, Dict, Union, Literal, Optional
+from malas.crews.models.TaskOutput import (
+    Penyusun, 
+    ContentText, 
+    ContentList, 
+    ContentItem, 
+    SubBab, 
+    Bab, 
+    Makalah
+)
+from malas.crews.write_format_crew.write_format_crew import WriteFormatCrew
 
-
-
-
-# Model dari pertanyaan sebelumnya
-class Penyusun(BaseModel):
-    nama: str = "PetaniHandal"
-    nim: str = "1234567890"
-
-# Model untuk konten di dalam sub-bab (bisa teks atau list)
-class ContentText(BaseModel):
-    type: Literal["text"]
-    isi: str = Field(description="Isi teks dari konten.")
-
-class ContentList(BaseModel):
-    type: Literal["list"]
-    title_items: Optional[str] = None
-    items: List[str] = Field(description="List of items.")
-
-# Union type untuk memperbolehkan beberapa jenis model dalam satu field
-ContentItem = Union[ContentText, ContentList]
-
-# Model untuk setiap Sub-bab
-class SubBab(BaseModel):
-    judul: str
-    content: List[ContentItem] = Field(default_factory=list,description="List of content items, can be text or a list.")
-
-# Model untuk setiap Bab
-class Bab(BaseModel):
-    judul: str = 'Bab 1'
-    latar_belakang: Optional[str] = None
-    rumusan_masalah: Optional[List[str]] = None
-    tujuan: Optional[List[str]] = None
-    subbab: Optional[List[SubBab]] = None
-    kesimpulan: Optional[str] = None
-
-# Model Utama untuk keseluruhan Makalah
-class Makalah(BaseModel):
-    judul_makalah: str = "Judul Makalah"
-    mata_kuliah: str = "Nama Mata Kuliah"
-    dosen_pengampu: str = "Nama Dosen"
-    penyusun: List[Penyusun] = []
-    kelas: str = "Kelas"
-    universitas: str = "Nama Universitas"
-    fakultas: str = "Nama Fakultas"
-    jurusan: str =  "Nama Jurusan"
-    kota: str = "Kota"
-    tahun: str = "2024"
-    kata_pengantar: str = "Kata Pengantar"
-    bab: Dict[str, Bab] = {}
-    daftar_pustaka: List[str] = []
 
 
 def debugState(state):
@@ -88,9 +47,7 @@ class MalasFlow(Flow[Makalah]):
 
     @listen(inputDataMakalah)
     def generate_outline(self):
-        print("Generating outline...")
         planner = PlannerCrew()
-        planner.use_mockup = True  # aktifkan mode mock
         crew_instance = planner.crew()
 
         # Jalankan flow (tidak akan call LLM)
@@ -124,7 +81,61 @@ class MalasFlow(Flow[Makalah]):
             bab_key = roman_numerals[i]
             self.state.bab[bab_key] = bab_baru
 
-        debugState(self.state)  # Debug state setelah menambahkan setiap bab
+        self.state.daftar_pustaka = references_output.pydantic.references
+
+    @listen(generate_outline)
+    def fill_subbab_content(self):
+        writer = WriteFormatCrew()
+        crew_instance = writer.crew()
+        generated_contents = {}
+
+        for bab_key, bab in self.state.bab.items():
+            for subbab_index, subbab in enumerate(bab.subbab):
+                
+                formatted_previous_content = ""
+                
+                if subbab_index > 0:
+                    previous_subbab = bab.subbab[subbab_index - 1]
+                    
+                    # <<< 2. BACA DARI PENYIMPANAN SEMENTARA
+                    # Cek apakah konten untuk sub-bab sebelumnya ada di 'generated_contents'
+                    if previous_subbab.judul in generated_contents:
+                        previous_content_objects = generated_contents[previous_subbab.judul]
+                        print(previous_content_objects)
+                        
+                        header = f"Konten dari Sub-Bab sebelumnya'{previous_subbab.judul}':"
+                        content_parts = []
+                        for item in previous_content_objects:
+                            if isinstance(item, ContentText):
+                                content_parts.append(item.isi)
+                            elif isinstance(item, ContentList):
+                                if item.title_items:
+                                    content_parts.append(item.title_items)
+                                formatted_items = "\n".join([f"- {li}" for li in item.items])
+                                content_parts.append(formatted_items)
+                        
+                        full_content_str = "\n".join(content_parts)
+                        formatted_previous_content = f"{header}\n{full_content_str}"
+
+                print(f"\n>>>> Mengerjakan: {bab.judul} - {subbab.judul}")
+                # print(f"Menggunakan Konteks:\n{formatted_previous_content}\n<<<<\n")
+
+                crew_instance.kickoff(inputs={
+                    "bab_now": bab.judul,
+                    "subbab_now": subbab.judul,
+                    "previous_subab_contents": formatted_previous_content,
+                    "references": [getattr(ref, 'title', str(ref)) for ref in self.state.daftar_pustaka]
+                })
+                
+                subbab_output = writer.tasks[0].output
+                
+                if subbab_output and subbab_output.pydantic:
+                    # <<< 3. SIMPAN KE STATE UTAMA DAN PENYIMPANAN SEMENTARA
+                    new_content = subbab_output.pydantic.content
+                    subbab.content = new_content  # Update state utama
+                    generated_contents[subbab.judul] = new_content # Update penyimpanan sementara
+                
+        debugState(self.state)
 
 
 

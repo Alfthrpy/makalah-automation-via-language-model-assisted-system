@@ -74,5 +74,5 @@ class PlannerCrew:
             tasks=self.tasks,  # Automatically created by the @task decorator
             process=Process.sequential,
             verbose=True,
-            output_log_file="planner_crew_log.json",
+            output_log_file="logs/planner_crew_log.json",
         )

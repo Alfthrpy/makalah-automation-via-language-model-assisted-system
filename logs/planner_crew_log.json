@@ -1,0 +1,946 @@
+[
+    {
+        "timestamp": "2025-10-01 08:13:04",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:13:05",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.1.1 Konteks Umum (mengapa topik ini penting)\",\n        \"1.1.2 Identifikasi Masalah (celah penelitian atau masalah praktis)\",\n        \"1.1.3 Urgensi Penelitian (mengapa masalah ini perlu diteliti segera)\",\n        \"1.2 Rumusan Masalah\",\n        \"1.2.1 Pertanyaan Penelitian Utama\",\n        \"1.2.2 Pertanyaan Penelitian Pendukung (jika ada)\",\n        \"1.3 Tujuan Penulisan\",\n        \"1.3.1 Tujuan Utama Penelitian\",\n        \"1.3.2 Tujuan Spesifik Penelitian (berdasarkan rumusan masalah)\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.1.1 Definisi Konsep Kunci (definisi dari para ahli dan sumber terpercaya)\",\n        \"2.1.2 Teori yang Relevan (teori-teori yang mendasari penelitian)\",\n        \"2.1.3 Kerangka Konseptual (bagaimana konsep-konsep terkait saling berhubungan)\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.2.1 Deskripsi Data/Informasi yang Digunakan (sumber data, metode pengumpulan)\",\n        \"2.2.2 Analisis Data/Informasi (menggunakan metode yang sesuai)\",\n        \"2.2.3 Interpretasi Hasil Analisis (makna dari hasil analisis)\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.3.1 Deskripsi Studi Kasus/Contoh\",\n        \"2.3.2 Analisis Studi Kasus/Contoh (kaitkan dengan teori dan data)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.4.1 Implikasi Teoretis (kontribusi terhadap pengembangan teori)\",\n        \"2.4.2 Implikasi Praktis (manfaat bagi praktisi atau pembuat kebijakan)\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.1 Identifikasi Tantangan\",\n        \"2.5.2 Batasan Metodologi\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.1.1 Ringkasan Temuan Utama (jawab pertanyaan penelitian)\",\n        \"3.1.2 Implikasi Temuan (dampak dari temuan penelitian)\",\n        \"3.2 Saran\",\n        \"3.2.1 Saran untuk Penelitian Lanjutan\",\n        \"3.2.2 Saran Praktis (rekomendasi tindakan berdasarkan temuan)\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:13:05",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:13:05",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:15:21",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:15:21",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.1.1 Konteks Umum (mengapa topik ini penting)\",\n        \"1.1.2 Identifikasi Masalah (celah penelitian atau masalah praktis)\",\n        \"1.1.3 Urgensi Penelitian (mengapa masalah ini perlu diteliti segera)\",\n        \"1.2 Rumusan Masalah\",\n        \"1.2.1 Pertanyaan Penelitian Utama\",\n        \"1.2.2 Pertanyaan Penelitian Pendukung (jika ada)\",\n        \"1.3 Tujuan Penulisan\",\n        \"1.3.1 Tujuan Utama Penelitian\",\n        \"1.3.2 Tujuan Spesifik Penelitian (berdasarkan rumusan masalah)\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.1.1 Definisi Konsep Kunci (definisi dari para ahli dan sumber terpercaya)\",\n        \"2.1.2 Teori yang Relevan (teori-teori yang mendasari penelitian)\",\n        \"2.1.3 Kerangka Konseptual (bagaimana konsep-konsep terkait saling berhubungan)\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.2.1 Deskripsi Data/Informasi yang Digunakan (sumber data, metode pengumpulan)\",\n        \"2.2.2 Analisis Data/Informasi (menggunakan metode yang sesuai)\",\n        \"2.2.3 Interpretasi Hasil Analisis (makna dari hasil analisis)\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.3.1 Deskripsi Studi Kasus/Contoh\",\n        \"2.3.2 Analisis Studi Kasus/Contoh (kaitkan dengan teori dan data)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.4.1 Implikasi Teoretis (kontribusi terhadap pengembangan teori)\",\n        \"2.4.2 Implikasi Praktis (manfaat bagi praktisi atau pembuat kebijakan)\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.1 Identifikasi Tantangan\",\n        \"2.5.2 Batasan Metodologi\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.1.1 Ringkasan Temuan Utama (jawab pertanyaan penelitian)\",\n        \"3.1.2 Implikasi Temuan (dampak dari temuan penelitian)\",\n        \"3.2 Saran\",\n        \"3.2.1 Saran untuk Penelitian Lanjutan\",\n        \"3.2.2 Saran Praktis (rekomendasi tindakan berdasarkan temuan)\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:15:21",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:15:21",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:15:55",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:15:55",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.1.1 Konteks Umum (mengapa topik ini penting)\",\n        \"1.1.2 Identifikasi Masalah (celah penelitian atau masalah praktis)\",\n        \"1.1.3 Urgensi Penelitian (mengapa masalah ini perlu diteliti segera)\",\n        \"1.2 Rumusan Masalah\",\n        \"1.2.1 Pertanyaan Penelitian Utama\",\n        \"1.2.2 Pertanyaan Penelitian Pendukung (jika ada)\",\n        \"1.3 Tujuan Penulisan\",\n        \"1.3.1 Tujuan Utama Penelitian\",\n        \"1.3.2 Tujuan Spesifik Penelitian (berdasarkan rumusan masalah)\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.1.1 Definisi Konsep Kunci (definisi dari para ahli dan sumber terpercaya)\",\n        \"2.1.2 Teori yang Relevan (teori-teori yang mendasari penelitian)\",\n        \"2.1.3 Kerangka Konseptual (bagaimana konsep-konsep terkait saling berhubungan)\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.2.1 Deskripsi Data/Informasi yang Digunakan (sumber data, metode pengumpulan)\",\n        \"2.2.2 Analisis Data/Informasi (menggunakan metode yang sesuai)\",\n        \"2.2.3 Interpretasi Hasil Analisis (makna dari hasil analisis)\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.3.1 Deskripsi Studi Kasus/Contoh\",\n        \"2.3.2 Analisis Studi Kasus/Contoh (kaitkan dengan teori dan data)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.4.1 Implikasi Teoretis (kontribusi terhadap pengembangan teori)\",\n        \"2.4.2 Implikasi Praktis (manfaat bagi praktisi atau pembuat kebijakan)\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.1 Identifikasi Tantangan\",\n        \"2.5.2 Batasan Metodologi\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.1.1 Ringkasan Temuan Utama (jawab pertanyaan penelitian)\",\n        \"3.1.2 Implikasi Temuan (dampak dari temuan penelitian)\",\n        \"3.2 Saran\",\n        \"3.2.1 Saran untuk Penelitian Lanjutan\",\n        \"3.2.2 Saran Praktis (rekomendasi tindakan berdasarkan temuan)\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:15:55",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:15:55",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:17:41",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:17:41",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.1.1 Konteks Umum (mengapa topik ini penting)\",\n        \"1.1.2 Identifikasi Masalah (celah penelitian atau masalah praktis)\",\n        \"1.1.3 Urgensi Penelitian (mengapa masalah ini perlu diteliti segera)\",\n        \"1.2 Rumusan Masalah\",\n        \"1.2.1 Pertanyaan Penelitian Utama\",\n        \"1.2.2 Pertanyaan Penelitian Pendukung (jika ada)\",\n        \"1.3 Tujuan Penulisan\",\n        \"1.3.1 Tujuan Utama Penelitian\",\n        \"1.3.2 Tujuan Spesifik Penelitian (berdasarkan rumusan masalah)\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.1.1 Definisi Konsep Kunci (definisi dari para ahli dan sumber terpercaya)\",\n        \"2.1.2 Teori yang Relevan (teori-teori yang mendasari penelitian)\",\n        \"2.1.3 Kerangka Konseptual (bagaimana konsep-konsep terkait saling berhubungan)\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.2.1 Deskripsi Data/Informasi yang Digunakan (sumber data, metode pengumpulan)\",\n        \"2.2.2 Analisis Data/Informasi (menggunakan metode yang sesuai)\",\n        \"2.2.3 Interpretasi Hasil Analisis (makna dari hasil analisis)\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.3.1 Deskripsi Studi Kasus/Contoh\",\n        \"2.3.2 Analisis Studi Kasus/Contoh (kaitkan dengan teori dan data)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.4.1 Implikasi Teoretis (kontribusi terhadap pengembangan teori)\",\n        \"2.4.2 Implikasi Praktis (manfaat bagi praktisi atau pembuat kebijakan)\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.1 Identifikasi Tantangan\",\n        \"2.5.2 Batasan Metodologi\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.1.1 Ringkasan Temuan Utama (jawab pertanyaan penelitian)\",\n        \"3.1.2 Implikasi Temuan (dampak dari temuan penelitian)\",\n        \"3.2 Saran\",\n        \"3.2.1 Saran untuk Penelitian Lanjutan\",\n        \"3.2.2 Saran Praktis (rekomendasi tindakan berdasarkan temuan)\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:17:41",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:17:41",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:18:39",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:18:39",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.1.1 Konteks Umum (mengapa topik ini penting)\",\n        \"1.1.2 Identifikasi Masalah (celah penelitian atau masalah praktis)\",\n        \"1.1.3 Urgensi Penelitian (mengapa masalah ini perlu diteliti segera)\",\n        \"1.2 Rumusan Masalah\",\n        \"1.2.1 Pertanyaan Penelitian Utama\",\n        \"1.2.2 Pertanyaan Penelitian Pendukung (jika ada)\",\n        \"1.3 Tujuan Penulisan\",\n        \"1.3.1 Tujuan Utama Penelitian\",\n        \"1.3.2 Tujuan Spesifik Penelitian (berdasarkan rumusan masalah)\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.1.1 Definisi Konsep Kunci (definisi dari para ahli dan sumber terpercaya)\",\n        \"2.1.2 Teori yang Relevan (teori-teori yang mendasari penelitian)\",\n        \"2.1.3 Kerangka Konseptual (bagaimana konsep-konsep terkait saling berhubungan)\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.2.1 Deskripsi Data/Informasi yang Digunakan (sumber data, metode pengumpulan)\",\n        \"2.2.2 Analisis Data/Informasi (menggunakan metode yang sesuai)\",\n        \"2.2.3 Interpretasi Hasil Analisis (makna dari hasil analisis)\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.3.1 Deskripsi Studi Kasus/Contoh\",\n        \"2.3.2 Analisis Studi Kasus/Contoh (kaitkan dengan teori dan data)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.4.1 Implikasi Teoretis (kontribusi terhadap pengembangan teori)\",\n        \"2.4.2 Implikasi Praktis (manfaat bagi praktisi atau pembuat kebijakan)\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.1 Identifikasi Tantangan\",\n        \"2.5.2 Batasan Metodologi\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.1.1 Ringkasan Temuan Utama (jawab pertanyaan penelitian)\",\n        \"3.1.2 Implikasi Temuan (dampak dari temuan penelitian)\",\n        \"3.2 Saran\",\n        \"3.2.1 Saran untuk Penelitian Lanjutan\",\n        \"3.2.2 Saran Praktis (rekomendasi tindakan berdasarkan temuan)\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:18:39",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:18:39",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:19:56",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:19:56",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.1.1 Konteks Umum (mengapa topik ini penting)\",\n        \"1.1.2 Identifikasi Masalah (celah penelitian atau masalah praktis)\",\n        \"1.1.3 Urgensi Penelitian (mengapa masalah ini perlu diteliti segera)\",\n        \"1.2 Rumusan Masalah\",\n        \"1.2.1 Pertanyaan Penelitian Utama\",\n        \"1.2.2 Pertanyaan Penelitian Pendukung (jika ada)\",\n        \"1.3 Tujuan Penulisan\",\n        \"1.3.1 Tujuan Utama Penelitian\",\n        \"1.3.2 Tujuan Spesifik Penelitian (berdasarkan rumusan masalah)\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.1.1 Definisi Konsep Kunci (definisi dari para ahli dan sumber terpercaya)\",\n        \"2.1.2 Teori yang Relevan (teori-teori yang mendasari penelitian)\",\n        \"2.1.3 Kerangka Konseptual (bagaimana konsep-konsep terkait saling berhubungan)\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.2.1 Deskripsi Data/Informasi yang Digunakan (sumber data, metode pengumpulan)\",\n        \"2.2.2 Analisis Data/Informasi (menggunakan metode yang sesuai)\",\n        \"2.2.3 Interpretasi Hasil Analisis (makna dari hasil analisis)\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.3.1 Deskripsi Studi Kasus/Contoh\",\n        \"2.3.2 Analisis Studi Kasus/Contoh (kaitkan dengan teori dan data)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.4.1 Implikasi Teoretis (kontribusi terhadap pengembangan teori)\",\n        \"2.4.2 Implikasi Praktis (manfaat bagi praktisi atau pembuat kebijakan)\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.1 Identifikasi Tantangan\",\n        \"2.5.2 Batasan Metodologi\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.1.1 Ringkasan Temuan Utama (jawab pertanyaan penelitian)\",\n        \"3.1.2 Implikasi Temuan (dampak dari temuan penelitian)\",\n        \"3.2 Saran\",\n        \"3.2.1 Saran untuk Penelitian Lanjutan\",\n        \"3.2.2 Saran Praktis (rekomendasi tindakan berdasarkan temuan)\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:19:56",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:19:56",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:20:26",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:20:26",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.1.1 Konteks Umum (mengapa topik ini penting)\",\n        \"1.1.2 Identifikasi Masalah (celah penelitian atau masalah praktis)\",\n        \"1.1.3 Urgensi Penelitian (mengapa masalah ini perlu diteliti segera)\",\n        \"1.2 Rumusan Masalah\",\n        \"1.2.1 Pertanyaan Penelitian Utama\",\n        \"1.2.2 Pertanyaan Penelitian Pendukung (jika ada)\",\n        \"1.3 Tujuan Penulisan\",\n        \"1.3.1 Tujuan Utama Penelitian\",\n        \"1.3.2 Tujuan Spesifik Penelitian (berdasarkan rumusan masalah)\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.1.1 Definisi Konsep Kunci (definisi dari para ahli dan sumber terpercaya)\",\n        \"2.1.2 Teori yang Relevan (teori-teori yang mendasari penelitian)\",\n        \"2.1.3 Kerangka Konseptual (bagaimana konsep-konsep terkait saling berhubungan)\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.2.1 Deskripsi Data/Informasi yang Digunakan (sumber data, metode pengumpulan)\",\n        \"2.2.2 Analisis Data/Informasi (menggunakan metode yang sesuai)\",\n        \"2.2.3 Interpretasi Hasil Analisis (makna dari hasil analisis)\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.3.1 Deskripsi Studi Kasus/Contoh\",\n        \"2.3.2 Analisis Studi Kasus/Contoh (kaitkan dengan teori dan data)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.4.1 Implikasi Teoretis (kontribusi terhadap pengembangan teori)\",\n        \"2.4.2 Implikasi Praktis (manfaat bagi praktisi atau pembuat kebijakan)\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.1 Identifikasi Tantangan\",\n        \"2.5.2 Batasan Metodologi\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.1.1 Ringkasan Temuan Utama (jawab pertanyaan penelitian)\",\n        \"3.1.2 Implikasi Temuan (dampak dari temuan penelitian)\",\n        \"3.2 Saran\",\n        \"3.2.1 Saran untuk Penelitian Lanjutan\",\n        \"3.2.2 Saran Praktis (rekomendasi tindakan berdasarkan temuan)\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:20:26",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:20:26",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:22:33",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:22:33",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.1.1 Konteks Umum (mengapa topik ini penting)\",\n        \"1.1.2 Identifikasi Masalah (celah penelitian atau masalah praktis)\",\n        \"1.1.3 Urgensi Penelitian (mengapa masalah ini perlu diteliti segera)\",\n        \"1.2 Rumusan Masalah\",\n        \"1.2.1 Pertanyaan Penelitian Utama\",\n        \"1.2.2 Pertanyaan Penelitian Pendukung (jika ada)\",\n        \"1.3 Tujuan Penulisan\",\n        \"1.3.1 Tujuan Utama Penelitian\",\n        \"1.3.2 Tujuan Spesifik Penelitian (berdasarkan rumusan masalah)\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.1.1 Definisi Konsep Kunci (definisi dari para ahli dan sumber terpercaya)\",\n        \"2.1.2 Teori yang Relevan (teori-teori yang mendasari penelitian)\",\n        \"2.1.3 Kerangka Konseptual (bagaimana konsep-konsep terkait saling berhubungan)\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.2.1 Deskripsi Data/Informasi yang Digunakan (sumber data, metode pengumpulan)\",\n        \"2.2.2 Analisis Data/Informasi (menggunakan metode yang sesuai)\",\n        \"2.2.3 Interpretasi Hasil Analisis (makna dari hasil analisis)\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.3.1 Deskripsi Studi Kasus/Contoh\",\n        \"2.3.2 Analisis Studi Kasus/Contoh (kaitkan dengan teori dan data)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.4.1 Implikasi Teoretis (kontribusi terhadap pengembangan teori)\",\n        \"2.4.2 Implikasi Praktis (manfaat bagi praktisi atau pembuat kebijakan)\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.1 Identifikasi Tantangan\",\n        \"2.5.2 Batasan Metodologi\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.1.1 Ringkasan Temuan Utama (jawab pertanyaan penelitian)\",\n        \"3.1.2 Implikasi Temuan (dampak dari temuan penelitian)\",\n        \"3.2 Saran\",\n        \"3.2.1 Saran untuk Penelitian Lanjutan\",\n        \"3.2.2 Saran Praktis (rekomendasi tindakan berdasarkan temuan)\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:22:33",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:22:33",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:23:24",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:23:24",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.1.1 Konteks Umum (mengapa topik ini penting)\",\n        \"1.1.2 Identifikasi Masalah (celah penelitian atau masalah praktis)\",\n        \"1.1.3 Urgensi Penelitian (mengapa masalah ini perlu diteliti segera)\",\n        \"1.2 Rumusan Masalah\",\n        \"1.2.1 Pertanyaan Penelitian Utama\",\n        \"1.2.2 Pertanyaan Penelitian Pendukung (jika ada)\",\n        \"1.3 Tujuan Penulisan\",\n        \"1.3.1 Tujuan Utama Penelitian\",\n        \"1.3.2 Tujuan Spesifik Penelitian (berdasarkan rumusan masalah)\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.1.1 Definisi Konsep Kunci (definisi dari para ahli dan sumber terpercaya)\",\n        \"2.1.2 Teori yang Relevan (teori-teori yang mendasari penelitian)\",\n        \"2.1.3 Kerangka Konseptual (bagaimana konsep-konsep terkait saling berhubungan)\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.2.1 Deskripsi Data/Informasi yang Digunakan (sumber data, metode pengumpulan)\",\n        \"2.2.2 Analisis Data/Informasi (menggunakan metode yang sesuai)\",\n        \"2.2.3 Interpretasi Hasil Analisis (makna dari hasil analisis)\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.3.1 Deskripsi Studi Kasus/Contoh\",\n        \"2.3.2 Analisis Studi Kasus/Contoh (kaitkan dengan teori dan data)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.4.1 Implikasi Teoretis (kontribusi terhadap pengembangan teori)\",\n        \"2.4.2 Implikasi Praktis (manfaat bagi praktisi atau pembuat kebijakan)\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.1 Identifikasi Tantangan\",\n        \"2.5.2 Batasan Metodologi\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.1.1 Ringkasan Temuan Utama (jawab pertanyaan penelitian)\",\n        \"3.1.2 Implikasi Temuan (dampak dari temuan penelitian)\",\n        \"3.2 Saran\",\n        \"3.2.1 Saran untuk Penelitian Lanjutan\",\n        \"3.2.2 Saran Praktis (rekomendasi tindakan berdasarkan temuan)\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:23:24",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:23:25",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:25:39",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:25:39",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.1.1 Konteks Umum (mengapa topik ini penting)\",\n        \"1.1.2 Identifikasi Masalah (celah penelitian atau masalah praktis)\",\n        \"1.1.3 Urgensi Penelitian (mengapa masalah ini perlu diteliti segera)\",\n        \"1.2 Rumusan Masalah\",\n        \"1.2.1 Pertanyaan Penelitian Utama\",\n        \"1.2.2 Pertanyaan Penelitian Pendukung (jika ada)\",\n        \"1.3 Tujuan Penulisan\",\n        \"1.3.1 Tujuan Utama Penelitian\",\n        \"1.3.2 Tujuan Spesifik Penelitian (berdasarkan rumusan masalah)\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.1.1 Definisi Konsep Kunci (definisi dari para ahli dan sumber terpercaya)\",\n        \"2.1.2 Teori yang Relevan (teori-teori yang mendasari penelitian)\",\n        \"2.1.3 Kerangka Konseptual (bagaimana konsep-konsep terkait saling berhubungan)\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.2.1 Deskripsi Data/Informasi yang Digunakan (sumber data, metode pengumpulan)\",\n        \"2.2.2 Analisis Data/Informasi (menggunakan metode yang sesuai)\",\n        \"2.2.3 Interpretasi Hasil Analisis (makna dari hasil analisis)\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.3.1 Deskripsi Studi Kasus/Contoh\",\n        \"2.3.2 Analisis Studi Kasus/Contoh (kaitkan dengan teori dan data)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.4.1 Implikasi Teoretis (kontribusi terhadap pengembangan teori)\",\n        \"2.4.2 Implikasi Praktis (manfaat bagi praktisi atau pembuat kebijakan)\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.1 Identifikasi Tantangan\",\n        \"2.5.2 Batasan Metodologi\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.1.1 Ringkasan Temuan Utama (jawab pertanyaan penelitian)\",\n        \"3.1.2 Implikasi Temuan (dampak dari temuan penelitian)\",\n        \"3.2 Saran\",\n        \"3.2.1 Saran untuk Penelitian Lanjutan\",\n        \"3.2.2 Saran Praktis (rekomendasi tindakan berdasarkan temuan)\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:25:39",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:25:39",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:29:34",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:29:34",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.1.1 Konteks Umum (mengapa topik ini penting)\",\n        \"1.1.2 Identifikasi Masalah (celah penelitian atau masalah praktis)\",\n        \"1.1.3 Urgensi Penelitian (mengapa masalah ini perlu diteliti segera)\",\n        \"1.2 Rumusan Masalah\",\n        \"1.2.1 Pertanyaan Penelitian Utama\",\n        \"1.2.2 Pertanyaan Penelitian Pendukung (jika ada)\",\n        \"1.3 Tujuan Penulisan\",\n        \"1.3.1 Tujuan Utama Penelitian\",\n        \"1.3.2 Tujuan Spesifik Penelitian (berdasarkan rumusan masalah)\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.1.1 Definisi Konsep Kunci (definisi dari para ahli dan sumber terpercaya)\",\n        \"2.1.2 Teori yang Relevan (teori-teori yang mendasari penelitian)\",\n        \"2.1.3 Kerangka Konseptual (bagaimana konsep-konsep terkait saling berhubungan)\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.2.1 Deskripsi Data/Informasi yang Digunakan (sumber data, metode pengumpulan)\",\n        \"2.2.2 Analisis Data/Informasi (menggunakan metode yang sesuai)\",\n        \"2.2.3 Interpretasi Hasil Analisis (makna dari hasil analisis)\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.3.1 Deskripsi Studi Kasus/Contoh\",\n        \"2.3.2 Analisis Studi Kasus/Contoh (kaitkan dengan teori dan data)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.4.1 Implikasi Teoretis (kontribusi terhadap pengembangan teori)\",\n        \"2.4.2 Implikasi Praktis (manfaat bagi praktisi atau pembuat kebijakan)\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.1 Identifikasi Tantangan\",\n        \"2.5.2 Batasan Metodologi\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.1.1 Ringkasan Temuan Utama (jawab pertanyaan penelitian)\",\n        \"3.1.2 Implikasi Temuan (dampak dari temuan penelitian)\",\n        \"3.2 Saran\",\n        \"3.2.1 Saran untuk Penelitian Lanjutan\",\n        \"3.2.2 Saran Praktis (rekomendasi tindakan berdasarkan temuan)\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:29:34",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:29:34",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:30:42",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:30:42",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.1.1 Konteks Umum (mengapa topik ini penting)\",\n        \"1.1.2 Identifikasi Masalah (celah penelitian atau masalah praktis)\",\n        \"1.1.3 Urgensi Penelitian (mengapa masalah ini perlu diteliti segera)\",\n        \"1.2 Rumusan Masalah\",\n        \"1.2.1 Pertanyaan Penelitian Utama\",\n        \"1.2.2 Pertanyaan Penelitian Pendukung (jika ada)\",\n        \"1.3 Tujuan Penulisan\",\n        \"1.3.1 Tujuan Utama Penelitian\",\n        \"1.3.2 Tujuan Spesifik Penelitian (berdasarkan rumusan masalah)\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.1.1 Definisi Konsep Kunci (definisi dari para ahli dan sumber terpercaya)\",\n        \"2.1.2 Teori yang Relevan (teori-teori yang mendasari penelitian)\",\n        \"2.1.3 Kerangka Konseptual (bagaimana konsep-konsep terkait saling berhubungan)\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.2.1 Deskripsi Data/Informasi yang Digunakan (sumber data, metode pengumpulan)\",\n        \"2.2.2 Analisis Data/Informasi (menggunakan metode yang sesuai)\",\n        \"2.2.3 Interpretasi Hasil Analisis (makna dari hasil analisis)\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.3.1 Deskripsi Studi Kasus/Contoh\",\n        \"2.3.2 Analisis Studi Kasus/Contoh (kaitkan dengan teori dan data)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.4.1 Implikasi Teoretis (kontribusi terhadap pengembangan teori)\",\n        \"2.4.2 Implikasi Praktis (manfaat bagi praktisi atau pembuat kebijakan)\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.1 Identifikasi Tantangan\",\n        \"2.5.2 Batasan Metodologi\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.1.1 Ringkasan Temuan Utama (jawab pertanyaan penelitian)\",\n        \"3.1.2 Implikasi Temuan (dampak dari temuan penelitian)\",\n        \"3.2 Saran\",\n        \"3.2.1 Saran untuk Penelitian Lanjutan\",\n        \"3.2.2 Saran Praktis (rekomendasi tindakan berdasarkan temuan)\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:30:42",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:30:42",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:36:13",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:36:13",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.1.1 Konteks Umum (mengapa topik ini penting)\",\n        \"1.1.2 Identifikasi Masalah (celah penelitian atau masalah praktis)\",\n        \"1.1.3 Urgensi Penelitian (mengapa masalah ini perlu diteliti segera)\",\n        \"1.2 Rumusan Masalah\",\n        \"1.2.1 Pertanyaan Penelitian Utama\",\n        \"1.2.2 Pertanyaan Penelitian Pendukung (jika ada)\",\n        \"1.3 Tujuan Penulisan\",\n        \"1.3.1 Tujuan Utama Penelitian\",\n        \"1.3.2 Tujuan Spesifik Penelitian (berdasarkan rumusan masalah)\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.1.1 Definisi Konsep Kunci (definisi dari para ahli dan sumber terpercaya)\",\n        \"2.1.2 Teori yang Relevan (teori-teori yang mendasari penelitian)\",\n        \"2.1.3 Kerangka Konseptual (bagaimana konsep-konsep terkait saling berhubungan)\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.2.1 Deskripsi Data/Informasi yang Digunakan (sumber data, metode pengumpulan)\",\n        \"2.2.2 Analisis Data/Informasi (menggunakan metode yang sesuai)\",\n        \"2.2.3 Interpretasi Hasil Analisis (makna dari hasil analisis)\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.3.1 Deskripsi Studi Kasus/Contoh\",\n        \"2.3.2 Analisis Studi Kasus/Contoh (kaitkan dengan teori dan data)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.4.1 Implikasi Teoretis (kontribusi terhadap pengembangan teori)\",\n        \"2.4.2 Implikasi Praktis (manfaat bagi praktisi atau pembuat kebijakan)\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.1 Identifikasi Tantangan\",\n        \"2.5.2 Batasan Metodologi\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.1.1 Ringkasan Temuan Utama (jawab pertanyaan penelitian)\",\n        \"3.1.2 Implikasi Temuan (dampak dari temuan penelitian)\",\n        \"3.2 Saran\",\n        \"3.2.1 Saran untuk Penelitian Lanjutan\",\n        \"3.2.2 Saran Praktis (rekomendasi tindakan berdasarkan temuan)\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:36:13",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:36:13",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:36:48",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:36:48",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.1.1 Konteks Umum (mengapa topik ini penting)\",\n        \"1.1.2 Identifikasi Masalah (celah penelitian atau masalah praktis)\",\n        \"1.1.3 Urgensi Penelitian (mengapa masalah ini perlu diteliti segera)\",\n        \"1.2 Rumusan Masalah\",\n        \"1.2.1 Pertanyaan Penelitian Utama\",\n        \"1.2.2 Pertanyaan Penelitian Pendukung (jika ada)\",\n        \"1.3 Tujuan Penulisan\",\n        \"1.3.1 Tujuan Utama Penelitian\",\n        \"1.3.2 Tujuan Spesifik Penelitian (berdasarkan rumusan masalah)\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.1.1 Definisi Konsep Kunci (definisi dari para ahli dan sumber terpercaya)\",\n        \"2.1.2 Teori yang Relevan (teori-teori yang mendasari penelitian)\",\n        \"2.1.3 Kerangka Konseptual (bagaimana konsep-konsep terkait saling berhubungan)\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.2.1 Deskripsi Data/Informasi yang Digunakan (sumber data, metode pengumpulan)\",\n        \"2.2.2 Analisis Data/Informasi (menggunakan metode yang sesuai)\",\n        \"2.2.3 Interpretasi Hasil Analisis (makna dari hasil analisis)\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.3.1 Deskripsi Studi Kasus/Contoh\",\n        \"2.3.2 Analisis Studi Kasus/Contoh (kaitkan dengan teori dan data)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.4.1 Implikasi Teoretis (kontribusi terhadap pengembangan teori)\",\n        \"2.4.2 Implikasi Praktis (manfaat bagi praktisi atau pembuat kebijakan)\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.1 Identifikasi Tantangan\",\n        \"2.5.2 Batasan Metodologi\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.1.1 Ringkasan Temuan Utama (jawab pertanyaan penelitian)\",\n        \"3.1.2 Implikasi Temuan (dampak dari temuan penelitian)\",\n        \"3.2 Saran\",\n        \"3.2.1 Saran untuk Penelitian Lanjutan\",\n        \"3.2.2 Saran Praktis (rekomendasi tindakan berdasarkan temuan)\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:36:48",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:36:48",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:42:28",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:42:28",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.1.1 Konteks Umum (mengapa topik ini penting)\",\n        \"1.1.2 Identifikasi Masalah (celah penelitian atau masalah praktis)\",\n        \"1.1.3 Urgensi Penelitian (mengapa masalah ini perlu diteliti segera)\",\n        \"1.2 Rumusan Masalah\",\n        \"1.2.1 Pertanyaan Penelitian Utama\",\n        \"1.2.2 Pertanyaan Penelitian Pendukung (jika ada)\",\n        \"1.3 Tujuan Penulisan\",\n        \"1.3.1 Tujuan Utama Penelitian\",\n        \"1.3.2 Tujuan Spesifik Penelitian (berdasarkan rumusan masalah)\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.1.1 Definisi Konsep Kunci (definisi dari para ahli dan sumber terpercaya)\",\n        \"2.1.2 Teori yang Relevan (teori-teori yang mendasari penelitian)\",\n        \"2.1.3 Kerangka Konseptual (bagaimana konsep-konsep terkait saling berhubungan)\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.2.1 Deskripsi Data/Informasi yang Digunakan (sumber data, metode pengumpulan)\",\n        \"2.2.2 Analisis Data/Informasi (menggunakan metode yang sesuai)\",\n        \"2.2.3 Interpretasi Hasil Analisis (makna dari hasil analisis)\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.3.1 Deskripsi Studi Kasus/Contoh\",\n        \"2.3.2 Analisis Studi Kasus/Contoh (kaitkan dengan teori dan data)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.4.1 Implikasi Teoretis (kontribusi terhadap pengembangan teori)\",\n        \"2.4.2 Implikasi Praktis (manfaat bagi praktisi atau pembuat kebijakan)\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.1 Identifikasi Tantangan\",\n        \"2.5.2 Batasan Metodologi\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.1.1 Ringkasan Temuan Utama (jawab pertanyaan penelitian)\",\n        \"3.1.2 Implikasi Temuan (dampak dari temuan penelitian)\",\n        \"3.2 Saran\",\n        \"3.2.1 Saran untuk Penelitian Lanjutan\",\n        \"3.2.2 Saran Praktis (rekomendasi tindakan berdasarkan temuan)\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:42:28",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:42:28",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:43:24",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:43:24",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.1.1 Konteks Umum (mengapa topik ini penting)\",\n        \"1.1.2 Identifikasi Masalah (celah penelitian atau masalah praktis)\",\n        \"1.1.3 Urgensi Penelitian (mengapa masalah ini perlu diteliti segera)\",\n        \"1.2 Rumusan Masalah\",\n        \"1.2.1 Pertanyaan Penelitian Utama\",\n        \"1.2.2 Pertanyaan Penelitian Pendukung (jika ada)\",\n        \"1.3 Tujuan Penulisan\",\n        \"1.3.1 Tujuan Utama Penelitian\",\n        \"1.3.2 Tujuan Spesifik Penelitian (berdasarkan rumusan masalah)\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.1.1 Definisi Konsep Kunci (definisi dari para ahli dan sumber terpercaya)\",\n        \"2.1.2 Teori yang Relevan (teori-teori yang mendasari penelitian)\",\n        \"2.1.3 Kerangka Konseptual (bagaimana konsep-konsep terkait saling berhubungan)\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.2.1 Deskripsi Data/Informasi yang Digunakan (sumber data, metode pengumpulan)\",\n        \"2.2.2 Analisis Data/Informasi (menggunakan metode yang sesuai)\",\n        \"2.2.3 Interpretasi Hasil Analisis (makna dari hasil analisis)\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.3.1 Deskripsi Studi Kasus/Contoh\",\n        \"2.3.2 Analisis Studi Kasus/Contoh (kaitkan dengan teori dan data)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.4.1 Implikasi Teoretis (kontribusi terhadap pengembangan teori)\",\n        \"2.4.2 Implikasi Praktis (manfaat bagi praktisi atau pembuat kebijakan)\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.1 Identifikasi Tantangan\",\n        \"2.5.2 Batasan Metodologi\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.1.1 Ringkasan Temuan Utama (jawab pertanyaan penelitian)\",\n        \"3.1.2 Implikasi Temuan (dampak dari temuan penelitian)\",\n        \"3.2 Saran\",\n        \"3.2.1 Saran untuk Penelitian Lanjutan\",\n        \"3.2.2 Saran Praktis (rekomendasi tindakan berdasarkan temuan)\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:43:24",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:43:24",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:44:14",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:44:14",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.1.1 Konteks Umum (mengapa topik ini penting)\",\n        \"1.1.2 Identifikasi Masalah (celah penelitian atau masalah praktis)\",\n        \"1.1.3 Urgensi Penelitian (mengapa masalah ini perlu diteliti segera)\",\n        \"1.2 Rumusan Masalah\",\n        \"1.2.1 Pertanyaan Penelitian Utama\",\n        \"1.2.2 Pertanyaan Penelitian Pendukung (jika ada)\",\n        \"1.3 Tujuan Penulisan\",\n        \"1.3.1 Tujuan Utama Penelitian\",\n        \"1.3.2 Tujuan Spesifik Penelitian (berdasarkan rumusan masalah)\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.1.1 Definisi Konsep Kunci (definisi dari para ahli dan sumber terpercaya)\",\n        \"2.1.2 Teori yang Relevan (teori-teori yang mendasari penelitian)\",\n        \"2.1.3 Kerangka Konseptual (bagaimana konsep-konsep terkait saling berhubungan)\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.2.1 Deskripsi Data/Informasi yang Digunakan (sumber data, metode pengumpulan)\",\n        \"2.2.2 Analisis Data/Informasi (menggunakan metode yang sesuai)\",\n        \"2.2.3 Interpretasi Hasil Analisis (makna dari hasil analisis)\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.3.1 Deskripsi Studi Kasus/Contoh\",\n        \"2.3.2 Analisis Studi Kasus/Contoh (kaitkan dengan teori dan data)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.4.1 Implikasi Teoretis (kontribusi terhadap pengembangan teori)\",\n        \"2.4.2 Implikasi Praktis (manfaat bagi praktisi atau pembuat kebijakan)\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.1 Identifikasi Tantangan\",\n        \"2.5.2 Batasan Metodologi\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.1.1 Ringkasan Temuan Utama (jawab pertanyaan penelitian)\",\n        \"3.1.2 Implikasi Temuan (dampak dari temuan penelitian)\",\n        \"3.2 Saran\",\n        \"3.2.1 Saran untuk Penelitian Lanjutan\",\n        \"3.2.2 Saran Praktis (rekomendasi tindakan berdasarkan temuan)\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:44:14",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:44:14",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 08:54:55",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 08:58:52",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:00:08",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:00:08",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.1.1 Konteks Umum (mengapa topik ini penting)\",\n        \"1.1.2 Identifikasi Masalah (celah penelitian atau masalah praktis)\",\n        \"1.1.3 Urgensi Penelitian (mengapa masalah ini perlu diteliti segera)\",\n        \"1.2 Rumusan Masalah\",\n        \"1.2.1 Pertanyaan Penelitian Utama\",\n        \"1.2.2 Pertanyaan Penelitian Pendukung (jika ada)\",\n        \"1.3 Tujuan Penulisan\",\n        \"1.3.1 Tujuan Utama Penelitian\",\n        \"1.3.2 Tujuan Spesifik Penelitian (berdasarkan rumusan masalah)\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.1.1 Definisi Konsep Kunci (definisi dari para ahli dan sumber terpercaya)\",\n        \"2.1.2 Teori yang Relevan (teori-teori yang mendasari penelitian)\",\n        \"2.1.3 Kerangka Konseptual (bagaimana konsep-konsep terkait saling berhubungan)\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.2.1 Deskripsi Data/Informasi yang Digunakan (sumber data, metode pengumpulan)\",\n        \"2.2.2 Analisis Data/Informasi (menggunakan metode yang sesuai)\",\n        \"2.2.3 Interpretasi Hasil Analisis (makna dari hasil analisis)\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.3.1 Deskripsi Studi Kasus/Contoh\",\n        \"2.3.2 Analisis Studi Kasus/Contoh (kaitkan dengan teori dan data)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.4.1 Implikasi Teoretis (kontribusi terhadap pengembangan teori)\",\n        \"2.4.2 Implikasi Praktis (manfaat bagi praktisi atau pembuat kebijakan)\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.1 Identifikasi Tantangan\",\n        \"2.5.2 Batasan Metodologi\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.1.1 Ringkasan Temuan Utama (jawab pertanyaan penelitian)\",\n        \"3.1.2 Implikasi Temuan (dampak dari temuan penelitian)\",\n        \"3.2 Saran\",\n        \"3.2.1 Saran untuk Penelitian Lanjutan\",\n        \"3.2.2 Saran Praktis (rekomendasi tindakan berdasarkan temuan)\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:00:08",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:00:08",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:11:45",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:11:45",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.1.1 Konteks Umum (mengapa topik ini penting)\",\n        \"1.1.2 Identifikasi Masalah (celah penelitian atau masalah praktis)\",\n        \"1.1.3 Urgensi Penelitian (mengapa masalah ini perlu diteliti segera)\",\n        \"1.2 Rumusan Masalah\",\n        \"1.2.1 Pertanyaan Penelitian Utama\",\n        \"1.2.2 Pertanyaan Penelitian Pendukung (jika ada)\",\n        \"1.3 Tujuan Penulisan\",\n        \"1.3.1 Tujuan Utama Penelitian\",\n        \"1.3.2 Tujuan Spesifik Penelitian (berdasarkan rumusan masalah)\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.1.1 Definisi Konsep Kunci (definisi dari para ahli dan sumber terpercaya)\",\n        \"2.1.2 Teori yang Relevan (teori-teori yang mendasari penelitian)\",\n        \"2.1.3 Kerangka Konseptual (bagaimana konsep-konsep terkait saling berhubungan)\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.2.1 Deskripsi Data/Informasi yang Digunakan (sumber data, metode pengumpulan)\",\n        \"2.2.2 Analisis Data/Informasi (menggunakan metode yang sesuai)\",\n        \"2.2.3 Interpretasi Hasil Analisis (makna dari hasil analisis)\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.3.1 Deskripsi Studi Kasus/Contoh\",\n        \"2.3.2 Analisis Studi Kasus/Contoh (kaitkan dengan teori dan data)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.4.1 Implikasi Teoretis (kontribusi terhadap pengembangan teori)\",\n        \"2.4.2 Implikasi Praktis (manfaat bagi praktisi atau pembuat kebijakan)\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.1 Identifikasi Tantangan\",\n        \"2.5.2 Batasan Metodologi\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.1.1 Ringkasan Temuan Utama (jawab pertanyaan penelitian)\",\n        \"3.1.2 Implikasi Temuan (dampak dari temuan penelitian)\",\n        \"3.2 Saran\",\n        \"3.2.1 Saran untuk Penelitian Lanjutan\",\n        \"3.2.2 Saran Praktis (rekomendasi tindakan berdasarkan temuan)\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:11:45",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:11:45",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:14:18",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:14:18",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.1.1 Konteks Umum (mengapa topik ini penting)\",\n        \"1.1.2 Identifikasi Masalah (celah penelitian atau masalah praktis)\",\n        \"1.1.3 Urgensi Penelitian (mengapa masalah ini perlu diteliti segera)\",\n        \"1.2 Rumusan Masalah\",\n        \"1.2.1 Pertanyaan Penelitian Utama\",\n        \"1.2.2 Pertanyaan Penelitian Pendukung (jika ada)\",\n        \"1.3 Tujuan Penulisan\",\n        \"1.3.1 Tujuan Utama Penelitian\",\n        \"1.3.2 Tujuan Spesifik Penelitian (berdasarkan rumusan masalah)\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.1.1 Definisi Konsep Kunci (definisi dari para ahli dan sumber terpercaya)\",\n        \"2.1.2 Teori yang Relevan (teori-teori yang mendasari penelitian)\",\n        \"2.1.3 Kerangka Konseptual (bagaimana konsep-konsep terkait saling berhubungan)\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.2.1 Deskripsi Data/Informasi yang Digunakan (sumber data, metode pengumpulan)\",\n        \"2.2.2 Analisis Data/Informasi (menggunakan metode yang sesuai)\",\n        \"2.2.3 Interpretasi Hasil Analisis (makna dari hasil analisis)\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.3.1 Deskripsi Studi Kasus/Contoh\",\n        \"2.3.2 Analisis Studi Kasus/Contoh (kaitkan dengan teori dan data)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.4.1 Implikasi Teoretis (kontribusi terhadap pengembangan teori)\",\n        \"2.4.2 Implikasi Praktis (manfaat bagi praktisi atau pembuat kebijakan)\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.1 Identifikasi Tantangan\",\n        \"2.5.2 Batasan Metodologi\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.1.1 Ringkasan Temuan Utama (jawab pertanyaan penelitian)\",\n        \"3.1.2 Implikasi Temuan (dampak dari temuan penelitian)\",\n        \"3.2 Saran\",\n        \"3.2.1 Saran untuk Penelitian Lanjutan\",\n        \"3.2.2 Saran Praktis (rekomendasi tindakan berdasarkan temuan)\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:14:18",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:14:18",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:14:55",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:14:55",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.1.1 Konteks Umum (mengapa topik ini penting)\",\n        \"1.1.2 Identifikasi Masalah (celah penelitian atau masalah praktis)\",\n        \"1.1.3 Urgensi Penelitian (mengapa masalah ini perlu diteliti segera)\",\n        \"1.2 Rumusan Masalah\",\n        \"1.2.1 Pertanyaan Penelitian Utama\",\n        \"1.2.2 Pertanyaan Penelitian Pendukung (jika ada)\",\n        \"1.3 Tujuan Penulisan\",\n        \"1.3.1 Tujuan Utama Penelitian\",\n        \"1.3.2 Tujuan Spesifik Penelitian (berdasarkan rumusan masalah)\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.1.1 Definisi Konsep Kunci (definisi dari para ahli dan sumber terpercaya)\",\n        \"2.1.2 Teori yang Relevan (teori-teori yang mendasari penelitian)\",\n        \"2.1.3 Kerangka Konseptual (bagaimana konsep-konsep terkait saling berhubungan)\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.2.1 Deskripsi Data/Informasi yang Digunakan (sumber data, metode pengumpulan)\",\n        \"2.2.2 Analisis Data/Informasi (menggunakan metode yang sesuai)\",\n        \"2.2.3 Interpretasi Hasil Analisis (makna dari hasil analisis)\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.3.1 Deskripsi Studi Kasus/Contoh\",\n        \"2.3.2 Analisis Studi Kasus/Contoh (kaitkan dengan teori dan data)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.4.1 Implikasi Teoretis (kontribusi terhadap pengembangan teori)\",\n        \"2.4.2 Implikasi Praktis (manfaat bagi praktisi atau pembuat kebijakan)\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.1 Identifikasi Tantangan\",\n        \"2.5.2 Batasan Metodologi\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.1.1 Ringkasan Temuan Utama (jawab pertanyaan penelitian)\",\n        \"3.1.2 Implikasi Temuan (dampak dari temuan penelitian)\",\n        \"3.2 Saran\",\n        \"3.2.1 Saran untuk Penelitian Lanjutan\",\n        \"3.2.2 Saran Praktis (rekomendasi tindakan berdasarkan temuan)\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:14:55",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:14:55",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:20:22",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:20:22",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.2 Rumusan Masalah\",\n        \"1.3 Tujuan Penulisan\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.2 Saran\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:20:22",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:20:22",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:20:47",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:20:47",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.2 Rumusan Masalah\",\n        \"1.3 Tujuan Penulisan\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.2 Saran\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:20:47",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:20:47",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:24:41",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:24:41",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.2 Rumusan Masalah\",\n        \"1.3 Tujuan Penulisan\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.2 Saran\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:24:41",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:24:41",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:37:54",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:37:54",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.2 Rumusan Masalah\",\n        \"1.3 Tujuan Penulisan\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.2 Saran\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:37:54",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:37:54",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:38:37",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:38:37",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.2 Rumusan Masalah\",\n        \"1.3 Tujuan Penulisan\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.2 Saran\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:38:37",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:38:37",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:41:04",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:41:04",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.2 Rumusan Masalah\",\n        \"1.3 Tujuan Penulisan\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.2 Saran\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:41:04",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:41:04",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:41:34",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:41:34",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.2 Rumusan Masalah\",\n        \"1.3 Tujuan Penulisan\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.2 Saran\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:41:34",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:41:34",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:47:33",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:47:33",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.2 Rumusan Masalah\",\n        \"1.3 Tujuan Penulisan\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.2 Saran\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:47:33",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:47:33",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:50:25",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:50:25",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.2 Rumusan Masalah\",\n        \"1.3 Tujuan Penulisan\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.2 Saran\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:50:25",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:50:25",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:53:44",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:53:44",
+        "task_name": "make_outline_task",
+        "task": "Buatlah sebuah outline makalah yang detail untuk judul \"{judul_makalah}\" pada mata kuliah \"{mata_kuliah}\".\nStruktur outline WAJIB mengikuti format standar Indonesia: - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan). - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul). - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).\n",
+        "agent": "Perancang Struktur Makalah Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"subbabs\": {\n    \"Bab 1: Pendahuluan\": {\n      \"sections\": [\n        \"1.1 Latar Belakang\",\n        \"1.2 Rumusan Masalah\",\n        \"1.3 Tujuan Penulisan\"\n      ]\n    },\n    \"Bab 2: Pembahasan\": {\n      \"sections\": [\n        \"2.1 Landasan Teori\",\n        \"2.2 Analisis dan Interpretasi Data/Informasi\",\n        \"2.3 Studi Kasus/Contoh (jika relevan)\",\n        \"2.4 Implikasi Penelitian\",\n        \"2.5 Tantangan dan Keterbatasan Penelitian\",\n        \"2.5.3 Potensi Penelitian Lanjutan\"\n      ]\n    },\n    \"Bab 3: Penutup\": {\n      \"sections\": [\n        \"3.1 Kesimpulan\",\n        \"3.2 Saran\"\n      ]\n    }\n  }\n}"
+    },
+    {
+        "timestamp": "2025-10-01 09:53:44",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "started"
+    },
+    {
+        "timestamp": "2025-10-01 09:53:44",
+        "task_name": "search_reference_task",
+        "task": "Untuk setiap sub-bab di dalam Bab 2 pada outline yang diberikan, carilah 5-10 referensi per beberapa subab yang relevan dari jurnal ilmiah yang relevan. Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.\n",
+        "agent": "Peneliti Referensi Akademis\n",
+        "status": "completed",
+        "output": "{\n  \"references\": [\n    {\n      \"title\": \"Buku Referensi Auto-Generated 1\",\n      \"authors\": [\n        \"Penulis A\"\n      ],\n      \"year\": 2023,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 2\",\n      \"authors\": [\n        \"Penulis B\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 3\",\n      \"authors\": [\n        \"Penulis c\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 4\",\n      \"authors\": [\n        \"Penulis D\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 5\",\n      \"authors\": [\n        \"Penulis E\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    },\n    {\n      \"title\": \"Jurnal Referensi Auto-Generated 6\",\n      \"authors\": [\n        \"Penulis F\"\n      ],\n      \"year\": 2024,\n      \"link\": \"https://contohlink.com\"\n    }\n  ]\n}"
+    }
+]

@@ -8,7 +8,6 @@ import trafilatura
 from docx import Document
 import tempfile
 
-from malas.crews.models.TaskOutput import Outline, ReferenceItem, References, Subbab
 
 
 class DuckDuckGoToolInput(BaseModel):
@@ -131,36 +130,3 @@ class ExportDocxTool(BaseTool):
         doc.save(tmp_file.name)
 
         return ExportDocxOutput(file_path=tmp_file.name)
-
-
-
-class MockOutlineTool(BaseTool):
-    name: str = "Mock Outline Generator"
-    description: str = "Generates a static, predefined makalah outline for debugging."
-
-    def _run(self) -> Outline:
-        print("\n--- RUNNING MOCK FOR OUTLINE TASK ---\n")
-        # Mengembalikan objek Pydantic, CrewAI akan menanganinya
-        return Outline(
-            subbabs={
-                "BAB I: PENDAHULUAN": Subbab(sections=["Latar Belakang", "Rumusan Masalah", "Tujuan Penelitian"]),
-                "BAB II: TINJAUAN PUSTAKA": Subbab(sections=["Penelitian Terdahulu", "Landasan Teori"]),
-                "BAB III: METODOLOGI PENELITIAN": Subbab(sections=["Jenis Penelitian", "Sumber Data", "Teknik Analisis Data"])
-            }
-        )
-    
-
-
-class MockReferenceTool(BaseTool):
-    name: str = "Mock Reference Searcher"
-    description: str = "Generates a static, predefined list of references for debugging."
-
-    def _run(self) -> References:
-        print("\n--- RUNNING MOCK FOR REFERENCE TASK ---\n")
-        # Mengembalikan objek Pydantic
-        return References(
-            references=[
-                ReferenceItem(title="Artificial Intelligence: A Modern Approach", authors=["Stuart Russell", "Peter Norvig"], year=2020, link="http://aima.cs.berkeley.edu/"),
-                ReferenceItem(title="Deep Learning", authors=["Ian Goodfellow", "Yoshua Bengio", "Aaron Courville"], year=2016)
-            ]
-        )

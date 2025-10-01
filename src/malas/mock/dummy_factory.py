@@ -1,12 +1,12 @@
 # dummy_factory.py (atau di file yang sama)
 
 from pydantic import BaseModel
-from typing import Type
+from typing import Dict, Optional, Type
 
-from malas.crews.models.TaskOutput import Outline, ReferenceItem, References, Subbab
+from malas.crews.models.TaskOutput import Outline, ReferenceItem, References, SimpleSubbab, SubBab, ContentText, ContentList
 
 
-def create_dummy_instance(model_class: Type[BaseModel]) -> BaseModel:
+def create_dummy_instance(model_class: Type[BaseModel],context: Optional[Dict] = None) -> BaseModel:
     """
     Factory function to create a dummy instance of a given Pydantic model class.
     """
@@ -15,50 +15,27 @@ def create_dummy_instance(model_class: Type[BaseModel]) -> BaseModel:
     if model_class == Outline:
         return Outline(
             subbabs={
-                "Bab 1: Pendahuluan": Subbab(
+                "Bab 1: Pendahuluan": SimpleSubbab(
                     sections=[
                         "1.1 Latar Belakang",
-                        "1.1.1 Konteks Umum (mengapa topik ini penting)",
-                        "1.1.2 Identifikasi Masalah (celah penelitian atau masalah praktis)",
-                        "1.1.3 Urgensi Penelitian (mengapa masalah ini perlu diteliti segera)",
                         "1.2 Rumusan Masalah",
-                        "1.2.1 Pertanyaan Penelitian Utama",
-                        "1.2.2 Pertanyaan Penelitian Pendukung (jika ada)",
                         "1.3 Tujuan Penulisan",
-                        "1.3.1 Tujuan Utama Penelitian",
-                        "1.3.2 Tujuan Spesifik Penelitian (berdasarkan rumusan masalah)",
                     ]
                 ),
-                "Bab 2: Pembahasan": Subbab(
+                "Bab 2: Pembahasan": SimpleSubbab(
                     sections=[
                         "2.1 Landasan Teori",
-                        "2.1.1 Definisi Konsep Kunci (definisi dari para ahli dan sumber terpercaya)",
-                        "2.1.2 Teori yang Relevan (teori-teori yang mendasari penelitian)",
-                        "2.1.3 Kerangka Konseptual (bagaimana konsep-konsep terkait saling berhubungan)",
                         "2.2 Analisis dan Interpretasi Data/Informasi",
-                        "2.2.1 Deskripsi Data/Informasi yang Digunakan (sumber data, metode pengumpulan)",
-                        "2.2.2 Analisis Data/Informasi (menggunakan metode yang sesuai)",
-                        "2.2.3 Interpretasi Hasil Analisis (makna dari hasil analisis)",
-                        "2.3 Studi Kasus/Contoh (jika relevan)",
-                        "2.3.1 Deskripsi Studi Kasus/Contoh",
-                        "2.3.2 Analisis Studi Kasus/Contoh (kaitkan dengan teori dan data)",
+                        "2.3 Studi Kasus/Contoh",
                         "2.4 Implikasi Penelitian",
-                        "2.4.1 Implikasi Teoretis (kontribusi terhadap pengembangan teori)",
-                        "2.4.2 Implikasi Praktis (manfaat bagi praktisi atau pembuat kebijakan)",
                         "2.5 Tantangan dan Keterbatasan Penelitian",
-                        "2.5.1 Identifikasi Tantangan",
-                        "2.5.2 Batasan Metodologi",
                         "2.5.3 Potensi Penelitian Lanjutan",
                     ]
                 ),
-                "Bab 3: Penutup": Subbab(
+                "Bab 3: Penutup": SimpleSubbab(
                     sections=[
                         "3.1 Kesimpulan",
-                        "3.1.1 Ringkasan Temuan Utama (jawab pertanyaan penelitian)",
-                        "3.1.2 Implikasi Temuan (dampak dari temuan penelitian)",
                         "3.2 Saran",
-                        "3.2.1 Saran untuk Penelitian Lanjutan",
-                        "3.2.2 Saran Praktis (rekomendasi tindakan berdasarkan temuan)",
                     ]
                 ),
             }
@@ -73,6 +50,34 @@ def create_dummy_instance(model_class: Type[BaseModel]) -> BaseModel:
                 ReferenceItem(title="Jurnal Referensi Auto-Generated 5", authors=["Penulis E"], year=2024,link="https://contohlink.com"),
                 ReferenceItem(title="Jurnal Referensi Auto-Generated 6", authors=["Penulis F"], year=2024,link="https://contohlink.com"),
             ]
+        )
+    elif model_class == SubBab:
+        judul_dinamis = context.get('subbab_now', 'Judul Dummy Tidak Ditemukan')
+        bab_now = context.get('bab_now', 'Bab Dummy Tidak Ditemukan')
+        konten_paragraf_1 = ContentText(
+            isi=f"Ini adalah paragraf pengantar dummy untuk {judul_dinamis}. "
+                "Teks ini menjelaskan konteks umum dari topik yang akan dibahas secara naratif.",
+                type="text"
+            
+        )
+        
+        konten_list_poin = ContentList(
+            title_items="Berikut adalah poin-poin utama permasalahan:",
+            items=[
+                "Poin pertama yang mengidentifikasi celah penelitian.",
+                "Poin kedua yang menyoroti urgensi dari masalah.",
+                "Poin ketiga yang berkaitan dengan dampak praktis.",
+            ],
+            type="list"
+        )
+        
+        konten_paragraf_2 = ContentText(
+            isi="Paragraf penutup ini menyimpulkan poin-poin di atas dan "
+                "mengarahkan pembaca ke bagian selanjutnya dari makalah."
+        )
+        return SubBab(
+            judul=f"{bab_now}",
+            content=[konten_paragraf_1, konten_list_poin, konten_paragraf_2]
         )
     
     # Tambahkan model lain di sini jika ada
