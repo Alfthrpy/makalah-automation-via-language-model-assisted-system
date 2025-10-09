@@ -1,12 +1,12 @@
 make_outline_task:
   description: >
-    Buatlah sebuah outline makalah yang detail untuk judul "{judul_makalah}" pada mata
+    Buatlah sebuah outline makalah untuk judul "{judul_makalah}" pada mata
     kuliah "{mata_kuliah}".
     
     Struktur outline WAJIB mengikuti format standar Indonesia:
     - Bab 1: Pendahuluan (terdiri dari Latar Belakang, Rumusan Masalah, dan Tujuan Penulisan).
-    - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul).
-    - Bab 3: Penutup (terdiri dari Kesimpulan dan Saran).
+    - Bab 2: Pembahasan (buatlah beberapa sub-bab yang relevan dan mendalam sesuai judul, tapi tidak terlalu kompleks).
+    - Bab 3: Penutup (terdiri dari Kesimpulan).
   expected_output: >
     Sebuah outline makalah yang komprehensif dan penuh detail serta sesuai dengan intruksi
   agent: outline_planner

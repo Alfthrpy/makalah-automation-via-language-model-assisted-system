@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from malas.crews.models.TaskOutput import Outline, References
 from malas.mock.mock_llm import AutoFakeLLM
 from malas.tools.custom_tool import DuckDuckGoSearchTool
+from crewai_tools import ArxivPaperTool
 
 # If you want to run a snippet of code before or after the crew starts,
 # you can use the @before_kickoff and @after_kickoff decorators
@@ -14,9 +15,15 @@ from malas.tools.custom_tool import DuckDuckGoSearchTool
 # PYDANTIC OUTPUT
 
 
+paper_tool = ArxivPaperTool(
+    download_pdfs=False,
+    save_dir="./arxiv_pdfs",
+    use_title_as_filename=True,
+)
+
 search_tool = DuckDuckGoSearchTool()
 
-MOCKUP = True
+MOCKUP = False
 if MOCKUP:
     llm = AutoFakeLLM(model_name='gpt-6')
 else:
@@ -75,4 +82,5 @@ class PlannerCrew:
             process=Process.sequential,
             verbose=True,
             output_log_file="logs/planner_crew_log.json",
+            max_rpm=10
         )

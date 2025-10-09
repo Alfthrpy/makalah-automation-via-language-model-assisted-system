@@ -1,5 +1,7 @@
 from docxtpl import DocxTemplate
+import textwrap
 from jinja2 import Environment
+
 
 jinja_env = Environment(trim_blocks=True, lstrip_blocks=True)
 
@@ -23,18 +25,15 @@ context = {
     "kota": "Bandung",
     "tahun": "2024",
 
-    "kata_pengantar": """Segala puji serta syukur selalu dipanjatkan kehadirat Allah SWT yang telah memberikan taufiq dan hidayah-Nya. Tak lupa sholawat serta salam juga selalu tercurah limpahkan kepada junjungan Nabi Muhammad SAW, kepada para sahabatnya, dan kita selaku umatnya. Sehingga kami dapat menyelesaikan makalah ini yang berjudul “Sejarah Penulisan dan Pembukuan Hadist” dengan tepat waktu.
-Makalah ini ditulis dengan tujuan untuk sama-sama belajar dan memberikan pemahaman yang lebih baik tentang sejarah penulisan dan pembukuan hadist. Kami berharap makalah ini dapat memberikan informasi dan pemikiran yang berguna bagi pembaca untuk menambah pengetahuan mereka mengenai hadist.
-Dalam penyusunan makalah ini, kami memperoleh banyak bantuan dan dukungan dari berbagai pihak. Oleh karena itu, kami ingin mengucapkan terima kasih kepada semua pihak yang telah memberikan dukungan dan motivasi dalam proses penyusunan makalah ini.
-Kami juga ingin mengucapkan terima kasih kepada dosen pengampu yaitu Ibu Dr. Dadah, M.Ag. yang telah memberikan arahan dan bimbingan dalam penyusunan makalah ini. Kami tidak akan bisa menyelesaikan makalah ini tanpa bantuan dan bimbingan beliau.
-Akhir kata, kami berharap makalah ini dapat memberikan manfaat dan kontribusi bagi ilmu pengetahuan dan pembaca. Terima kasih.
+    "kata_pengantar": """Segala puji serta syukur selalu dipanjatkan kehadirat Allah SWT yang telah memberikan taufiq dan hidayah-Nya. Tak lupa sholawat serta salam juga selalu tercurah limpahkan kepada junjungan Nabi Muhammad SAW, kepada para sahabatnya, dan kita selaku umatnya. Sehingga kami dapat menyelesaikan makalah ini yang berjudul “Sejarah Penulisan dan Pembukuan Hadist” dengan tepat waktu. Makalah ini ditulis dengan tujuan untuk sama-sama belajar dan memberikan pemahaman yang lebih baik tentang sejarah penulisan dan pembukuan hadist.
+    Kami berharap makalah ini dapat memberikan informasi dan pemikiran yang berguna bagi pembaca untuk menambah pengetahuan mereka mengenai hadist. Dalam penyusunan makalah ini, kami memperoleh banyak bantuan dan dukungan dari berbagai pihak. Oleh karena itu, kami ingin mengucapkan terima kasih kepada semua pihak yang telah memberikan dukungan dan motivasi dalam proses penyusunan makalah ini. Kami juga ingin mengucapkan terima kasih kepada dosen pengampu yaitu Ibu Dr. Dadah, M.Ag. yang telah memberikan arahan dan bimbingan dalam penyusunan makalah ini. Kami tidak akan bisa menyelesaikan makalah ini tanpa bantuan dan bimbingan beliau. Akhir kata, kami berharap makalah ini dapat memberikan manfaat dan kontribusi bagi ilmu pengetahuan dan pembaca. Terima kasih.
 """,
 
     "bab": {
         "I": {
             "judul": "PENDAHULUAN",
             "latar_belakang": """Ilmu Fiqih merupakan salah satu cabang ilmu dalam Islam yang membahas mengenai hukum-hukum syariat dalam berbagai aspek kehidupan umat Muslim. Salah satu topik penting yang dibahas dalam Fiqih adalah pembagian waris, yang diatur secara rinci dalam Al-Qur'an dan Hadis. Pembagian waris merupakan bagian dari muamalah yang berperan penting dalam menjaga keadilan dan keseimbangan dalam keluarga dan masyarakat. Pengaturan yang tepat terkait warisan memiliki dampak langsung terhadap stabilitas sosial, ekonomi, dan hubungan antar anggota keluarga.
-Dalam Fiqih, ilmu waris atau faraidh mengatur pembagian harta peninggalan seseorang yang telah meninggal kepada ahli warisnya. Aturan ini tidak hanya mengatur besarnya bagian yang diterima oleh ahli waris, tetapi juga menentukan siapa saja yang berhak menerima warisan. Pembagian waris dalam Islam didasarkan pada prinsip keadilan, dengan mempertimbangkan hubungan kekerabatan dan kebutuhan masing-masing ahli waris, termasuk di dalamnya laki-laki dan perempuan. 
+Dalam Fiqih, ilmu waris atau faraidh mengatur pembagian harta peninggalan seseorang yang telah meninggal kepada ahli warisnya. Aturan ini tidak hanya mengatur besarnya bagian yang diterima oleh ahli waris, tetapi juga menentukan siapa saja yang berhak menerima warisan. Pembagian waris dalam Islam didasarkan pada prinsip keadilan, dengan mempertimbangkan hubungan kekerabatan dan kebutuhan masing-masing ahli waris, termasuk di dalamnya laki-laki dan perempuan.
 Melalui makalah ini, akan dibahas lebih dalam mengenai konsep dasar pembagian waris dalam Fiqih, landasan hukumnya, serta model pembelajaran yang efektif untuk memahami ilmu waris. Dengan pendekatan yang komprehensif dan aplikatif, diharapkan pembelajaran ini dapat membantu umat Islam memahami dan mengimplementasikan hukum waris sesuai dengan tuntunan agama, sehingga tercipta keadilan dalam pembagian harta waris di tengah masyarakat.
 """,
             "rumusan_masalah": [
@@ -72,7 +71,7 @@ Hukum waris dalam Islam didasarkan pada Al-Qur'an, Hadits, dan ijma' para ulama.
                     "judul": "Jenis-jenis Warisan",
                     "content": [
                         {"type": "text", "isi": "Harta warisan adalah harta kekayaan yang ditinggalkan oleh seseorang setelah meninggal dunia. Menurut Badan Pembinaan Hukum Nasional (BPHN) Kemenkumham RI, harta warisan adalah harta berupa hak dan kewajiban yang dapat dinilai dengan uang. Dalam hal ini, harta warisan merupakan harta peninggalan yang diberikan kepada ahli waris atau keluarga yang bersangkutan ketika seseorang meninggal. Pembagian harta warisan biasanya didasarkan pada hubungan darah, pernikahan, persaudaraan, hingga hubungan kerabat. Berikut beberapa jenis harta warisan:"},
-                        {"type": "list","title_items" : None ,"items": [
+                        {"type": "list","title_items" : "TESTING" ,"items": [
                             "Harta bergerak: Harta bergerak adalah aset yang dapat dipindahkan dari satu tempat ke tempat lain. Contohnya uang tunai, perhiasan, kendaraan (mobil, motor, dll.), barang elektronik, koleksi pribadi (lukisan, koin, prangko, dll).",
                             "Harta tidak bergerak: Harta tidak bergerak adalah aset yang tidak bisa dipindahkan dan biasanya memiliki nilai yang cukup besar. Contohnya tanah, bangunan (rumah, apartemen, ruko, dll.), properti komersial (toko, kantor, dll).",
                             "Harta Kekayaan Finansial: Harta ini meliputi instrumen keuangan yang dimiliki oleh almarhum. Contohnya saham, obligasi, rekening bank, deposito, reksadana, asuransi jiwa."

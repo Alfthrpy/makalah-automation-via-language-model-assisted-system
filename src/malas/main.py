@@ -1,16 +1,10 @@
 #!/usr/bin/env python
-from random import randint
-from pydantic import BaseModel
 from crewai.flow import Flow, listen, start
 from malas.crews.planner_crew.planner_crew import PlannerCrew
-
-
-from pydantic import BaseModel, Field
 from malas.crews.models.TaskOutput import (
     Penyusun, 
     ContentText, 
     ContentList, 
-    ContentItem, 
     SubBab, 
     Bab, 
     Makalah
@@ -19,10 +13,18 @@ from malas.crews.write_format_crew.write_format_crew import WriteFormatCrew
 
 
 
+
 def debugState(state):
     print("Current State:")
     for key, value in state.dict().items():
         print(f"{key}: {value}")
+
+def save_as_json(state, filename="makalah_output.json"):
+    # Cukup panggil sekali dan simpan hasilnya
+    json_output = state.model_dump_json(indent=4)
+    with open(filename, 'w', encoding='utf-8') as f:
+        f.write(json_output)
+    print(f"\n✅ Makalah lengkap berhasil disimpan ke file: {filename}")
 
 
 class MalasFlow(Flow[Makalah]):
@@ -51,7 +53,10 @@ class MalasFlow(Flow[Makalah]):
         crew_instance = planner.crew()
 
         # Jalankan flow (tidak akan call LLM)
-        crew_instance.kickoff()
+        crew_instance.kickoff(inputs={
+            "judul_makalah": self.state.judul_makalah,
+            "mata_kuliah": self.state.mata_kuliah,
+        })
 
         # Akses output
         outline_output = planner.tasks[0].output
@@ -124,7 +129,9 @@ class MalasFlow(Flow[Makalah]):
                     "bab_now": bab.judul,
                     "subbab_now": subbab.judul,
                     "previous_subab_contents": formatted_previous_content,
-                    "references": [getattr(ref, 'title', str(ref)) for ref in self.state.daftar_pustaka]
+                    "references": [getattr(ref, 'title', str(ref)) for ref in self.state.daftar_pustaka],
+                    "judul_makalah": self.state.judul_makalah,
+                    "mata_kuliah": self.state.mata_kuliah,
                 })
                 
                 subbab_output = writer.tasks[0].output
@@ -134,8 +141,15 @@ class MalasFlow(Flow[Makalah]):
                     new_content = subbab_output.pydantic.content
                     subbab.content = new_content  # Update state utama
                     generated_contents[subbab.judul] = new_content # Update penyimpanan sementara
-                
-        debugState(self.state)
+                    
+    @listen(fill_subbab_content)
+    def finalize_and_save(self):
+        """
+        Langkah terakhir yang hanya berjalan sekali setelah semua konten diisi.
+        """
+        print("\nFinalisasi flow, menyimpan hasil akhir ke file JSON...")
+        # Panggil fungsi save HANYA DI SINI
+        save_as_json(self.state)
 
 
 

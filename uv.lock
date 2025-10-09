@@ -1561,10 +1561,14 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "crewai", extra = ["tools"] },
+    { name = "crewai-tools" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "crewai", extras = ["tools"], specifier = ">=0.193.2,<1.0.0" }]
+requires-dist = [
+    { name = "crewai", extras = ["tools"], specifier = ">=0.193.2,<1.0.0" },
+    { name = "crewai-tools", specifier = ">=0.75.0" },
+]
 
 [[package]]
 name = "markdown-it-py"

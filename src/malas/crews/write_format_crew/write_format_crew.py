@@ -36,13 +36,13 @@ class WriteFormatCrew():
             llm=llm,
         )
     
-    @agent 
-    def quality_reviewer(self) -> Agent:
-        return Agent(
-            config=self.agents_config['quality_reviewer'], # type: ignore[index]
-            llm=llm,
-            verbose=True,
-        )
+    # @agent 
+    # def quality_reviewer(self) -> Agent:
+    #     return Agent(
+    #         config=self.agents_config['quality_reviewer'], # type: ignore[index]
+    #         llm=llm,
+    #         verbose=True,
+    #     )
 
 
     @task
@@ -53,12 +53,12 @@ class WriteFormatCrew():
             output_pydantic=SubBab
         )
     
-    @task
-    def review_content(self) -> Task:
-        return Task(
-            config=self.tasks_config['review_content_task'], # type: ignore[index]
-            output_pydantic=SubBab
-        )
+    # @task
+    # def review_content(self) -> Task:
+    #     return Task(
+    #         config=self.tasks_config['review_content_task'], # type: ignore[index]
+    #         output_pydantic=SubBab
+    #     )
 
 
     @crew
@@ -73,5 +73,5 @@ class WriteFormatCrew():
             process=Process.sequential,
             verbose=True,
             output_log_file="logs/write_format_crew.json",
-            # process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
+            max_rpm=10
         )

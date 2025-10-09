@@ -44,9 +44,6 @@ class SubBab(BaseModel):
 
 class Bab(BaseModel):
     judul: str = ''
-    latar_belakang: Optional[str] = None
-    rumusan_masalah: Optional[List[str]] = None
-    tujuan: Optional[List[str]] = None
     subbab: List[SubBab] = Field(default_factory=list) # Menggunakan SubBab yang kompleks
     kesimpulan: Optional[str] = None
 

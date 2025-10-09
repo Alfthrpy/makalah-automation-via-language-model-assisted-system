@@ -1,6 +1,6 @@
 write_content_task:
   description: >
-    Berdasarkan dokumen perencanaan yang berisi outline dan referensi,
+    Buatkan sebuah konten makalah dengan judul {judul_makalah} untuk mata kuliah {mata_kuliah} berdasarkan outline yang telah dibuat sebelumnya,
     tulis konten lengkap untuk setiap sub-bab dari Bab 1 hingga Bab 3. dan sekarang anda perlu membuat untuk  bab : {bab_now} dengan subab : {subbab_now} menyesuaikan dengan konten subab sebelumnya jika perlu.
     
     Peraturan Penting:
@@ -12,21 +12,22 @@ write_content_task:
 
     {previous_subab_contents}
     referensi yang disediakan : {references}
+
   expected_output: >
     sebuah konten subab yang lengkap dan terstruktur dengan baik, mengalir dari konten sebelumnya dan sesuai dengan outline. dan output sesuai dengan pydantic model subbab yang telah ditentukan.
   agent: content_writer
 
 
-review_content_task:
-  description: >
-    Lakukan review final terhadap konteks Jinja2 yang dihasilkan.
+# review_content_task:
+#   description: >
+#     Lakukan review final terhadap konteks Jinja2 yang dihasilkan.
     
-    Periksa hal-hal berikut:
-    1. Kelengkapan: Apakah semua key yang dibutuhkan template ada?
-    2. Konsistensi: Apakah isi konten sesuai dengan judul dan outline?
-    3. Formatting: Apakah format daftar pustaka sudah benar-benar APA 7?
-    4. Kualitas: Apakah ada kesalahan tik atau tata bahasa yang fatal?
-  expected_output: >
-    Konteks Jinja2 yang asli jika semua pengecekan lolos. Jika tidak, kembalikan
-    sebuah dictionary dengan feedback yang jelas untuk revisi.
-  agent: quality_reviewer
+#     Periksa hal-hal berikut:
+#     1. Kelengkapan: Apakah semua key yang dibutuhkan template ada?
+#     2. Konsistensi: Apakah isi konten sesuai dengan judul dan outline?
+#     3. Formatting: Apakah format daftar pustaka sudah benar-benar APA 7?
+#     4. Kualitas: Apakah ada kesalahan tik atau tata bahasa yang fatal?
+#   expected_output: >
+#     Konteks Jinja2 yang asli jika semua pengecekan lolos. Jika tidak, kembalikan
+#     sebuah dictionary dengan feedback yang jelas untuk revisi.
+#   agent: quality_reviewer
