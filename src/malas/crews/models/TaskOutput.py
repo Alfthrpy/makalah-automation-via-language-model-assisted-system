@@ -45,7 +45,6 @@ class SubBab(BaseModel):
 class Bab(BaseModel):
     judul: str = ''
     subbab: List[SubBab] = Field(default_factory=list) # Menggunakan SubBab yang kompleks
-    kesimpulan: Optional[str] = None
 
 class Makalah(BaseModel):
     judul_makalah: str = "Judul Makalah"

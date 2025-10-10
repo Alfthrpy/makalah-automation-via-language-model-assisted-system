@@ -1,0 +1,196 @@
+{
+    "id": "973e654a-c56a-46e5-966f-79ed43f7ca9a",
+    "judul_makalah": "Sistem Rekomendasi Berbasis Machine Learning",
+    "mata_kuliah": "Kecerdasan Buatan",
+    "dosen_pengampu": "Dr. Budi Santoso",
+    "penyusun": [
+        {
+            "nama": "Aldilla Ulinnaja",
+            "nim": "123456789"
+        },
+        {
+            "nama": "Muhammad Rizki",
+            "nim": "987654321"
+        }
+    ],
+    "kelas": "IF-4",
+    "universitas": "Universitas Teknologi Nusantara",
+    "fakultas": "Fakultas Teknik",
+    "jurusan": "Teknik Informatika",
+    "kota": "Bandung",
+    "tahun": 2025,
+    "kata_pengantar": "Kata Pengantar",
+    "bab": {
+        "I": {
+            "judul": "Pendahuluan",
+            "kesimpulan": null,
+            "latar_belakang": "Ini adalah paragraf pengantar dummy untuk 1.1 Latar Belakang. Teks ini menjelaskan konteks umum dari topik yang akan dibahas secara naratif.\nBerikut adalah poin-poin utama permasalahan:\n- Poin pertama yang mengidentifikasi celah penelitian.\n- Poin kedua yang menyoroti urgensi dari masalah.\n- Poin ketiga yang berkaitan dengan dampak praktis.\nParagraf penutup ini menyimpulkan poin-poin di atas dan mengarahkan pembaca ke bagian selanjutnya dari makalah.",
+            "rumusan_masalah": "Berikut adalah poin-poin utama permasalahan:\n- Poin pertama yang mengidentifikasi celah penelitian.\n- Poin kedua yang menyoroti urgensi dari masalah.\n- Poin ketiga yang berkaitan dengan dampak praktis.",
+            "tujuan": "Berikut adalah poin-poin utama permasalahan:\n- Poin pertama yang mengidentifikasi celah penelitian.\n- Poin kedua yang menyoroti urgensi dari masalah.\n- Poin ketiga yang berkaitan dengan dampak praktis."
+        },
+        "II": {
+            "judul": "Bab 2",
+            "subbab": [
+                {
+                    "judul": "2.1 Pengantar Sistem Rekomendasi",
+                    "content": [
+                        {
+                            "type": "text",
+                            "isi": "Ini adalah paragraf pengantar dummy untuk 2.1 Pengantar Sistem Rekomendasi. Teks ini menjelaskan konteks umum dari topik yang akan dibahas secara naratif."
+                        },
+                        {
+                            "type": "list",
+                            "title_items": "Berikut adalah poin-poin utama permasalahan:",
+                            "items": [
+                                "Poin pertama yang mengidentifikasi celah penelitian.",
+                                "Poin kedua yang menyoroti urgensi dari masalah.",
+                                "Poin ketiga yang berkaitan dengan dampak praktis."
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "isi": "Paragraf penutup ini menyimpulkan poin-poin di atas dan mengarahkan pembaca ke bagian selanjutnya dari makalah."
+                        }
+                    ]
+                },
+                {
+                    "judul": "2.2 Jenis-Jenis Sistem Rekomendasi",
+                    "content": [
+                        {
+                            "type": "text",
+                            "isi": "Ini adalah paragraf pengantar dummy untuk 2.2 Jenis-Jenis Sistem Rekomendasi. Teks ini menjelaskan konteks umum dari topik yang akan dibahas secara naratif."
+                        },
+                        {
+                            "type": "list",
+                            "title_items": "Berikut adalah poin-poin utama permasalahan:",
+                            "items": [
+                                "Poin pertama yang mengidentifikasi celah penelitian.",
+                                "Poin kedua yang menyoroti urgensi dari masalah.",
+                                "Poin ketiga yang berkaitan dengan dampak praktis."
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "isi": "Paragraf penutup ini menyimpulkan poin-poin di atas dan mengarahkan pembaca ke bagian selanjutnya dari makalah."
+                        }
+                    ]
+                },
+                {
+                    "judul": "2.3 Algoritma Machine Learning dalam Sistem Rekomendasi",
+                    "content": [
+                        {
+                            "type": "text",
+                            "isi": "Ini adalah paragraf pengantar dummy untuk 2.3 Algoritma Machine Learning dalam Sistem Rekomendasi. Teks ini menjelaskan konteks umum dari topik yang akan dibahas secara naratif."
+                        },
+                        {
+                            "type": "list",
+                            "title_items": "Berikut adalah poin-poin utama permasalahan:",
+                            "items": [
+                                "Poin pertama yang mengidentifikasi celah penelitian.",
+                                "Poin kedua yang menyoroti urgensi dari masalah.",
+                                "Poin ketiga yang berkaitan dengan dampak praktis."
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "isi": "Paragraf penutup ini menyimpulkan poin-poin di atas dan mengarahkan pembaca ke bagian selanjutnya dari makalah."
+                        }
+                    ]
+                },
+                {
+                    "judul": "2.4 Evaluasi Sistem Rekomendasi",
+                    "content": [
+                        {
+                            "type": "text",
+                            "isi": "Ini adalah paragraf pengantar dummy untuk 2.4 Evaluasi Sistem Rekomendasi. Teks ini menjelaskan konteks umum dari topik yang akan dibahas secara naratif."
+                        },
+                        {
+                            "type": "list",
+                            "title_items": "Berikut adalah poin-poin utama permasalahan:",
+                            "items": [
+                                "Poin pertama yang mengidentifikasi celah penelitian.",
+                                "Poin kedua yang menyoroti urgensi dari masalah.",
+                                "Poin ketiga yang berkaitan dengan dampak praktis."
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "isi": "Paragraf penutup ini menyimpulkan poin-poin di atas dan mengarahkan pembaca ke bagian selanjutnya dari makalah."
+                        }
+                    ]
+                },
+                {
+                    "judul": "2.5 Studi Kasus dan Implementasi Sistem Rekomendasi",
+                    "content": [
+                        {
+                            "type": "text",
+                            "isi": "Ini adalah paragraf pengantar dummy untuk 2.5 Studi Kasus dan Implementasi Sistem Rekomendasi. Teks ini menjelaskan konteks umum dari topik yang akan dibahas secara naratif."
+                        },
+                        {
+                            "type": "list",
+                            "title_items": "Berikut adalah poin-poin utama permasalahan:",
+                            "items": [
+                                "Poin pertama yang mengidentifikasi celah penelitian.",
+                                "Poin kedua yang menyoroti urgensi dari masalah.",
+                                "Poin ketiga yang berkaitan dengan dampak praktis."
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "isi": "Paragraf penutup ini menyimpulkan poin-poin di atas dan mengarahkan pembaca ke bagian selanjutnya dari makalah."
+                        }
+                    ]
+                }
+            ],
+            "kesimpulan": null
+        },
+        "III": {
+            "judul": "Bab 3",
+            "subbab": [
+                {
+                    "judul": "3.1 Kesimpulan",
+                    "content": [
+                        {
+                            "type": "text",
+                            "isi": "Ini adalah paragraf pengantar dummy untuk 3.1 Kesimpulan. Teks ini menjelaskan konteks umum dari topik yang akan dibahas secara naratif."
+                        },
+                        {
+                            "type": "list",
+                            "title_items": "Berikut adalah poin-poin utama permasalahan:",
+                            "items": [
+                                "Poin pertama yang mengidentifikasi celah penelitian.",
+                                "Poin kedua yang menyoroti urgensi dari masalah.",
+                                "Poin ketiga yang berkaitan dengan dampak praktis."
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "isi": "Paragraf penutup ini menyimpulkan poin-poin di atas dan mengarahkan pembaca ke bagian selanjutnya dari makalah."
+                        }
+                    ]
+                }
+            ],
+            "kesimpulan": null
+        }
+    },
+    "daftar_pustaka": [
+        {
+            "title": "A Comprehensive Review of Recommender Systems ...",
+            "authors": [],
+            "year": 2024,
+            "link": "https://arxiv.org/abs/2407.13699"
+        },
+        {
+            "title": "Revisiting recommender systems: an investigative survey",
+            "authors": [],
+            "year": 2024,
+            "link": "https://link.springer.com/article/10.1007/s00521-024-10828-5"
+        },
+        {
+            "title": "A Comprehensive Survey of Recommender Systems Based on Deep ...",
+            "authors": [],
+            "year": 2023,
+            "link": "https://www.sciencedirect.com/science/article/pii/S2212827123009575"
+        }
+    ]
+}

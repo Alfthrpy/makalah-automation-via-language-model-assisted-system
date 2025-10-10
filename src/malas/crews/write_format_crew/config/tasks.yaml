@@ -10,8 +10,10 @@ write_content_task:
     5. Gunakan bahasa Indonesia formal yang sesuai untuk karya ilmiah.
     6. output berupa content lengkap untuk subab {subbab_now} pada bab {bab_now} saja.
 
+    subab sebelumnya : 
     {previous_subab_contents}
-    referensi yang disediakan : {references}
+    referensi yang disediakan :
+    {references}
 
   expected_output: >
     sebuah konten subab yang lengkap dan terstruktur dengan baik, mengalir dari konten sebelumnya dan sesuai dengan outline. dan output sesuai dengan pydantic model subbab yang telah ditentukan.

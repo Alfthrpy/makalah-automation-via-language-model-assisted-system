@@ -1,15 +1,25 @@
 from docxtpl import DocxTemplate
 import textwrap
 from jinja2 import Environment
+import json
+
+from malas.main import save_as_json
+from utils import to_dict, transform_structure
 
 
 jinja_env = Environment(trim_blocks=True, lstrip_blocks=True)
-
+HARDCODED = False
 # 1. Load template Word
 doc = DocxTemplate("D:/CODING/PYTHON/AGENTIC AI/malas/template/template makalah.docx")
 
+
+with open(r"D:\CODING\PYTHON\AGENTIC AI\malas\makalah_output.json", "r", encoding="utf-8") as f:
+    data = json.load(f)
+
+print(json.dumps(data["bab"]["I"]["subbab"][0]["content"][0], indent=2))
+
 # 2. Data context (versi ringkas, kamu bisa ganti sesuai makalah aslinya)
-context = {
+hardcode = {
     "judul": "MODEL PEMBELAJARAN FIQIH TENTANG WARIS",
     "mata_kuliah": "Pembelajaran Fiqih",
     "dosen_pengampu": "Dr. Hj. Salsabilah, M.Ag",
@@ -30,23 +40,46 @@ context = {
 """,
 
     "bab": {
-        "I": {
-            "judul": "PENDAHULUAN",
-            "latar_belakang": """Ilmu Fiqih merupakan salah satu cabang ilmu dalam Islam yang membahas mengenai hukum-hukum syariat dalam berbagai aspek kehidupan umat Muslim. Salah satu topik penting yang dibahas dalam Fiqih adalah pembagian waris, yang diatur secara rinci dalam Al-Qur'an dan Hadis. Pembagian waris merupakan bagian dari muamalah yang berperan penting dalam menjaga keadilan dan keseimbangan dalam keluarga dan masyarakat. Pengaturan yang tepat terkait warisan memiliki dampak langsung terhadap stabilitas sosial, ekonomi, dan hubungan antar anggota keluarga.
-Dalam Fiqih, ilmu waris atau faraidh mengatur pembagian harta peninggalan seseorang yang telah meninggal kepada ahli warisnya. Aturan ini tidak hanya mengatur besarnya bagian yang diterima oleh ahli waris, tetapi juga menentukan siapa saja yang berhak menerima warisan. Pembagian waris dalam Islam didasarkan pada prinsip keadilan, dengan mempertimbangkan hubungan kekerabatan dan kebutuhan masing-masing ahli waris, termasuk di dalamnya laki-laki dan perempuan.
-Melalui makalah ini, akan dibahas lebih dalam mengenai konsep dasar pembagian waris dalam Fiqih, landasan hukumnya, serta model pembelajaran yang efektif untuk memahami ilmu waris. Dengan pendekatan yang komprehensif dan aplikatif, diharapkan pembelajaran ini dapat membantu umat Islam memahami dan mengimplementasikan hukum waris sesuai dengan tuntunan agama, sehingga tercipta keadilan dalam pembagian harta waris di tengah masyarakat.
-""",
-            "rumusan_masalah": [
-                "Apa itu warisan?",
-                "Apa saja jenis – jenis warisan?",
-                "Bagaimana hak dan kewajiban ahli waris?",
-                "Apa saja kendala dan solusi tentang waris?"
-            ],
-            "tujuan": [
-                "Untuk mengetahui pengertian warisan",
-                "Untuk mengetahui jenis – jenis warisan",
-                "Untuk memahami hak dan kewajiban ahli waris",
-                "Untuk mengetahui kendala dan solusi tentang waris"
+       "I": {
+            "judul": "Pendahuluan",
+            "subbab": [
+                {
+                    "judul": "1.1 Latar Belakang",
+                    "content": [
+                        {
+                            "type": "text",
+                            "isi": "Ini adalah paragraf pengantar dummy untuk 1.1 Latar Belakang. Teks ini menjelaskan konteks umum dari topik yang akan dibahas secara naratif."
+                        },
+                    ]
+                },
+                {
+                    "judul": "1.2 Rumusan Masalah",
+                    "content": [
+                        {
+                            "type": "list",
+                            "title_items": "Berikut adalah poin-poin utama permasalahan:",
+                            "items": [
+                                "Poin pertama yang mengidentifikasi celah penelitian.",
+                                "Poin kedua yang menyoroti urgensi dari masalah.",
+                                "Poin ketiga yang berkaitan dengan dampak praktis."
+                            ]
+                        },
+                    ]
+                },
+                {
+                    "judul": "1.3 Tujuan Penulisan",
+                    "content": [
+                        {
+                            "type": "list",
+                            "title_items": "Berikut adalah poin-poin utama permasalahan:",
+                            "items": [
+                                "Poin pertama yang mengidentifikasi celah penelitian.",
+                                "Poin kedua yang menyoroti urgensi dari masalah.",
+                                "Poin ketiga yang berkaitan dengan dampak praktis."
+                            ]
+                        },
+                    ]
+                }
             ]
         },
         "II": {
@@ -100,11 +133,32 @@ Artinya: "(Pembagian-pembagian tersebut di atas) setelah (dipenuhi) wasiat yang 
             ]
         },
         "III": {
-            "judul": "PENUTUP",
-            "kesimpulan": """Ilmu waris dalam Islam memiliki peran yang sangat penting dalam menjaga keadilan sosial dan keharmonisan keluarga. Aturan pembagian harta waris yang diatur dalam Al-Qur’an, Hadis, dan ijma' para ulama dirancang untuk memberikan hak-hak yang seimbang kepada semua ahli waris, dengan mempertimbangkan kebutuhan dan peran mereka dalam keluarga. Melalui pembahasan yang telah dipaparkan, jelas bahwa memahami dan menerapkan hukum waris sesuai syariat Islam merupakan kewajiban bagi setiap Muslim, agar pembagian harta yang ditinggalkan tidak menimbulkan konflik atau ketidakadilan.
-Dengan adanya model pembelajaran yang tepat, diharapkan pemahaman masyarakat tentang hukum waris semakin meningkat, sehingga setiap individu mampu mengimplementasikan aturan-aturan yang telah ditetapkan Allah SWT secara benar. Dengan demikian, nilai-nilai keadilan dan kebijaksanaan yang terkandung dalam hukum waris dapat terwujud dalam kehidupan nyata, memberikan kesejahteraan dan ketenteraman bagi keluarga dan masyarakat secara keseluruhan.
-Semoga makalah ini dapat memberikan wawasan yang lebih mendalam tentang pentingnya hukum waris dalam Islam serta menjadi panduan bagi pembaca untuk memahami pembagian warisan sesuai dengan ketentuan syariat.
-"""
+            "judul": "Bab 3",
+            "subbab": [
+                {
+                    "judul": "3.1 Kesimpulan",
+                    "content": [
+                        {
+                            "type": "text",
+                            "isi": "Ini adalah paragraf pengantar dummy untuk 3.1 Kesimpulan. Teks ini menjelaskan konteks umum dari topik yang akan dibahas secara naratif."
+                        },
+                        {
+                            "type": "list",
+                            "title_items": "Berikut adalah poin-poin utama permasalahan:",
+                            "items": [
+                                "Poin pertama yang mengidentifikasi celah penelitian.",
+                                "Poin kedua yang menyoroti urgensi dari masalah.",
+                                "Poin ketiga yang berkaitan dengan dampak praktis."
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "isi": "Paragraf penutup ini menyimpulkan poin-poin di atas dan mengarahkan pembaca ke bagian selanjutnya dari makalah."
+                        }
+                    ]
+                }
+            ],
+            "kesimpulan": ''
         }
     },
 
@@ -118,6 +172,11 @@ Semoga makalah ini dapat memberikan wawasan yang lebih mendalam tentang pentingn
         "Tirto.id. (n.d.). Syarat dan Rukun Waris dalam Islam. Diakses dari https://tirto.id"
     ]
 }
+
+if HARDCODED :
+    context = hardcode
+else :
+    context = data
 
 # 3. Render template dengan context
 doc.render(context,jinja_env=jinja_env)

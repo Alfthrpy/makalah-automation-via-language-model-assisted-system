@@ -129,7 +129,7 @@ class MalasFlow(Flow[Makalah]):
                     "bab_now": bab.judul,
                     "subbab_now": subbab.judul,
                     "previous_subab_contents": formatted_previous_content,
-                    "references": [getattr(ref, 'title', str(ref)) for ref in self.state.daftar_pustaka],
+                    "references": [{ref.title : ref.link} for ref in self.state.daftar_pustaka if ref.link],
                     "judul_makalah": self.state.judul_makalah,
                     "mata_kuliah": self.state.mata_kuliah,
                 })
