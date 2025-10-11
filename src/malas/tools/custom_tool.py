@@ -1,12 +1,16 @@
 from crewai.tools import BaseTool
+from crewai_tools import RagTool
 from typing import Type
 from pydantic import BaseModel, Field
 from langchain_community.tools import DuckDuckGoSearchResults
 import requests
+from pathlib import Path
+from crewai_tools.adapters.crewai_rag_adapter import CrewAIRagAdapter
+from crewai.rag.chromadb.config import ChromaDBConfig
+from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
+from crewai_tools.rag.data_types import DataType
 import trafilatura
-
-from docx import Document
-import tempfile
+from chromadb.config import Settings
 
 
 
@@ -86,47 +90,66 @@ class ResearchExtractorTool(BaseTool):
         
 
 
-
-class ExportDocxOutput(BaseModel):
-    file_path: str  # simpan path file docx
-
-class ExportDocxTool(BaseTool):
-    name: str = "export_docx_tool"
+class PaperRagTool(BaseTool):
+    """
+    Sebuah tool RAG custom untuk mencari informasi dari 
+    database paper ilmiah lokal.
+    """
+    name: str = "Scientific Paper Knowledge Base"
     description: str = (
-        "Ekstrak konten dari makalah (dict) menjadi file docx."
+        "Searches a local knowledge base of scientific papers for relevant information. "
+        "The input to this tool should be a specific question or topic to search for."
     )
+    _rag_tool: RagTool  # Menyimpan instance RagTool internal
 
-    def _run(self, makalah: dict) -> ExportDocxOutput:
+    def __init__(self, 
+                 collection_name: str = "paper_knowledge_base",
+                 model_name: str = 'sentence-transformers/distiluse-base-multilingual-cased-v2',
+                 cache_dir: str = 'D:/MODELS'):
         """
-        Terima makalah (output reviewer dalam bentuk dict),
-        buat file .docx dari semua bab dan referensi.
+        Inisialisasi tool dengan setup RAG lengkap di dalamnya.
         """
-        doc = Document()
-        doc.add_heading(makalah.get("judul", ""), level=0)
+        super().__init__()
+        print(f"Initializing Knowledge Base with collection: '{collection_name}'...")
+        
+        embedding_function = SentenceTransformerEmbeddingFunction(
+            model_name=model_name,
+            cache_folder=cache_dir
+        )
+        
+        chroma_config = ChromaDBConfig(
+            embedding_function=embedding_function
+        )
+        
+        my_adapter = CrewAIRagAdapter(
+            config=chroma_config,
+            collection_name=collection_name,
+        )
+        
+        # Simpan RagTool yang sudah dikonfigurasi sebagai atribut internal
+        self._rag_tool = RagTool(adapter=my_adapter)
+        print("Knowledge Base ready.")
 
-        for bab in makalah.get("bab", []):
-            doc.add_heading(bab.get("judul", ""), level=1)
-            if "konten" in bab and bab["konten"]:
-                doc.add_paragraph(bab["konten"])
-            
-            # SubBab
-            for sub in bab.get("subbab", []):
-                doc.add_heading(sub.get("judul", ""), level=2)
-                if "konten" in sub and sub["konten"]:
-                    doc.add_paragraph(sub["konten"])
-                if "referensi" in sub and sub["referensi"]:
-                    doc.add_paragraph("Referensi:")
-                    for r in sub["referensi"]:
-                        doc.add_paragraph(f"- {r}", style="List Bullet")
-            
-            # Referensi Bab
-            if "referensi" in bab and bab["referensi"]:
-                doc.add_paragraph("Referensi:")
-                for r in bab["referensi"]:
-                    doc.add_paragraph(f"- {r}", style="List Bullet")
+    def add_paper(self, pdf_path: str | Path, data_type : DataType = DataType.PDF_FILE) -> None:
+        """
+        Metode untuk menambahkan paper (PDF) ke dalam knowledge base.
+        Ini dipanggil oleh Anda (developer), bukan oleh agent.
+        """
+        print(f"Adding paper '{pdf_path}' to the knowledge base...")
+        # Gunakan tool internal untuk menambahkan data
+        self._rag_tool.add(
+            str(pdf_path),  # Pastikan path dalam format string
+            data_type=data_type
+        )
+        print("Paper added successfully.")
 
-        # Simpan ke file sementara
-        tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".docx")
-        doc.save(tmp_file.name)
-
-        return ExportDocxOutput(file_path=tmp_file.name)
+    def _run(self, query: str, similarity_threshold : float) -> str:
+        """
+        Metode yang akan dijalankan oleh agent CrewAI.
+        """
+        print(f"\nSearching knowledge base for: '{query}'")
+        return self._rag_tool.run(
+            query,
+            limit=3,
+            similarity_threshold = similarity_threshold
+        )

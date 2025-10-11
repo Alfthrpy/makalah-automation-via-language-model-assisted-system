@@ -1,2 +1,80 @@
 Relevant Content:
-No relevant content found.
+creation, Pairit’s architecture is extensible to diverse domains, such as software development (e.g.,
+AI generating code while humans debug), scientific writing (e.g., AI drafting literature reviews), or
+multimedia content production (e.g., designing virtual reality environments). This versatility allows
+researchers to explore human-AI collaboration in tasks requiring varied cognitive and creative skills,
+addressing a gap in prior studies that often limit AI to text-based functions (Brynjolfsson et al., 2023).
+For example, a future study could use Pairit to analyze how AI agents assist in architectural planning,
+tracking both textual specifications and visual renderings to assess collaborative efficiency and
+output quality. By capturing multimodal interactions, Pairit provides a comprehensive framework for
+studying the interplay of different task components, a methodological leap forward for understanding
+complex workflows.
+These methodological contributions have broader implications for experimental research and
+organizational practice. Pairit’s ability to simulate realistic collaborative environments offers a
+testing ground for refining theoretical models of human-AI interaction and informing the design
+of AI-driven workflows. For instance, researchers could leverage the platform to study how AI
+agents perform in agile software development sprints, using time-stamped data to optimize task
+assignments and evaluate productivity trade-offs. Ultimately, Pairit’s methodological innovations
+32
+
+Page 33:
+bridge the gap between controlled experiments and real-world applications and provides a robust,
+scalable framework for advancing our understanding of human-AI collaboration.
+4.2 Limitations and future directions
+Limitations. While we conducted one of the first truly agent-randomized experiments in human-
+AI collaboration, combining laboratory and field tests, on a newly developed platform capable of
+recording fine-grained collaboration dynamics, our work is not without limitations. First, while we
+
+=========
+organizations should invest in training programs that teach employees how to delegate tasks to
+AI effectively, fostering a collaborative culture that maximizes both technological and human
+contributions.
+Finally, the study underscores the importance of aligning AI deployment with organizational
+goals and team dynamics. The comparable team-level productivity between human-AI and human-
+human teams, despite human-AI teams having half the human resources, suggests that AI can serve
+as a near-substitute for additional personnel in certain contexts. Managers could use this insight to
+scale team output without proportionally increasing headcount, a cost-effective strategy for startups
+or resource-constrained firms. However, they must remain mindful of the social dynamics altered
+30
+
+Page 31:
+by AI integration. The decrease in social and emotional messages in human-AI teams indicates less
+time spent on rapport-building, which could impact team cohesion in long-term projects. Managers
+should monitor team morale and consider hybrid models—such as combining AI assistance with
+periodic human-human collaboration—to maintain a balance between efficiency and interpersonal
+connection.
+Methodological implications. This study advances the methodological landscape for studying
+human-AI collaboration through the development of the Pairit platform, a novel experimental
+framework that redefines how researchers investigate team dynamics in real-time, task-driven
+settings. Unlike traditional approaches that rely on aggregate performance metrics or isolated
+AI interactions (Noy and Zhang, 2023; Dell’Acqua et al., 2023), Pairit captures granular, time-
+stamped data on every keystroke, message, edit, and API call, enabling a detailed reconstruction
+of collaborative workflows. In our experiment, this capability allowed us to analyze 183,691
+messages, 1,960,095 text edits, and 63,656 image edits, revealing nuanced patterns such as how
+AI-driven suggestions shifted human effort from direct text editing to instructional messaging. 
+=========
+human-AI teams in the visual dimensions of ad creation and leading to human-AI teams creating
+lower-rated images. These differences in collaboration outcomes indicate a shift in workload that
+allowed human participants in human-AI teams to engage more in content generation with less
+social coordination, like rapport building, than humans in human-human teams.
+These communication, collaboration, and work process changes then translated into measurable
+differences in productivity and performance. Humans in human-AI teams experienced 73% greater
+productivity per worker and human evaluations scored the ads created by human-AI teams higher on
+text quality but lower on image quality. AI evaluations scored the ads created by human-AI teams
+higher on text quality and equally on image quality. Field tests of the ad campaigns revealed that ads
+with higher image quality (produced more often by human collaborations) and higher text quality
+(produced more often by human-AI collaborations) performed significantly better on click-through
+rates, view through duration and cost per click metrics. As human-AI teams produced higher quality
+text and lower quality images, human-AI ads performed similarly to those created by human-human
+teams overall. Together, these results suggest that human collaboration with AI agents significantly
+reshapes communication patterns and work processes and increases productivity, while improving
+some dimensions of output quality and deteriorating others.
+Although prior studies have shown that AI tools can improve productivity and reduce task
+completion times (Noy and Zhang, 2023; Brynjolfsson et al., 2023), AI is often treated as a passive
+tool rather than as an active collaborator. As AI agents become integral to modern workflows,
+researchers are beginning to explore their role as work collaborators, rather than mere tools,
+5
+
+Page 6:
+emphasizing the importance of trust, transparency, and integration in human-AI partnerships
+(Makarius et al., 2020; Anthony et al., 2023; Collins et al., 2024). 
