@@ -1,17 +1,14 @@
 from crewai.tools import BaseTool
-from crewai_tools import RagTool
-from typing import Type
-from pydantic import BaseModel, Field
+from typing import Type, Any
+from pydantic import BaseModel, Field, PrivateAttr
 from langchain_community.tools import DuckDuckGoSearchResults
 import requests
 from pathlib import Path
-from crewai_tools.adapters.crewai_rag_adapter import CrewAIRagAdapter
-from crewai.rag.chromadb.config import ChromaDBConfig
 from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
-from crewai_tools.rag.data_types import DataType
 import trafilatura
 from chromadb.config import Settings
 import re
+from malas.tools.custom_chunker import ChonkieChunker
 
 
 
@@ -102,64 +99,148 @@ class ResearchExtractorTool(BaseTool):
 class PaperRagTool(BaseTool):
     """
     Sebuah tool RAG custom untuk mencari informasi dari 
-    database paper ilmiah lokal.
+    database paper ilmiah lokal. Menggunakan ChromaDB langsung 
+    dan ChonkieChunker untuk chunking.
     """
     name: str = "Scientific Paper Knowledge Base"
     description: str = (
         "Searches a local knowledge base of scientific papers for relevant information. "
         "The input to this tool should be a specific question or topic to search for."
     )
-    _rag_tool: RagTool  # Menyimpan instance RagTool internal
+    
+    _client: Any = PrivateAttr()
+    _collection: Any = PrivateAttr()
+    _chunker: ChonkieChunker = PrivateAttr()
+    _embedding_function: Any = PrivateAttr()
+    _collection_name: str = PrivateAttr()
 
     def __init__(self, 
                  collection_name: str = "paper_knowledge_base",
                  model_name: str = 'sentence-transformers/distiluse-base-multilingual-cased-v2',
-                 cache_dir: str = 'D:/MODELS'):
+                 cache_dir: str = 'D:/MODELS',
+                 persist_directory: str = './chroma_db'):
         """
-        Inisialisasi tool dengan setup RAG lengkap di dalamnya.
+        Inisialisasi tool dengan setup ChromaDB langsung.
         """
         super().__init__()
         print(f"Initializing Knowledge Base with collection: '{collection_name}'...")
-
-        embedding_function = SentenceTransformerEmbeddingFunction(
+        
+        import chromadb
+        
+        self._collection_name = collection_name
+        
+        # Setup embedding function
+        self._embedding_function = SentenceTransformerEmbeddingFunction(
             model_name=model_name,
             cache_folder=cache_dir
         )
         
-        chroma_config = ChromaDBConfig(
-            embedding_function=embedding_function,
+        # Setup ChromaDB client dengan persistent storage
+        self._client = chromadb.PersistentClient(
+            path=persist_directory,
+            settings=Settings(anonymized_telemetry=False)
         )
         
-        my_adapter = CrewAIRagAdapter(
-            config=chroma_config,
-            collection_name=collection_name,
+        # Get or create collection
+        self._collection = self._client.get_or_create_collection(
+            name=collection_name,
+            embedding_function=self._embedding_function
         )
         
-        # Simpan RagTool yang sudah dikonfigurasi sebagai atribut internal
-        self._rag_tool = RagTool(adapter=my_adapter)
+        # Inisialisasi custom chunker - LANGSUNG DIGUNAKAN!
+        self._chunker = ChonkieChunker()
         print("Knowledge Base ready.")
 
-    def add_paper(self, pdf_path: str | Path, data_type : DataType = DataType.PDF_FILE) -> None:
+    def add_paper(self, pdf_path: str | Path) -> None:
         """
         Metode untuk menambahkan paper (PDF) ke dalam knowledge base.
-        Ini dipanggil oleh Anda (developer), bukan oleh agent.
+        Menggunakan ChonkieChunker secara langsung untuk chunking.
         """
+        import hashlib
+        from pypdf import PdfReader
+        
+        pdf_path = Path(pdf_path)
         print(f"Adding paper '{pdf_path}' to the knowledge base...")
-        # Gunakan tool internal untuk menambahkan data
-        self._rag_tool.add(
-            str(pdf_path),  # Pastikan path dalam format string
-            data_type=data_type
+        
+        # 1. Load PDF content
+        print("  Loading PDF...")
+        reader = PdfReader(str(pdf_path))
+        text_content = ""
+        for page in reader.pages:
+            text_content += page.extract_text() or ""
+        
+        if not text_content.strip():
+            print("  WARNING: No text extracted from PDF!")
+            return
+        
+        print(f"  Extracted {len(text_content)} characters from {len(reader.pages)} pages.")
+        
+        # 2. Chunk dengan ChonkieChunker - INI YANG SEHARUSNYA DIPAKAI!
+        print("  Chunking with ChonkieChunker...")
+        chunks = self._chunker.chunk(text_content)
+        
+        if not chunks:
+            print("  WARNING: No chunks generated!")
+            return
+        
+        # 3. Prepare data untuk ChromaDB
+        doc_id_base = hashlib.sha256(str(pdf_path).encode()).hexdigest()[:16]
+        
+        ids = []
+        documents = []
+        metadatas = []
+        
+        for i, chunk in enumerate(chunks):
+            chunk_id = f"{doc_id_base}_{i}"
+            ids.append(chunk_id)
+            documents.append(chunk)
+            metadatas.append({
+                "source": str(pdf_path),
+                "chunk_index": i,
+                "total_chunks": len(chunks),
+                "filename": pdf_path.name
+            })
+        
+        # 4. Add ke ChromaDB
+        print(f"  Adding {len(chunks)} chunks to ChromaDB...")
+        self._collection.add(
+            ids=ids,
+            documents=documents,
+            metadatas=metadatas
         )
-        print("Paper added successfully.")
+        
+        print(f"Paper added successfully! ({len(chunks)} chunks)")
 
-    def _run(self, query: str, similarity_threshold : float,limit:int) -> str:
+    def _run(self, query: str, similarity_threshold: float = 0.3, limit: int = 3) -> str:
         """
         Metode yang akan dijalankan oleh agent CrewAI.
         """
         print(f"\nSearching knowledge base for: '{query}'")
-        return self._rag_tool.run(
-            query,
-            limit=limit,
-            similarity_threshold=similarity_threshold
+        
+        # Query ChromaDB langsung
+        results = self._collection.query(
+            query_texts=[query],
+            n_results=limit
         )
+        
+        if not results or not results['documents'] or not results['documents'][0]:
+            return "No relevant content found in the knowledge base."
+        
+        # Format hasil
+        contents = []
+        for i, doc in enumerate(results['documents'][0]):
+            # Filter berdasarkan distance jika ada
+            if results.get('distances') and results['distances'][0]:
+                # ChromaDB returns distance, lower is better
+                # Convert to similarity: similarity = 1 - distance (for cosine)
+                distance = results['distances'][0][i]
+                # Skip if distance too high (similarity too low)
+                if distance > (1 - similarity_threshold):
+                    continue
+            contents.append(doc)
+        
+        if not contents:
+            return "No relevant content found above the similarity threshold."
+        
+        return "Relevant Content:\n" + "\n=========\n".join(contents)
     
