@@ -1,41 +1,41 @@
 #!/usr/bin/env python
+import os
+import re
+from typing import Dict, List
 from crewai.flow import Flow, listen, start
+import logging
+from pydantic import BaseModel
 from malas.crews.planner_crew.planner_crew import PlannerCrew
 from malas.crews.models.TaskOutput import (
     Penyusun, 
     ContentText, 
-    ContentList, 
+    ContentList,
+    ReferenceItem, 
     SubBab, 
     Bab, 
     Makalah
 )
 from malas.crews.write_format_crew.write_format_crew import WriteFormatCrew
+from tests.utils import DocxConverter
 
-
-
-
-def debugState(state):
-    print("Current State:")
-    for key, value in state.dict().items():
-        print(f"{key}: {value}")
-
-def save_as_json(state, filename="makalah_output.json"):
-    # Cukup panggil sekali dan simpan hasilnya
-    json_output = state.model_dump_json(indent=4)
-    with open(filename, 'w', encoding='utf-8') as f:
-        f.write(json_output)
-    print(f"\n✅ Makalah lengkap berhasil disimpan ke file: {filename}")
-
+# Diasumsikan semua import yang dibutuhkan sudah ada di atas
+# import os, re, logging, etc.
 
 class MalasFlow(Flow[Makalah]):
+    """
+    Flow untuk mengotomatisasi proses pembuatan makalah, mulai dari
+    input data awal, pembuatan outline, pengisian konten, hingga finalisasi.
+    """
+
 
     @start()
     def inputDataMakalah(self):
-        self.state.judul_makalah = "Sistem Rekomendasi Berbasis Machine Learning"
+        """Langkah awal: Mengisi data dasar untuk makalah."""
+        self.state.judul = "Sistem Rekomendasi Berbasis Machine Learning"
         self.state.mata_kuliah = "Kecerdasan Buatan"
         self.state.dosen_pengampu = "Dr. Budi Santoso"
         self.state.penyusun = [
-            Penyusun(nama="Aldilla Ulinnaja", nim="123456789"),
+            Penyusun(nama="Al-Fathir", nim="123456789"),
             Penyusun(nama="Muhammad Rizki", nim="987654321"),
         ]
         self.state.kelas = "IF-4"
@@ -44,73 +44,59 @@ class MalasFlow(Flow[Makalah]):
         self.state.jurusan = "Teknik Informatika"
         self.state.kota = "Bandung"
         self.state.tahun = 2025
-        print("Data berhasil disimpan.")
-
+        print("✅ Data awal makalah berhasil disimpan.")
 
     @listen(inputDataMakalah)
     def generate_outline(self):
+        """Membuat struktur Bab dan Sub-bab berdasarkan judul makalah."""
         planner = PlannerCrew()
         crew_instance = planner.crew()
 
-        # Jalankan flow (tidak akan call LLM)
         crew_instance.kickoff(inputs={
-            "judul_makalah": self.state.judul_makalah,
+            "judul_makalah": self.state.judul,
             "mata_kuliah": self.state.mata_kuliah,
         })
 
-        # Akses output
         outline_output = planner.tasks[0].output
         references_output = planner.tasks[1].output
-
+        
+        # Proses output menjadi struktur Bab dan SubBab
         roman_numerals = ["I", "II", "III", "IV", "V"]
-
-
-        for i, (bab_title, simple_subbab_data) in enumerate(outline_output.pydantic.subbabs.items()):
-            # Buat Bab baru
+        for i, (bab_title, subbab_data) in enumerate(outline_output.pydantic.subbabs.items()):
             bab_baru = Bab(judul=bab_title)
-
-            # Buat list untuk menampung semua SubBab baru
-            subbab_list = []
-
-            # Untuk SETIAP baris di sections, buat satu objek SubBab
-            for section_title in simple_subbab_data.sections:
+            list_subbab = []
+            
+            for section_title in subbab_data.sections:
                 cleaned_title = section_title.strip()
-                if cleaned_title: # Pastikan tidak memproses baris kosong
-                    new_subbab = SubBab(judul=cleaned_title) # Content otomatis kosong
-                    subbab_list.append(new_subbab)
-
-            # Masukkan list SubBab yang sudah jadi ke dalam Bab
-            bab_baru.subbab = subbab_list
-
-            # Tambahkan Bab ke dalam makalah
-            bab_key = roman_numerals[i]
-            self.state.bab[bab_key] = bab_baru
-
+                if cleaned_title:
+                    list_subbab.append(SubBab(judul=cleaned_title))
+            
+            bab_baru.subbab = list_subbab
+            self.state.bab[roman_numerals[i]] = bab_baru
+            
         self.state.daftar_pustaka = references_output.pydantic.references
+        print("🗺️ Outline dan daftar pustaka berhasil dibuat.")
 
     @listen(generate_outline)
     def fill_subbab_content(self):
+        """Mengisi konten untuk setiap sub-bab secara sekuensial."""
         writer = WriteFormatCrew()
         crew_instance = writer.crew()
         generated_contents = {}
 
         for bab_key, bab in self.state.bab.items():
             for subbab_index, subbab in enumerate(bab.subbab):
-                
+                print(f"\n✍️ Mengerjakan: {bab.judul} - {subbab.judul}")
+
+                # 1. Siapkan konteks dari konten sub-bab sebelumnya
                 formatted_previous_content = ""
-                
                 if subbab_index > 0:
                     previous_subbab = bab.subbab[subbab_index - 1]
-                    
-                    # <<< 2. BACA DARI PENYIMPANAN SEMENTARA
-                    # Cek apakah konten untuk sub-bab sebelumnya ada di 'generated_contents'
                     if previous_subbab.judul in generated_contents:
-                        previous_content_objects = generated_contents[previous_subbab.judul]
-                        print(previous_content_objects)
-                        
-                        header = f"Konten dari Sub-Bab sebelumnya'{previous_subbab.judul}':"
+                        content_objects = generated_contents[previous_subbab.judul]
+                        header = f"Konten dari Sub-Bab sebelumnya '{previous_subbab.judul}':"
                         content_parts = []
-                        for item in previous_content_objects:
+                        for item in content_objects:
                             if isinstance(item, ContentText):
                                 content_parts.append(item.isi)
                             elif isinstance(item, ContentList):
@@ -122,46 +108,38 @@ class MalasFlow(Flow[Makalah]):
                         full_content_str = "\n".join(content_parts)
                         formatted_previous_content = f"{header}\n{full_content_str}"
 
-                print(f"\n>>>> Mengerjakan: {bab.judul} - {subbab.judul}")
-                # print(f"Menggunakan Konteks:\n{formatted_previous_content}\n<<<<\n")
-
-                crew_instance.kickoff(inputs={
+                # 2. Jalankan crew untuk menghasilkan konten sub-bab saat ini
+                inputs = {
                     "bab_now": bab.judul,
                     "subbab_now": subbab.judul,
                     "previous_subab_contents": formatted_previous_content,
-                    "references": [{ref.title : ref.link} for ref in self.state.daftar_pustaka if ref.link],
-                    "judul_makalah": self.state.judul_makalah,
+                    "references": [{ref.title: ref.link} for ref in self.state.daftar_pustaka if ref.link],
+                    "judul_makalah": self.state.judul,
                     "mata_kuliah": self.state.mata_kuliah,
-                })
-                
+                }
+                crew_instance.kickoff(inputs=inputs)
+
+                # 3. Simpan output ke state utama dan state sementara
                 subbab_output = writer.tasks[0].output
-                
                 if subbab_output and subbab_output.pydantic:
-                    # <<< 3. SIMPAN KE STATE UTAMA DAN PENYIMPANAN SEMENTARA
                     new_content = subbab_output.pydantic.content
-                    subbab.content = new_content  # Update state utama
-                    generated_contents[subbab.judul] = new_content # Update penyimpanan sementara
-                    
+                    subbab.content = new_content
+                    generated_contents[subbab.judul] = new_content
+
+        print("\n✅ Semua konten sub-bab telah diisi.")
+
     @listen(fill_subbab_content)
     def finalize_and_save(self):
-        """
-        Langkah terakhir yang hanya berjalan sekali setelah semua konten diisi.
-        """
-        print("\nFinalisasi flow, menyimpan hasil akhir ke file JSON...")
-        # Panggil fungsi save HANYA DI SINI
-        save_as_json(self.state)
-
-
+        """Langkah akhir: Konversi state akhir ke format DOCX."""
+        print("\n🏁 Finalisasi flow, menyimpan hasil ke file DOCX...")
+        docx_converter = DocxConverter("template/template makalah.docx",hardcoded=False)
+        docx_converter.convert(self.state)
+        print("🎉 Makalah berhasil dibuat!")
 
 
 def kickoff():
     malas_flow = MalasFlow()
     malas_flow.kickoff()
-
-
-def plot():
-    malas_flow = MalasFlow()
-    malas_flow.plot()
 
 
 if __name__ == "__main__":

@@ -24,4 +24,4 @@ academic_researcher:
     database akademis global. Anda mahir dalam menggunakan kata kunci untuk menyaring
     informasi dan menemukan sumber-sumber berkualitas tinggi yang akan menjadi fondasi
     dari sebuah karya ilmiah yang kuat.
-  llm: gemini/gemini-2.0-flash
+  llm: gemini/gemini-1.5-flash

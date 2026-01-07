@@ -75,14 +75,23 @@ def create_dummy_instance(model_class: Type[BaseModel],context: Optional[Dict] =
             isi="Paragraf penutup ini menyimpulkan poin-poin di atas dan "
                 "mengarahkan pembaca ke bagian selanjutnya dari makalah."
         )
-        return SubBab(
-            judul=f"{bab_now}",
-            content=[konten_paragraf_1, konten_list_poin, konten_paragraf_2]
-        )
+
+        if judul_dinamis in ['1.1 Latar Belakang', '3.1 Kesimpulan']:
+            return SubBab(
+                judul=f"{judul_dinamis}",
+                content=[konten_paragraf_1, konten_paragraf_2]
+            )
+        elif judul_dinamis in ['1.2 Rumusan Masalah', '1.3 Tujuan']:
+            return SubBab(
+                judul=f"{judul_dinamis}",
+                content=[konten_list_poin]
+            )
+        else :
+            return SubBab(
+                judul=f"{bab_now}",
+                content=[konten_paragraf_1, konten_list_poin, konten_paragraf_2]
+            )
     
-    # Tambahkan model lain di sini jika ada
-    # elif model_class == ModelLain:
-    #     return ModelLain(...)
 
     else:
         # Jika model tidak dikenali, berikan error yang jelas

@@ -47,7 +47,7 @@ class Bab(BaseModel):
     subbab: List[SubBab] = Field(default_factory=list) # Menggunakan SubBab yang kompleks
 
 class Makalah(BaseModel):
-    judul_makalah: str = "Judul Makalah"
+    judul: str = "Judul Makalah"
     mata_kuliah: str = "Nama Mata Kuliah"
     dosen_pengampu: str = "Nama Dosen"
     penyusun: List[Penyusun] = []

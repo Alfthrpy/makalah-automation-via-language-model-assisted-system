@@ -11,13 +11,13 @@ from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunct
 from crewai_tools.rag.data_types import DataType
 import trafilatura
 from chromadb.config import Settings
+import re
 
 
 
 class DuckDuckGoToolInput(BaseModel):
     """Input schema for DuckDuckGoSearchTool."""
     query: str = Field(..., description="The search query to run on DuckDuckGo.")
-
 
 class DuckDuckGoSearchTool(BaseTool):
     name: str = "DuckDuckGo Search Tool"
@@ -29,16 +29,24 @@ class DuckDuckGoSearchTool(BaseTool):
 
     def _run(self, query: str) -> list[dict]:
         search = DuckDuckGoSearchResults(max_results=3)
-        raw = search.run(query)  # string mentah
+        raw = search.run(query)
         results = []
-    
-        # contoh sederhana split tiap line, parse title, url, snippet
+        
+        # Regex untuk menangkap url
+        url_pattern = r'(https?://[^\s,]+)'
+        
         for line in raw.split("\n"):
             if "title:" in line and "link:" in line:
+                # Ambil title
+                title = line.split("title:")[1].split(",")[0].strip()
+                # Ambil url dengan regex agar tidak kecampur snippet
+                match = re.search(url_pattern, line)
+                url = match.group(0) if match else None
+
                 results.append({
-                    "judul": line.split("title:")[1].split(",")[0].strip(),
-                    "url": line.split("link:")[1].strip(),
-                    "tahun": None,  # bisa parse dari snippet jika ada
+                    "judul": title,
+                    "url": url,
+                    "tahun": None,
                     "penulis": None
                 })
         return results
@@ -82,9 +90,10 @@ class ResearchExtractorTool(BaseTool):
 
     def _run(self, url: str) -> str:
         try:
+            print(f"searching content from: {url}...")
             downloaded = trafilatura.fetch_url(url)
             text = trafilatura.extract(downloaded)
-            return text[:500] if text else "Konten tidak bisa diekstrak."
+            return text
         except Exception as e:
             return f"Error mengambil konten: {e}"
         
@@ -111,14 +120,14 @@ class PaperRagTool(BaseTool):
         """
         super().__init__()
         print(f"Initializing Knowledge Base with collection: '{collection_name}'...")
-        
+
         embedding_function = SentenceTransformerEmbeddingFunction(
             model_name=model_name,
             cache_folder=cache_dir
         )
         
         chroma_config = ChromaDBConfig(
-            embedding_function=embedding_function
+            embedding_function=embedding_function,
         )
         
         my_adapter = CrewAIRagAdapter(
@@ -143,13 +152,14 @@ class PaperRagTool(BaseTool):
         )
         print("Paper added successfully.")
 
-    def _run(self, query: str, similarity_threshold : float) -> str:
+    def _run(self, query: str, similarity_threshold : float,limit:int) -> str:
         """
         Metode yang akan dijalankan oleh agent CrewAI.
         """
         print(f"\nSearching knowledge base for: '{query}'")
         return self._rag_tool.run(
             query,
-            limit=3,
-            similarity_threshold = similarity_threshold
+            limit=limit,
+            similarity_threshold=similarity_threshold
         )
+    

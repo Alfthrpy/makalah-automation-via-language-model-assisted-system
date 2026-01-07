@@ -16,9 +16,8 @@ from crewai_tools import ArxivPaperTool
 
 
 paper_tool = ArxivPaperTool(
-    download_pdfs=False,
-    save_dir="./arxiv_pdfs",
-    use_title_as_filename=True,
+    download_pdfs=True,
+    use_title_as_filename=False,
 )
 
 search_tool = DuckDuckGoSearchTool()
@@ -68,7 +67,7 @@ class PlannerCrew:
         return Task(
             config=self.tasks_config["search_reference_task"],  # type: ignore[index]
             output_pydantic=References,
-            tools=[search_tool],
+            tools=[paper_tool]
         )
 
     @crew
@@ -82,5 +81,5 @@ class PlannerCrew:
             process=Process.sequential,
             verbose=True,
             output_log_file="logs/planner_crew_log.json",
-            max_rpm=10
+            max_rpm=5
         )

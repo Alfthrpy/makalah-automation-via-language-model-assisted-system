@@ -1,6 +1,10 @@
 from crewai_tools.rag.chunkers.base_chunker import BaseChunker
-from chonkie import SentenceChunker # Pastikan chonkie sudah terinstal
+from chonkie import SentenceChunker
 
+import tiktoken
+
+
+tokenizer = tiktoken.get_encoding("gpt2")
 class ChonkieChunker(BaseChunker):
     """
     Chunker custom yang menggunakan library Chonkie di belakang layar
@@ -8,7 +12,13 @@ class ChonkieChunker(BaseChunker):
     """
     def __init__(self):
         # Inisialisasi chunker dari Chonkie sekali saja saat objek dibuat
-        self.chonkie = SentenceChunker(tokenizer_or_token_counter = 'character')
+
+        self.chonkie = SentenceChunker(
+    tokenizer_or_token_counter=tokenizer,     # Default tokenizer (or use "gpt2", etc.)
+    chunk_size=512,           # Maximum tokens per chunk
+    chunk_overlap=32,         # Overlap between chunks
+    min_sentences_per_chunk=1  # Minimum sentences in each chunk
+)
 
     def chunk(self, content: str) -> list[str]:
         """
@@ -23,6 +33,4 @@ class ChonkieChunker(BaseChunker):
         print(f"Chonkie menghasilkan {len(chunks_from_chonkie)} chunk.")
         
         text_chunks = [chunk.text for chunk in chunks_from_chonkie]
-        with open (file='D:/CODING/PYTHON/AGENTIC AI/malas/tests/chonkie_result.txt',mode='w',encoding='utf-8') as file:
-            file.write('=====CHUNK====='.join(text_chunks))
         return text_chunks

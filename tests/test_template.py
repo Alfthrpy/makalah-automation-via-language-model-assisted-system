@@ -1,24 +1,23 @@
 from docxtpl import DocxTemplate
-import textwrap
 from jinja2 import Environment
 import json
 
-from malas.main import save_as_json
-from utils import to_dict, transform_structure
+from utils import format_apa7
 
 
 jinja_env = Environment(trim_blocks=True, lstrip_blocks=True)
 HARDCODED = False
-# 1. Load template Word
-doc = DocxTemplate("D:/CODING/PYTHON/AGENTIC AI/malas/template/template makalah.docx")
+doc = DocxTemplate("D:/CODING/PYTHON/AGENTIC_AI/malas/template/template makalah.docx")
 
 
-with open(r"D:\CODING\PYTHON\AGENTIC AI\malas\makalah_output.json", "r", encoding="utf-8") as f:
+with open(r"D:\CODING\PYTHON\AGENTIC_AI\malas\tests\etika-bermedia-sosial.json", "r", encoding="utf-8") as f:
     data = json.load(f)
 
-print(json.dumps(data["bab"]["I"]["subbab"][0]["content"][0], indent=2))
+daftar_pustaka_asli = data.get('daftar_pustaka', [])
+daftar_pustaka_terformat = [format_apa7(ref) for ref in daftar_pustaka_asli]
+data['daftar_pustaka_formatted'] = daftar_pustaka_terformat
 
-# 2. Data context (versi ringkas, kamu bisa ganti sesuai makalah aslinya)
+
 hardcode = {
     "judul": "MODEL PEMBELAJARAN FIQIH TENTANG WARIS",
     "mata_kuliah": "Pembelajaran Fiqih",
@@ -178,10 +177,12 @@ if HARDCODED :
 else :
     context = data
 
-# 3. Render template dengan context
+
+
+alphabet_list = [chr(ord('a') + i) for i in range(26)]
+context['alphabet'] = alphabet_list
+
+
 doc.render(context,jinja_env=jinja_env)
-
-# 4. Simpan hasil ke file baru
-doc.save("makalah_output.docx")
-
+doc.save("../template/makalah_output.docx")
 print("✅ Makalah berhasil dibuat: makalah_output.docx")

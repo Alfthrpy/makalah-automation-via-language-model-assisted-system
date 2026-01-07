@@ -10,13 +10,12 @@ from malas.tools.custom_tool import ResearchExtractorTool
 # you can use the @before_kickoff and @after_kickoff decorators
 # https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
 
-MOCKUP = False
+MOCKUP = True
 if MOCKUP:
     llm = AutoFakeLLM(model_name='gpt-6')
 else:
     llm = LLM(model='gemini/gemini-2.0-flash')
 
-extractor_tool = ResearchExtractorTool()
 
 @CrewBase
 class WriteFormatCrew():
@@ -35,8 +34,8 @@ class WriteFormatCrew():
             verbose=True,
             llm=llm,
         )
-    
-    # @agent 
+
+    # @agent
     # def quality_reviewer(self) -> Agent:
     #     return Agent(
     #         config=self.agents_config['quality_reviewer'], # type: ignore[index]
@@ -49,10 +48,10 @@ class WriteFormatCrew():
     def write_content(self) -> Task:
         return Task(
             config=self.tasks_config['write_content_task'], # type: ignore[index]
-            tools=[extractor_tool],
+            tools=[],
             output_pydantic=SubBab
         )
-    
+
     # @task
     # def review_content(self) -> Task:
     #     return Task(
