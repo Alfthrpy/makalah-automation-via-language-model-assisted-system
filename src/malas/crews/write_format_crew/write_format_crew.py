@@ -16,7 +16,7 @@ MOCKUP = True
 if MOCKUP:
     llm = AutoFakeLLM(model_name='gpt-6')
 else:
-    llm = LLM(model='gemini/gemini-2.0-flash')
+    llm = LLM(model='gemini/gemini-2.5-flash-lite-preview-09-2025')
 
 # Instantiate tools
 paper_rag = PaperRagTool(

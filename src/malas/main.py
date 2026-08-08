@@ -1,7 +1,14 @@
 #!/usr/bin/env python
 import os
 import re
+import sys
 from typing import Dict, List
+
+# Windows console default (cp1252) tidak bisa encode emoji yang dipakai di print()
+# statement di seluruh flow ini - tanpa ini proses crash begitu print emoji pertama jalan.
+if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
 from crewai.flow import Flow, listen, start
 import logging
 from pydantic import BaseModel
@@ -113,7 +120,16 @@ class MalasFlow(Flow[Makalah]):
                     "bab_now": bab.judul,
                     "subbab_now": subbab.judul,
                     "previous_subab_contents": formatted_previous_content,
-                    "references": [{ref.title: ref.link} for ref in self.state.daftar_pustaka if ref.link],
+                    "references": [
+                        {
+                            "title": ref.title,
+                            "authors": ref.authors,
+                            "year": ref.year,
+                            "link": ref.link,
+                            "excerpt": ref.excerpt,
+                        }
+                        for ref in self.state.daftar_pustaka if ref.link
+                    ],
                     "judul_makalah": self.state.judul,
                     "mata_kuliah": self.state.mata_kuliah,
                 }
@@ -132,7 +148,7 @@ class MalasFlow(Flow[Makalah]):
     def finalize_and_save(self):
         """Langkah akhir: Konversi state akhir ke format DOCX."""
         print("\n🏁 Finalisasi flow, menyimpan hasil ke file DOCX...")
-        docx_converter = DocxConverter("template/template makalah.docx",hardcoded=False)
+        docx_converter = DocxConverter("template_and_output/template makalah.docx",hardcoded=False)
         docx_converter.convert(self.state)
         print("🎉 Makalah berhasil dibuat!")
 

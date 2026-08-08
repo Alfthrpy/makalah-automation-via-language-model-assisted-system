@@ -18,16 +18,41 @@ make_outline_task:
 
 search_reference_task:
   description: >
-    Cari total 5 hingga 10 referensi akademis yang paling relevan untuk keseluruhan Bab 2 (set max_results di 2).
-    query yang diberikan wajib berbahasa inggris
-     
-    Setelah itu, sebarkan referensi ini secara merata ke 5 sub-bab yang ada di dalam Bab 2,
-    pastikan setiap sub-bab mendapatkan setidaknya satu referensi yang paling sesuai.
-    Prioritaskan sumber yang diterbitkan dalam 5-10 tahun terakhir.
+    Cari referensi untuk setiap sub-bab dengan aturan KETAT berikut. Topik makalah bisa
+    dari bidang apapun (sains, teknik, sosial, humaniora, ekonomi, kesehatan, atau topik
+    populer sekalipun) - PILIH SUMBER SESUAI BIDANG, jangan paksa satu sumber untuk semua topik.
+
+    CAKUPAN (subab yang butuh referensi):
+    - Bab 1.1 Latar Belakang
+    - Semua sub-bab di Bab 2
+
+    PEMILIHAN SUMBER (urutan prioritas, pilih SATU yang paling sesuai per sub-bab):
+    1. Arxiv Paper Search Tool -> hanya untuk topik sains/teknik/matematika/komputer.
+    2. Semantic Scholar Search Tool -> default untuk topik akademis lintas bidang (sosial,
+       humaniora, ekonomi, kesehatan, dll) atau jika Arxiv tidak relevan/tidak ada hasil.
+    3. Reference Finder Tool (CrossRef) -> cadangan jika Semantic Scholar tidak ada hasil.
+    4. DuckDuckGo Search Tool + Research Extractor Tool -> HANYA jika ketiga sumber akademis
+       di atas sama sekali tidak memberi hasil relevan (topik terlalu umum/populer). Gunakan
+       DuckDuckGo untuk menemukan URL kredibel, lalu Research Extractor Tool untuk mengambil
+       isinya sebagai excerpt.
+
+    ATURAN WAJIB:
+    1. Panggil tool pencarian akademis HANYA 1 KALI per sub-bab (setiap panggilan otomatis
+       dapat 2-3 hasil). Jika perlu fallback ke sumber lain karena hasil kosong, itu dihitung
+       sebagai 1 rangkaian usaha untuk sub-bab tersebut, bukan pengulangan.
+    2. Query ke tool akademis (Arxiv/Semantic Scholar/CrossRef) WAJIB dalam Bahasa Inggris.
+    3. Prioritaskan sumber dari 5-10 tahun terakhir.
+    4. WAJIB salin abstract/ringkasan asli dari hasil tool ke field excerpt - JANGAN mengarang
+       atau meringkas ulang dengan kata-kata sendiri, gunakan teks abstract apa adanya (boleh dipotong).
+
+    WORKFLOW:
+    1. Identifikasi semua sub-bab yang butuh referensi dari outline.
+    2. Untuk setiap sub-bab: tentukan bidang ilmunya, pilih SATU sumber paling sesuai dari
+       daftar prioritas di atas, buat 1 query relevan, panggil tool 1x.
+    3. JANGAN panggil tool lebih dari 1x untuk sub-bab yang sama, kecuali fallback karena hasil kosong.
   expected_output: >
-    Daftar berisi total 5-10 referensi akademis, yang sudah dikelompokkan berdasarkan
-    sub-bab di Bab 2 yang paling relevan. Setiap referensi harus mencakup judul, penulis,
-    tahun, dan link/DOI.
+    Daftar referensi dikelompokkan per sub-bab (2 referensi per sub-bab). Setiap referensi
+    mencakup: judul, penulis, tahun, link/DOI/URL, dan excerpt (abstract/ringkasan asli dari sumber).
   agent: academic_researcher
   context:
     - make_outline_task

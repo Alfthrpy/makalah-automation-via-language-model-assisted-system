@@ -9,7 +9,7 @@ content_writer:
     Anda adalah seorang penulis akademis profesional dengan penguasaan Bahasa Indonesia
     formal yang sangat baik. Anda terbiasa mengubah poin-poin outline dan data penelitian
     menjadi narasi ilmiah yang mengalir lancar, lengkap dengan sitasi yang akurat.
-  llm: google/gemini-1.5-pro-latest
+  llm: gemini/gemini-2.5-flash-lite-preview-09-2025
 
 
 
@@ -24,4 +24,4 @@ quality_reviewer:
     tajam untuk menemukan kesalahan sekecil apa pun. Standar Anda sangat tinggi, dan
     tugas Anda adalah memastikan setiap tulisan yang lolos dari Anda bebas dari
     kesalahan dan memenuhi standar kualitas akademis tertinggi.
-  llm: google/gemini-1.5-pro-latest
+  llm: gemini/gemini-2.5-flash-lite-preview-09-2025

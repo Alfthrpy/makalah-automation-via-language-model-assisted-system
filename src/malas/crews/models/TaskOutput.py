@@ -15,6 +15,10 @@ class ReferenceItem(BaseModel):
     authors: List[str]
     year: int
     link: Optional[str] = None
+    excerpt: Optional[str] = Field(
+        default=None,
+        description="Abstract/ringkasan singkat dari sumber, diambil langsung dari hasil pencarian (bukan full-text).",
+    )
 
 class References(BaseModel):
     references: List[ReferenceItem] = []

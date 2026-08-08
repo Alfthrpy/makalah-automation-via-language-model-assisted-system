@@ -5,8 +5,12 @@ write_content_task:
     
     Peraturan Penting:
     1. Untuk Bab 2, WAJIB gunakan referensi yang telah disediakan.
-    2. Lakukan sitasi dalam teks (in-text citation) menggunakan format APA 7th Edition.
-    3. Pastikan setiap bagian mengalir secara logis ke bagian berikutnya.
+    2. Setiap referensi punya field "excerpt" berisi abstract/ringkasan asli sumbernya - gunakan
+       excerpt itu sebagai dasar konten yang anda tulis, jangan hanya menyebut judulnya saja.
+       Jika excerpt kosong/tidak tersedia untuk suatu referensi, gunakan Scientific Paper
+       Knowledge Base atau DuckDuckGo Search Tool untuk melengkapi konteksnya.
+    3. Lakukan sitasi dalam teks (in-text citation) menggunakan format APA 7th Edition.
+    4. Pastikan setiap bagian mengalir secara logis ke bagian berikutnya.
     5. Gunakan bahasa Indonesia formal yang sesuai untuk karya ilmiah.
     6. output berupa content lengkap untuk subab {subbab_now} pada bab {bab_now} saja.
 
