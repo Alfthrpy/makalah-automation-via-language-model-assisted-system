@@ -125,6 +125,11 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { border-color
 .privacy ul { margin: 0; padding-left: 1.1em; }
 .privacy li + li { margin-top: 3px; }
 #insecure { margin: 0 0 12px; }
+.resume-note { margin: 0 0 14px; padding: 12px 14px; border-radius: 10px; background: var(--accent-soft); font-size: .9rem; }
+.resume-note[hidden] { display: none; }
+.resume-note p { margin: 0 0 8px; }
+.resume-note .btn { margin-right: 8px; }
+input[readonly], textarea[readonly] { background: var(--surface-2); color: var(--muted); }
 
 /* buttons */
 .btn {

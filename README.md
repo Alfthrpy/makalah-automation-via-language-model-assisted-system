@@ -112,6 +112,19 @@ Default hasil ada di `output/makalah_<waktu>.docx`. Uji tanpa biaya API: `MALAS_
 6. `DocxConverter` merender ke template Word (`docxtpl`/Jinja2). Template per kampus dapat
    diganti dengan `--template`.
 
+### Ketahanan terhadap galat
+
+- **Keluaran LLM tidak sesuai skema** (bukan JSON, dibungkus markdown, kunci berbeda): dirapikan secara
+  lokal oleh `malas/tolerant.py`, tanpa panggilan LLM tambahan. Sebelumnya CrewAI meminta LLM "memformat
+  ulang" sampai 3 kali (boros token) dan pada jalur tertentu crash dengan
+  *"Agent must be provided if converter_cls is not specified"*.
+- **Coba ulang**: tiap sub-bab diulang sekali bila gagal/kosong; galat yang pasti gagal lagi
+  (key salah, saldo habis, model tidak ada) langsung berhenti.
+- **Checkpoint & lanjutkan**: setelah outline selesai dan setiap sub-bab jadi, hasilnya disimpan di folder job.
+  Bila job gagal/terhenti, tombol **Lanjutkan dari titik terakhir** membuat job baru yang memakai ulang outline,
+  referensi, dan sub-bab yang sudah jadi (API key diminta lagi; key tidak pernah disimpan). Checkpoint dihapus
+  saat job selesai dan ikut terhapus oleh masa simpan otomatis.
+
 ## Tes
 
 ```bash

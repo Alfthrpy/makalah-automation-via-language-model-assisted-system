@@ -5,6 +5,7 @@ from crewai.agents.agent_builder.base_agent import BaseAgent
 from typing import List
 
 from malas.crews.models.TaskOutput import SubBab
+from malas.tolerant import TolerantConverter
 from malas.config import get_llm, is_mock
 from malas.tools.custom_tool import DuckDuckGoSearchTool
 # If you want to run a snippet of code before or after the crew starts,
@@ -47,7 +48,8 @@ class WriteFormatCrew():
         return Task(
             config=self.tasks_config['write_content_task'], # type: ignore[index]
             tools=[search_tool],
-            output_pydantic=SubBab
+            output_pydantic=SubBab,
+            converter_cls=TolerantConverter,
         )
 
     # @task

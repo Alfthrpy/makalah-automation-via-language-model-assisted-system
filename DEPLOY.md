@@ -120,6 +120,7 @@ job mode uji sampai unduhan, dan pengukuran memori.
 | Halaman menampilkan **Invalid host header** (400) | Memakai domain sendiri tanpa `MALAS_WEB_ALLOWED_HOSTS`. Tambahkan domain tersebut |
 | Build gagal saat `uv sync` | Pastikan `uv.lock` ikut ter-commit dan sinkron dengan `pyproject.toml` (`uv lock`) |
 | Layanan restart saat job berjalan | Kemungkinan kehabisan memori (bagian 6) |
+| Job gagal di tengah jalan | Buka job tersebut → **Lanjutkan dari titik terakhir** (butuh API key lagi). Outline dan sub-bab yang sudah jadi dipakai ulang. Di free tier, checkpoint ikut hilang bila layanan restart/tidur karena disk sementara |
 | Job selalu "Antre" | Ada job lain yang sedang berjalan; antrean satu pekerja. Tunggu atau coba lagi |
 | "Anda masih punya makalah yang sedang diproses" (429) | Aturan 1 job aktif per pengguna. Tunggu selesai |
 | "Antrean penuh" (429) | `MALAS_WEB_MAX_QUEUE` tercapai; coba lagi sebentar lagi |

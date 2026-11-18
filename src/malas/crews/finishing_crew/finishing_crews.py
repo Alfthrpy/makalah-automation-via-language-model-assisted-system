@@ -5,6 +5,7 @@ from typing import Callable, Optional
 import yaml
 from crewai import Agent, Crew, Process, Task
 
+from malas.tolerant import TolerantConverter
 from malas.config import get_llm
 from malas.crews.models.TaskOutput import KataPengantar, SubBab
 
@@ -18,7 +19,7 @@ def _load(name: str) -> dict:
 def _single_task_crew(config_file: str, agent_key: str, task_key: str, output, role: str) -> tuple[Crew, Task]:
     cfg = _load(config_file)
     agent = Agent(config=cfg["agents"][agent_key], llm=get_llm(role), verbose=False)
-    task = Task(config=cfg["tasks"][task_key], agent=agent, output_pydantic=output)
+    task = Task(config=cfg["tasks"][task_key], agent=agent, output_pydantic=output, converter_cls=TolerantConverter)
     crew = Crew(agents=[agent], tasks=[task], process=Process.sequential, verbose=False, max_rpm=10)
     return crew, task
 
