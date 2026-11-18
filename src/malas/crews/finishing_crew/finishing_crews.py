@@ -1,5 +1,6 @@
 """Crew kecil tahap akhir: Kata Pengantar dan perbaikan sitasi per sub-bab."""
 from pathlib import Path
+from typing import Callable, Optional
 
 import yaml
 from crewai import Agent, Crew, Process, Task
@@ -22,19 +23,26 @@ def _single_task_crew(config_file: str, agent_key: str, task_key: str, output, r
     return crew, task
 
 
-def run_kata_pengantar(inputs: dict) -> str | None:
+UsageCallback = Optional[Callable[[object], None]]
+
+
+def run_kata_pengantar(inputs: dict, on_usage: UsageCallback = None) -> str | None:
     crew, task = _single_task_crew(
         "kata_pengantar.yaml", "kata_pengantar_writer", "write_kata_pengantar", KataPengantar, "writer"
     )
-    crew.kickoff(inputs=inputs)
+    result = crew.kickoff(inputs=inputs)
+    if on_usage:
+        on_usage(result)
     out = task.output
     return out.pydantic.isi.strip() if out and out.pydantic else None
 
 
-def run_citation_fix(inputs: dict) -> SubBab | None:
+def run_citation_fix(inputs: dict, on_usage: UsageCallback = None) -> SubBab | None:
     crew, task = _single_task_crew(
         "citation_fix.yaml", "citation_editor", "fix_citations", SubBab, "reviewer"
     )
-    crew.kickoff(inputs=inputs)
+    result = crew.kickoff(inputs=inputs)
+    if on_usage:
+        on_usage(result)
     out = task.output
     return out.pydantic if out and out.pydantic else None

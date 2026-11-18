@@ -50,3 +50,17 @@ def test_format_apa7_tanpa_titik_ganda_dan_tanpa_none():
     ref = format_apa7({"authors": ["Jane"], "year": 2020, "title": "judul", "link": None})
     assert ".." not in ref and "None" not in ref
     assert format_apa7({"authors": ["John Smith"], "year": 2024, "title": "x", "link": "u"}).startswith("Smith, J. (2024).")
+
+
+def test_karakter_khusus_xml_tidak_hilang(tmp_path):
+    m = _makalah()
+    m.judul = "Riset & Pengembangan <AI>"
+    m.daftar_pustaka = [ReferenceItem(title="x", authors=["Ana Lee", "Bob Kim"], year=2024, link="https://a.b/?x=1&y=2")]
+    m.bab["I"].subbab[0].content = [ContentText(isi="p & q <b>")]
+    out = DocxConverter(str(TEMPLATE), str(tmp_path / "esc.docx")).convert(m)
+    teks = "\n".join(p.text for p in Document(out).paragraphs)
+
+    assert "Riset & Pengembangan <AI>" in teks
+    assert "p & q <b>" in teks
+    assert "Lee, A. & Kim, B." in teks
+    assert "?x=1&y=2" in teks

@@ -4,7 +4,7 @@ from crewai.agents.agent_builder.base_agent import BaseAgent
 from typing import List, Optional,Dict
 from pydantic import BaseModel
 from malas.crews.models.TaskOutput import Outline, References
-from malas.config import get_llm
+from malas.config import get_llm, is_mock
 from malas.tools.custom_tool import (
     DuckDuckGoSearchTool,
     LimitedArxivTool,
@@ -27,8 +27,6 @@ reference_finder_tool = ReferenceFinderTool()
 search_tool = DuckDuckGoSearchTool()
 extractor_tool = ResearchExtractorTool()
 
-llm = get_llm("planner")
-
 
 
 @CrewBase
@@ -45,7 +43,7 @@ class PlannerCrew:
     def outline_planner(self) -> Agent:
         return Agent(
             config=self.agents_config["outline_planner"],  # type: ignore[index]
-            llm=llm,  
+            llm=get_llm("planner"),
             
         )
     
@@ -53,7 +51,7 @@ class PlannerCrew:
     def academic_researcher(self) -> Agent:
         return Agent(
             config=self.agents_config["academic_researcher"],  # type: ignore[index]
-            llm=llm,
+            llm=get_llm("planner"),
         )
 
     @task
@@ -82,5 +80,5 @@ class PlannerCrew:
             process=Process.sequential,
             verbose=True,
             output_log_file="logs/planner_crew_log.json",
-            max_rpm=5
+            max_rpm=None if is_mock() else 5
         )

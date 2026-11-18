@@ -50,6 +50,20 @@ def _as_list(contents: list) -> list:
     return [{"type": "list", "title_items": None, "items": items}]
 
 
+_XML_ILLEGAL = re.compile("[\x00-\x08\x0b\x0c\x0e-\x1f\ufffe\uffff]")
+
+
+def xml_safe(obj: Any) -> Any:
+    """Buang karakter kontrol yang tidak boleh ada di XML (merusak .docx) dari seluruh data."""
+    if isinstance(obj, str):
+        return _XML_ILLEGAL.sub("", obj)
+    if isinstance(obj, list):
+        return [xml_safe(x) for x in obj]
+    if isinstance(obj, dict):
+        return {k: xml_safe(v) for k, v in obj.items()}
+    return obj
+
+
 def normalize_for_template(context: Dict[str, Any]) -> Dict[str, Any]:
     """Samakan bentuk data LLM dengan asumsi template (Bab I: teks/list/list, Bab III: teks)."""
     bab = context.get("bab", {})
@@ -170,7 +184,7 @@ class DocxConverter:
 
         # Tambahkan daftar alfabet untuk enumerasi (a, b, c, ...)
         context["alphabet"] = [chr(ord("a") + i) for i in range(26)]
-        return context
+        return xml_safe(context)
 
     def convert(self, makalah_state: Makalah) -> str:
         """
@@ -184,7 +198,7 @@ class DocxConverter:
         try:
             context = self._generate_context(makalah_state)
             doc = DocxTemplate(self.template_path)
-            doc.render(context, jinja_env=self.jinja_env)
+            doc.render(context, jinja_env=self.jinja_env, autoescape=True)
 
             output_dir = os.path.dirname(self.output_path)
             if output_dir and not os.path.exists(output_dir):

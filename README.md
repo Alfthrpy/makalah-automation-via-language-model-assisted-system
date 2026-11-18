@@ -37,6 +37,27 @@ GEMINI_API_KEY="isi_api_key_anda"
 
 ## Cara pakai
 
+### Antarmuka web (disarankan)
+
+```bash
+uv run malas-web
+```
+
+Buka <http://127.0.0.1:8000>, isi formulir, lalu tekan **Buat makalah**. Halaman menampilkan
+progres tiap tahap, ringkasan hasil (jumlah sub-bab, referensi, sitasi, token), tombol unduh
+`.docx`, dan riwayat. Hasil tersimpan di `output/jobs/<id>/` sehingga selamat dari restart.
+
+- **Mode uji**: centang untuk mencoba alur tanpa memanggil LLM (isi berupa teks contoh).
+- **Satu makalah sekaligus**: job berikutnya mengantre agar kuota API tidak berebut. Job yang
+  sedang berjalan tidak bisa dihentikan di tengah jalan (CrewAI tidak mendukungnya); job yang
+  masih mengantre bisa dibatalkan.
+- **Keamanan**: server hanya mendengarkan `127.0.0.1` dan menolak Host asing. Tidak ada login,
+  jadi jangan dibuka ke jaringan publik; siapa pun yang bisa mengakses akan memakai kuota API Anda.
+  Untuk membukanya di jaringan tepercaya: `MALAS_WEB_HOST=0.0.0.0 uv run malas-web`.
+- Env opsional: `MALAS_WEB_HOST`, `MALAS_WEB_PORT`, `MALAS_OUTPUT_DIR`, `MALAS_WEB_ALLOWED_HOSTS`.
+
+### Baris perintah
+
 1. Salin `input/contoh.yaml` dan isi judul, mata kuliah, penyusun, kampus.
 2. Jalankan:
 
@@ -45,9 +66,7 @@ uv run kickoff --input input/makalah-saya.yaml
 ```
 
 Opsi lain: `--template "path/template.docx"` dan `--output hasil.docx`.
-Default hasil ada di `output/makalah_<waktu>.docx`.
-
-Uji alur tanpa biaya API: `MALAS_MOCK=1 uv run kickoff`.
+Default hasil ada di `output/makalah_<waktu>.docx`. Uji tanpa biaya API: `MALAS_MOCK=1 uv run kickoff`.
 
 ## Cara kerja
 
