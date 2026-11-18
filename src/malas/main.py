@@ -17,13 +17,15 @@ from crewai.flow import Flow, listen, start
 from malas.crews.planner_crew.planner_crew import PlannerCrew
 from malas.crews.models.TaskOutput import (
     Penyusun, 
-    ContentText, 
-    ContentList,
     SubBab, 
     Bab, 
     Makalah
 )
 from malas.crews.write_format_crew.write_format_crew import WriteFormatCrew
+from malas.citations import (
+    check_citations, citation_label, content_text, prune_unused_references,
+)
+from malas.crews.finishing_crew.finishing_crews import run_citation_fix, run_kata_pengantar
 from malas.docx_converter import DocxConverter
 
 DEFAULT_INPUT = "input/contoh.yaml"
@@ -108,19 +110,8 @@ class MalasFlow(Flow[Makalah]):
                 if subbab_index > 0:
                     previous_subbab = bab.subbab[subbab_index - 1]
                     if previous_subbab.judul in generated_contents:
-                        content_objects = generated_contents[previous_subbab.judul]
                         header = f"Konten dari Sub-Bab sebelumnya '{previous_subbab.judul}':"
-                        content_parts = []
-                        for item in content_objects:
-                            if isinstance(item, ContentText):
-                                content_parts.append(item.isi)
-                            elif isinstance(item, ContentList):
-                                if item.title_items:
-                                    content_parts.append(item.title_items)
-                                formatted_items = "\n".join([f"- {li}" for li in item.items])
-                                content_parts.append(formatted_items)
-                        
-                        full_content_str = "\n".join(content_parts)
+                        full_content_str = content_text(generated_contents[previous_subbab.judul])
                         formatted_previous_content = f"{header}\n{full_content_str}"
 
                 # 2. Jalankan crew untuk menghasilkan konten sub-bab saat ini
@@ -130,6 +121,7 @@ class MalasFlow(Flow[Makalah]):
                     "previous_subab_contents": formatted_previous_content,
                     "references": [
                         {
+                            "sitasi": citation_label(ref),
                             "title": ref.title,
                             "authors": ref.authors,
                             "year": ref.year,
@@ -153,6 +145,56 @@ class MalasFlow(Flow[Makalah]):
         print("\n✅ Semua konten sub-bab telah diisi.")
 
     @listen(fill_subbab_content)
+    def verify_citations(self):
+        """Cek sitasi in-text vs daftar pustaka; perbaiki sub-bab bermasalah (1x), buang pustaka tak terpakai."""
+        report = check_citations(self.state)
+        print(f"\n🔎 Sitasi ditemukan: {report.total_citations}; "
+              f"sub-bab dengan sitasi tidak sah: {len(report.invalid)}")
+
+        if report.invalid:
+            refs = [
+                {"sitasi": citation_label(r), "title": r.title, "authors": r.authors, "year": r.year}
+                for r in self.state.daftar_pustaka
+            ]
+            subbab_by_title = {sb.judul: sb for bab in self.state.bab.values() for sb in bab.subbab}
+            for judul, tidak_valid in report.invalid.items():
+                print(f"🛠️  Memperbaiki sitasi di {judul}: {tidak_valid}")
+                perbaikan = run_citation_fix({
+                    "judul_makalah": self.state.judul,
+                    "subbab_now": judul,
+                    "sitasi_tidak_valid": ", ".join(tidak_valid),
+                    "references": refs,
+                    "konten": content_text(subbab_by_title[judul].content),
+                })
+                if perbaikan and perbaikan.content:
+                    subbab_by_title[judul].content = perbaikan.content
+
+            report = check_citations(self.state)
+            for judul, tidak_valid in report.invalid.items():
+                print(f"⚠️  Masih ada sitasi tidak sah di {judul}: {tidak_valid} (periksa manual)")
+
+        dibuang = prune_unused_references(self.state, report)
+        if dibuang:
+            print(f"🧹 {dibuang} referensi tidak dikutip dibuang dari daftar pustaka.")
+
+    @listen(verify_citations)
+    def write_kata_pengantar(self):
+        """Tulis Kata Pengantar dari data makalah."""
+        isi = run_kata_pengantar({
+            "judul_makalah": self.state.judul,
+            "mata_kuliah": self.state.mata_kuliah,
+            "dosen_pengampu": self.state.dosen_pengampu,
+            "penyusun": ", ".join(p.nama for p in self.state.penyusun),
+            "kota": self.state.kota,
+            "tahun": self.state.tahun,
+        })
+        if isi:
+            self.state.kata_pengantar = isi
+            print("📝 Kata pengantar berhasil dibuat.")
+        else:
+            print("⚠️  Kata pengantar gagal dibuat; memakai teks default.")
+
+    @listen(write_kata_pengantar)
     def finalize_and_save(self):
         """Langkah akhir: Konversi state akhir ke format DOCX."""
         print("\n🏁 Finalisasi flow, menyimpan hasil ke file DOCX...")

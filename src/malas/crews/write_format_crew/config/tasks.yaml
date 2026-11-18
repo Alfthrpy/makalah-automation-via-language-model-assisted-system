@@ -10,6 +10,9 @@ write_content_task:
        Jika excerpt kosong/tidak tersedia untuk suatu referensi, gunakan DuckDuckGo
        Search Tool untuk melengkapi konteksnya.
     3. Lakukan sitasi dalam teks (in-text citation) menggunakan format APA 7th Edition.
+       HANYA kutip referensi yang ada di daftar "referensi yang disediakan". Salin bentuk sitasi
+       dari field "sitasi" persis apa adanya, mis. (Smith & Lee, 2024). Bentuk naratif juga boleh:
+       Smith dan Lee (2024). DILARANG menciptakan sumber/penulis/tahun yang tidak ada di daftar.
     4. Pastikan setiap bagian mengalir secara logis ke bagian berikutnya.
     5. Gunakan bahasa Indonesia formal yang sesuai untuk karya ilmiah.
     6. output berupa content lengkap untuk subab {subbab_now} pada bab {bab_now} saja.

@@ -6,6 +6,7 @@ from crewai import LLM
 # Model default; ganti lewat env tanpa menyentuh kode, contoh:
 #   MALAS_MODEL=gemini/gemini-2.5-flash
 #   MALAS_MODEL=anthropic/claude-sonnet-5-5
+# Peran: planner, writer, reviewer (MALAS_MODEL_REVIEWER, default ke MALAS_MODEL).
 DEFAULT_MODEL = "gemini/gemini-2.5-flash-lite"
 
 

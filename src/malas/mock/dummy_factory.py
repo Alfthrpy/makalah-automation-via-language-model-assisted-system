@@ -3,7 +3,7 @@
 from pydantic import BaseModel
 from typing import Dict, Optional, Type
 
-from malas.crews.models.TaskOutput import Outline, ReferenceItem, References, SimpleSubbab, SubBab, ContentText, ContentList
+from malas.crews.models.TaskOutput import Outline, ReferenceItem, References, SimpleSubbab, SubBab, ContentText, ContentList, KataPengantar
 
 
 def create_dummy_instance(model_class: Type[BaseModel],context: Optional[Dict] = None) -> BaseModel:
@@ -51,12 +51,15 @@ def create_dummy_instance(model_class: Type[BaseModel],context: Optional[Dict] =
                 ReferenceItem(title="Jurnal Referensi Auto-Generated 6", authors=["Penulis F"], year=2024,link="https://contohlink.com"),
             ]
         )
+    elif model_class == KataPengantar:
+        return KataPengantar(isi="Puji syukur dipanjatkan ke hadirat Tuhan Yang Maha Esa.\nMakalah ini disusun sebagai pemenuhan tugas. Terima kasih.")
     elif model_class == SubBab:
         judul_dinamis = context.get('subbab_now', 'Judul Dummy Tidak Ditemukan')
         bab_now = context.get('bab_now', 'Bab Dummy Tidak Ditemukan')
         konten_paragraf_1 = ContentText(
             isi=f"Ini adalah paragraf pengantar dummy untuk {judul_dinamis}. "
-                "Teks ini menjelaskan konteks umum dari topik yang akan dibahas secara naratif.",
+                "Teks ini menjelaskan konteks umum dari topik yang akan dibahas secara naratif "
+                "(Penulis B, 2024)" + (" dan (Fiktif, 1999)." if context.get('subbab_now') else "."),
                 type="text"
             
         )
