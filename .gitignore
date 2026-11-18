@@ -6,3 +6,4 @@ lib/
 /arxiv_pdfs
 /output
 .env
+/logs
