@@ -9,6 +9,9 @@ write_content_task:
        excerpt itu sebagai dasar konten yang anda tulis, jangan hanya menyebut judulnya saja.
        Jika excerpt kosong/tidak tersedia untuk suatu referensi, gunakan DuckDuckGo
        Search Tool untuk melengkapi konteksnya.
+    2b. Jika sebuah referensi punya field "kutipan" (potongan teks asli dari isi paper, bahasa Inggris),
+       prioritaskan kutipan itu sebagai sumber fakta, data, dan istilah; parafrasekan ke Bahasa Indonesia,
+       jangan menyalin mentah, dan jangan menambahkan klaim yang tidak ada di kutipan/excerpt.
     3. Lakukan sitasi dalam teks (in-text citation) menggunakan format APA 7th Edition.
        HANYA kutip referensi yang ada di daftar "referensi yang disediakan". Salin bentuk sitasi
        dari field "sitasi" persis apa adanya, mis. (Smith & Lee, 2024). Bentuk naratif juga boleh:

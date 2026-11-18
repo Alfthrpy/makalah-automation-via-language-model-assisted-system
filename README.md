@@ -31,6 +31,8 @@ GEMINI_API_KEY="isi_api_key_anda"
 # MALAS_MODEL_PLANNER=openrouter/deepseek/deepseek-v3.2
 # MALAS_MODEL_WRITER=openrouter/google/gemini-2.5-flash
 # MALAS_MOCK=1                              # LLM palsu, tanpa API call (uji alur)
+# MALAS_FULLTEXT=0                          # matikan pengambilan full-text referensi
+# MALAS_FULLTEXT_CHARS=3000                 # batas kutipan full-text per sub-bab (~750 token)
 ```
 
 ## Cara pakai
@@ -50,13 +52,18 @@ Uji alur tanpa biaya API: `MALAS_MOCK=1 uv run kickoff`.
 ## Cara kerja
 
 1. `PlannerCrew`: outline + pencarian referensi (Arxiv, Semantic Scholar, CrossRef, DuckDuckGo).
-2. `WriteFormatCrew`: menulis tiap sub-bab dengan konteks referensi. Setiap referensi diberi
+2. **Full-text hemat token** (`malas/fulltext.py`, tanpa LLM): PDF open-access referensi (arXiv,
+   Semantic Scholar/DOI open-access, atau halaman web) diunduh dan di-cache di `.cache/fulltext/`.
+   Per sub-bab hanya beberapa potongan paling relevan (BM25 kata kunci, bukan embedding) yang
+   dikirim ke Writer, dibatasi `MALAS_FULLTEXT_CHARS` dan tidak diulang antar sub-bab. Bila gagal
+   diunduh, referensi tetap dipakai lewat abstraknya.
+3. `WriteFormatCrew`: menulis tiap sub-bab dengan konteks referensi. Setiap referensi diberi
    bentuk sitasi siap-salin (mis. `(Smith & Lee, 2024)`) agar LLM tidak mengarang sitasi.
-3. **Verifikasi sitasi** (`malas/citations.py`, tanpa LLM): sitasi in-text dicocokkan dengan
+4. **Verifikasi sitasi** (`malas/citations.py`, tanpa LLM): sitasi in-text dicocokkan dengan
    daftar pustaka. Sub-bab dengan sitasi tidak sah diperbaiki satu kali oleh `citation_editor`;
    referensi yang tidak pernah dikutip dibuang dari daftar pustaka (aturan APA).
-4. Kata Pengantar ditulis otomatis dari data makalah.
-5. `DocxConverter` merender ke template Word (`docxtpl`/Jinja2). Template per kampus dapat
+5. Kata Pengantar ditulis otomatis dari data makalah.
+6. `DocxConverter` merender ke template Word (`docxtpl`/Jinja2). Template per kampus dapat
    diganti dengan `--template`.
 
 ## Tes

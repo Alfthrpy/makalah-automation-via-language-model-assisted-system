@@ -27,9 +27,18 @@ from malas.citations import (
 )
 from malas.crews.finishing_crew.finishing_crews import run_citation_fix, run_kata_pengantar
 from malas.docx_converter import DocxConverter
+from malas.fulltext import FullTextStore
 
 DEFAULT_INPUT = "input/contoh.yaml"
 DEFAULT_TEMPLATE = "template_and_output/template makalah.docx"
+FULLTEXT_CACHE = Path(".cache/fulltext")
+
+
+def _env_int(name: str, default: int) -> int:
+    try:
+        return int(os.getenv(name, default))
+    except ValueError:
+        return default
 
 
 def load_input(path: str) -> dict:
@@ -94,7 +103,44 @@ class MalasFlow(Flow[Makalah]):
         self.state.daftar_pustaka = references_output.pydantic.references
         print("🗺️ Outline dan daftar pustaka berhasil dibuat.")
 
+    def _references_for(self, subbab_judul: str) -> list[dict]:
+        """Referensi untuk prompt Writer: abstrak + (jika ada) beberapa kutipan full-text relevan.
+
+        Total kutipan dibatasi MALAS_FULLTEXT_CHARS (default 3000 karakter ~ 750 token) per sub-bab.
+        """
+        store = self.fulltext
+        punya_teks = [i for i, r in enumerate(self.state.daftar_pustaka) if r.link and i in store.texts]
+        jatah = _env_int("MALAS_FULLTEXT_CHARS", 3000) // max(len(punya_teks), 1)
+        hasil = []
+        for i, ref in enumerate(self.state.daftar_pustaka):
+            if not ref.link:
+                continue
+            item = {
+                "sitasi": citation_label(ref),
+                "title": ref.title,
+                "authors": ref.authors,
+                "year": ref.year,
+                "link": ref.link,
+                "excerpt": ref.excerpt,
+            }
+            kutipan = store.passages(i, ref, f"{subbab_judul} {self.state.judul}", jatah) if i in store.texts else []
+            if kutipan:
+                item["kutipan"] = kutipan
+            hasil.append(item)
+        return hasil
+
     @listen(generate_outline)
+    def fetch_fulltexts(self):
+        """Unduh full-text referensi open-access (tanpa LLM). Gagal = lanjut hanya dengan abstrak."""
+        self.fulltext = FullTextStore()
+        if os.getenv("MALAS_FULLTEXT", "1") == "0":
+            print("⏭️  Full-text referensi dimatikan (MALAS_FULLTEXT=0).")
+            return
+        total = len(self.state.daftar_pustaka)
+        berhasil = self.fulltext.load(self.state.daftar_pustaka, FULLTEXT_CACHE)
+        print(f"📄 Full-text berhasil diambil: {berhasil}/{total} referensi (sisanya memakai abstrak).")
+
+    @listen(fetch_fulltexts)
     def fill_subbab_content(self):
         """Mengisi konten untuk setiap sub-bab secara sekuensial."""
         writer = WriteFormatCrew()
@@ -119,17 +165,7 @@ class MalasFlow(Flow[Makalah]):
                     "bab_now": bab.judul,
                     "subbab_now": subbab.judul,
                     "previous_subab_contents": formatted_previous_content,
-                    "references": [
-                        {
-                            "sitasi": citation_label(ref),
-                            "title": ref.title,
-                            "authors": ref.authors,
-                            "year": ref.year,
-                            "link": ref.link,
-                            "excerpt": ref.excerpt,
-                        }
-                        for ref in self.state.daftar_pustaka if ref.link
-                    ],
+                    "references": self._references_for(subbab.judul),
                     "judul_makalah": self.state.judul,
                     "mata_kuliah": self.state.mata_kuliah,
                 }
