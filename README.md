@@ -48,13 +48,38 @@ progres tiap tahap, ringkasan hasil (jumlah sub-bab, referensi, sitasi, token), 
 `.docx`, dan riwayat. Hasil tersimpan di `output/jobs/<id>/` sehingga selamat dari restart.
 
 - **Mode uji**: centang untuk mencoba alur tanpa memanggil LLM (isi berupa teks contoh).
+- **API key sendiri (BYOK)**: pengguna memilih penyedia (**OpenRouter** atau **Kenari**), menempel key,
+  dan (opsional) memilih model. Kenari: `https://kenari.id/v1`, key berawalan `kn-`, model gratis
+  berakhiran `:free`; id model diketik pengguna sesuai [katalog Kenari](https://kenari.id/en/docs).
+  Base URL dikunci di server (bukan input pengguna) agar key tidak bisa diarahkan ke host lain.
 - **Satu makalah sekaligus**: job berikutnya mengantre agar kuota API tidak berebut. Job yang
   sedang berjalan tidak bisa dihentikan di tengah jalan (CrewAI tidak mendukungnya); job yang
   masih mengantre bisa dibatalkan.
-- **Keamanan**: server hanya mendengarkan `127.0.0.1` dan menolak Host asing. Tidak ada login,
-  jadi jangan dibuka ke jaringan publik; siapa pun yang bisa mengakses akan memakai kuota API Anda.
-  Untuk membukanya di jaringan tepercaya: `MALAS_WEB_HOST=0.0.0.0 uv run malas-web`.
-- Env opsional: `MALAS_WEB_HOST`, `MALAS_WEB_PORT`, `MALAS_OUTPUT_DIR`, `MALAS_WEB_ALLOWED_HOSTS`.
+- Env opsional: `MALAS_WEB_HOST`, `MALAS_WEB_PORT`, `MALAS_OUTPUT_DIR`, `MALAS_WEB_ALLOWED_HOSTS`,
+  `MALAS_DEBUG_LOGS=1` (tulis log crew ke `logs/`; default mati agar tidak ada jejak).
+
+### Hosting publik tanpa login (mode BYOK)
+
+```bash
+MALAS_WEB_REQUIRE_KEY=1 MALAS_WEB_HOST=0.0.0.0 MALAS_WEB_ALLOWED_HOSTS="app-anda.onrender.com" uv run malas-web
+```
+
+Dengan `MALAS_WEB_REQUIRE_KEY=1` setiap pengguna **wajib** membawa key sendiri (kecuali Mode uji);
+key di `.env` server tidak pernah dipakai, jadi server tidak perlu menyimpan key apa pun. Jaminan:
+
+| Hal | Perilaku |
+|---|---|
+| Penyimpanan key | Hanya di memori proses selama job berjalan, lalu dibuang (selesai, gagal, batal, hapus, shutdown). Tidak masuk `job.json`, cache, log, env, URL, maupun localStorage/sessionStorage browser. Kolom key dikosongkan setelah dikirim dan saat halaman ditinggalkan. |
+| Kebocoran lewat error/log | Pesan error, log Python (termasuk litellm), dan traceback dibersihkan dari key; respons validasi tidak memantulkan input. Pesan ke pengguna berupa kalimat ramah, bukan JSON mentah penyedia. |
+| Jejak di host | stdout/stderr dibungkam saat job; telemetry CrewAI dimatikan; log crew mati kecuali `MALAS_DEBUG_LOGS=1`; riwayat dan berkas dihapus otomatis setelah `MALAS_WEB_RETENTION_HOURS` (default 6). |
+| Privasi antar pengguna | Tiap browser mendapat cookie sesi acak (HttpOnly, SameSite=Lax, Secure bila HTTPS); riwayat, status, dan unduhan hanya terlihat oleh pemiliknya (selain itu 404). |
+| Penyalahgunaan | Maks. 1 job aktif per pengguna dan `MALAS_WEB_MAX_QUEUE` (default 5) job aktif total; body dibatasi 100 KB; Host asing ditolak. |
+| Transport | Wajib HTTPS di internet (Render dll. menyediakannya). UI menolak mengisi key bila halaman dibuka lewat HTTP non-localhost. |
+
+Batas yang jujur: Python tidak bisa menghapus string dari memori secara pasti, sehingga key bisa
+tersisa di RAM sampai di-garbage-collect; operator server dengan akses ke proses/RAM tetap bisa
+melihatnya. Karena itu pengguna disarankan memakai key khusus dengan batas kredit kecil. Di free tier
+yang tidur/restart, riwayat hilang (disk sementara); unduh segera setelah selesai.
 
 ### Baris perintah
 

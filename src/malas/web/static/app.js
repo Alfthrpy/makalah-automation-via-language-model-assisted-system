@@ -106,7 +106,14 @@ function setPenyusun(list) {
 /* ---------- form ---------- */
 const TEXT_FIELDS = ['judul', 'mata_kuliah', 'dosen_pengampu', 'universitas', 'fakultas', 'jurusan', 'kelas', 'kota', 'tahun'];
 
-function collect() {
+function usingOwnKey() {
+  const r = document.querySelector('input[name="source"]:checked');
+  return cfg && (cfg.hosted || !cfg.server_key_available || (r && r.value === 'own'));
+}
+function currentProvider() { return (cfg.providers || []).find((p) => p.id === $('#provider').value) || null; }
+
+/* forStorage=true: tanpa API key. Key hanya hidup di kolom input dan dalam satu permintaan POST. */
+function collect(forStorage = false) {
   const data = {};
   for (const f of TEXT_FIELDS) data[f] = $('#' + f).value.trim();
   data.penyusun = [...document.querySelectorAll('.pen-row')]
@@ -114,6 +121,13 @@ function collect() {
     .filter((p) => p.nama || p.nim);
   data.template = $('#template').value || null;
   data.mock = $('#mock').checked;
+  data.source = usingOwnKey() ? 'own' : 'server';
+  if (data.source === 'own') {
+    data.provider = $('#provider').value;
+    data.model_planner = $('#model_planner').value.trim() || null;
+    data.model_writer = $('#model_writer').value.trim() || null;
+    if (!forStorage && !data.mock) data.api_key = $('#api_key').value.trim();
+  }
   return data;
 }
 function fillForm(data) {
@@ -121,8 +135,17 @@ function fillForm(data) {
   setPenyusun(data.penyusun);
   if (data.template && [...$('#template').options].some((o) => o.value === data.template)) $('#template').value = data.template;
   if (typeof data.mock === 'boolean') $('#mock').checked = data.mock;
+  const src = document.querySelector(`input[name="source"][value="${data.source === 'server' ? 'server' : 'own'}"]`);
+  if (src && !$('#source-wrap').hidden) src.checked = true;
+  if (data.provider && [...$('#provider').options].some((o) => o.value === data.provider && !o.disabled)) {
+    $('#provider').value = data.provider;
+    syncProvider(false);
+  }
+  if (data.model_planner) $('#model_planner').value = data.model_planner;
+  if (data.model_writer) $('#model_writer').value = data.model_writer;
+  syncProviderUI();
 }
-function saveForm() { store.set(FORM_KEY, collect()); }
+function saveForm() { store.set(FORM_KEY, collect(true)); }
 
 function clearErrors() {
   document.querySelectorAll('.err').forEach((e) => { e.textContent = ''; });
@@ -139,6 +162,15 @@ function validate(d) {
   if (d.judul.length < 3) errs.push(['judul', 'Judul wajib diisi (minimal 3 karakter).']);
   if (d.mata_kuliah.length < 2) errs.push(['mata_kuliah', 'Mata kuliah wajib diisi.']);
   if (!/^(19|20)\d{2}$/.test(d.tahun)) errs.push(['tahun', 'Isi tahun 4 digit, mis. 2025.']);
+  if (d.source === 'own' && !d.mock) {
+    if (!d.api_key || d.api_key.length < 8) errs.push(['api_key', 'Isi API key Anda (minimal 8 karakter).']);
+    else if (/\s/.test(d.api_key)) errs.push(['api_key', 'API key tidak boleh mengandung spasi.']);
+    const prov = currentProvider();
+    if (prov && prov.needs_model) {
+      if (!d.model_planner) errs.push(['model_planner', 'Isi id model (lihat daftar model penyedia).']);
+      if (!d.model_writer) errs.push(['model_writer', 'Isi id model (lihat daftar model penyedia).']);
+    }
+  }
   if (!d.penyusun.length) errs.push(['penyusun', 'Isi minimal satu penyusun.', $('.pen-nama')]);
   d.penyusun.forEach((p, i) => {
     if (!p.nama) errs.push(['penyusun', 'Nama penyusun tidak boleh kosong.', document.querySelectorAll('.pen-nama')[i]]);
@@ -174,16 +206,48 @@ function showServerErrors(detail) {
 }
 
 /* ---------- konfigurasi ---------- */
+function syncProvider(resetModels = true) {
+  const prov = currentProvider();
+  if (!prov) return;
+  $('#models-list').replaceChildren(...prov.models.map((m) => el('option', { value: m })));
+  $('#model_planner').placeholder = prov.default_planner || 'mis. ' + (prov.models[0] || 'nama-model');
+  $('#model_writer').placeholder = prov.default_writer || 'mis. ' + (prov.models[0] || 'nama-model');
+  if (resetModels) { $('#model_planner').value = ''; $('#model_writer').value = ''; }
+  const help = $('#key-help');
+  help.replaceChildren('Belum punya key? ');
+  if (prov.key_url) help.append(el('a', { href: prov.key_url, target: '_blank', rel: 'noopener noreferrer' }, `Buat key di ${prov.label}`), '. ');
+  help.append(prov.default_planner ? 'Model dikosongkan = memakai saran (riset: ' + prov.default_planner + ', penulis: ' + prov.default_writer + ').'
+    : 'Isi id model sesuai katalog ' + prov.label + '; model berakhiran :free bisa dipakai tanpa biaya.');
+}
+function syncProviderUI() {
+  const own = usingOwnKey() && !$('#mock').checked;
+  $('#own-wrap').hidden = !own;
+  const insecure = own && location.protocol === 'http:' && !['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+  $('#insecure').hidden = !insecure;
+  $('#api_key').disabled = insecure;
+}
+
 function renderConfig() {
-  const m = cfg.models;
-  const uniq = [...new Set(Object.values(m))];
   const chips = [];
-  if (uniq.length === 1) chips.push(el('span', { class: 'chip' }, 'Model ', el('b', {}, uniq[0])));
-  else chips.push(el('span', { class: 'chip' }, 'Penulis ', el('b', {}, m.writer)), el('span', { class: 'chip' }, 'Riset ', el('b', {}, m.planner)));
-  chips.push(el('span', { class: 'chip ' + (cfg.api_key_ok ? 'ok' : 'warn') }, cfg.api_key_ok ? 'API key terdeteksi' : 'API key belum terdeteksi'));
+  if (cfg.hosted) {
+    chips.push(el('span', { class: 'chip ok' }, 'API key: milik Anda'));
+  } else if (cfg.models) {
+    const m = cfg.models;
+    const uniq = [...new Set(Object.values(m))];
+    if (uniq.length === 1) chips.push(el('span', { class: 'chip' }, 'Server: ', el('b', {}, uniq[0])));
+    else chips.push(el('span', { class: 'chip' }, 'Penulis ', el('b', {}, m.writer)), el('span', { class: 'chip' }, 'Riset ', el('b', {}, m.planner)));
+    chips.push(el('span', { class: 'chip ' + (cfg.api_key_ok ? 'ok' : 'warn') }, cfg.api_key_ok ? 'Key server terdeteksi' : 'Key server belum ada'));
+  }
   chips.push(el('span', { class: 'chip' }, 'Full-text ', el('b', {}, cfg.fulltext ? 'aktif' : 'nonaktif')));
   $('#cfg-chips').replaceChildren(...chips);
-  if (!cfg.api_key_ok) showBanner('API key untuk model yang dipilih belum terdeteksi. Isi file .env (lihat README), atau centang “Mode uji” untuk mencoba tanpa model.');
+
+  const prov = $('#provider');
+  prov.replaceChildren(...cfg.providers.map((p) => el('option', { value: p.id, disabled: !p.enabled }, p.label + (p.enabled ? '' : ' (belum tersedia)'))));
+  syncProvider(true);
+  const showSource = !cfg.hosted && cfg.server_key_available;
+  $('#source-wrap').hidden = !showSource;
+  if (showSource) document.querySelector('input[name="source"][value="server"]').checked = true;
+  syncProviderUI();
 
   const sel = $('#template');
   sel.replaceChildren(...cfg.templates.map((t) => el('option', { value: t, selected: t === cfg.default_template }, t)));
@@ -285,12 +349,13 @@ function renderResult(job) {
       el('p', { class: 'note' }, job.mock
         ? 'Ini hasil mode uji: isinya teks contoh, bukan tulisan sungguhan.'
         : 'Buka di Word dan periksa isi, fakta, serta sitasi sebelum dikumpulkan. Daftar isi/nomor halaman mungkin perlu diperbarui (F9).'),
+      job.byok ? el('p', { class: 'note' }, 'API key Anda sudah dibuang dari memori server.') : null,
     );
   } else if (job.status === 'error' || job.status === 'interrupted') {
     box.hidden = false;
     box.classList.add('bad');
     const retry = el('button', { type: 'button', class: 'btn' }, 'Isi ulang formulir dari job ini');
-    retry.addEventListener('click', () => { fillForm({ ...job.request, template: job.template, mock: job.mock }); $('#judul').scrollIntoView({ behavior: 'smooth', block: 'center' }); $('#judul').focus({ preventScroll: true }); });
+    retry.addEventListener('click', () => { fillForm({ ...job.request, template: job.template, mock: job.mock, source: job.byok ? 'own' : 'server', provider: job.provider, model_planner: job.models && job.models.planner, model_writer: job.models && job.models.writer }); $('#judul').scrollIntoView({ behavior: 'smooth', block: 'center' }); $('#judul').focus({ preventScroll: true }); });
     box.append(el('h3', {}, 'Proses gagal'), el('p', {}, job.error || 'Terjadi kesalahan tak dikenal.'), retry);
   }
 }
@@ -343,7 +408,9 @@ async function onSubmit(ev) {
   const btn = $('#submit');
   btn.disabled = true;
   try {
-    const job = await api('/api/jobs', { method: 'POST', body: data });
+    const { source, ...body } = data; // 'source' hanya untuk UI
+    const job = await api('/api/jobs', { method: 'POST', body });
+    $('#api_key').value = ''; // key sudah di server; jangan biarkan tersisa di halaman
     saveForm();
     setCurrent(job.id);
     loadHistory();
@@ -381,6 +448,18 @@ async function init() {
     saveForm();
   });
   $('#form').addEventListener('submit', onSubmit);
+  $('#provider').addEventListener('change', () => syncProvider(true));
+  $('#mock').addEventListener('change', syncProviderUI);
+  document.querySelectorAll('input[name="source"]').forEach((r) => r.addEventListener('change', syncProviderUI));
+  $('#toggle-key').addEventListener('click', () => {
+    const k = $('#api_key');
+    const show = k.type === 'password';
+    k.type = show ? 'text' : 'password';
+    $('#toggle-key').textContent = show ? 'Sembunyikan' : 'Tampilkan';
+    $('#toggle-key').setAttribute('aria-pressed', String(show));
+  });
+  // Cegah key tertinggal di halaman yang dipulihkan dari bfcache / tombol Back.
+  window.addEventListener('pagehide', () => { $('#api_key').value = ''; });
   $('#form').addEventListener('input', (e) => {
     if (e.target.matches('[aria-invalid]')) { e.target.removeAttribute('aria-invalid'); }
     clearTimeout(init.t); init.t = setTimeout(saveForm, 400);

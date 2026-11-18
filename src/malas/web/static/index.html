@@ -91,6 +91,59 @@
         </div>
       </fieldset>
 
+      <fieldset id="fs-provider">
+        <legend>Model &amp; API key</legend>
+
+        <div id="source-wrap" class="seg" role="radiogroup" aria-label="Sumber API key" hidden>
+          <label class="radio"><input type="radio" name="source" value="server"> <span>Pakai konfigurasi server</span></label>
+          <label class="radio"><input type="radio" name="source" value="own"> <span>Pakai API key saya</span></label>
+        </div>
+
+        <div id="own-wrap">
+          <div id="insecure" class="banner bad" role="alert" hidden>
+            Koneksi ke halaman ini tidak terenkripsi (HTTP). Jangan memasukkan API key di sini; buka lewat HTTPS.
+          </div>
+          <div class="grid2">
+            <div class="field">
+              <label for="provider">Penyedia</label>
+              <select id="provider" name="provider" aria-describedby="err-provider"></select>
+              <p class="err" id="err-provider"></p>
+            </div>
+            <div class="field">
+              <label for="api_key">API key <span class="req" aria-hidden="true">*</span></label>
+              <div class="keyrow">
+                <input id="api_key" type="password" autocomplete="new-password" autocapitalize="off" autocorrect="off"
+                       spellcheck="false" maxlength="300" aria-describedby="err-api_key">
+                <button type="button" class="btn ghost sm" id="toggle-key" aria-pressed="false">Tampilkan</button>
+              </div>
+              <p class="err" id="err-api_key"></p>
+            </div>
+          </div>
+          <p class="hint" id="key-help"></p>
+          <div class="grid2">
+            <div class="field">
+              <label for="model_planner">Model riset &amp; outline</label>
+              <input id="model_planner" list="models-list" maxlength="100" autocomplete="off" spellcheck="false" aria-describedby="err-model_planner">
+              <p class="err" id="err-model_planner"></p>
+            </div>
+            <div class="field">
+              <label for="model_writer">Model penulis</label>
+              <input id="model_writer" list="models-list" maxlength="100" autocomplete="off" spellcheck="false" aria-describedby="err-model_writer">
+              <p class="err" id="err-model_writer"></p>
+            </div>
+          </div>
+          <datalist id="models-list"></datalist>
+          <div class="privacy" role="note">
+            <strong>Soal API key Anda</strong>
+            <ul>
+              <li>Dikirim hanya ke server ini dan ke penyedia yang Anda pilih.</li>
+              <li>Ditahan di memori server selama makalah dibuat, lalu dibuang. Tidak ditulis ke disk, log, atau penyimpanan browser.</li>
+              <li>Disarankan memakai key khusus dengan batas kredit kecil, dan mencabutnya setelah selesai.</li>
+            </ul>
+          </div>
+        </div>
+      </fieldset>
+
       <fieldset>
         <legend>Opsi</legend>
         <div class="field">
@@ -102,7 +155,7 @@
           <input type="checkbox" id="mock" name="mock">
           <span>
             <strong>Mode uji</strong>
-            <span class="hint">Tanpa memanggil model bahasa dan tanpa biaya. Isi makalah berupa teks contoh; berguna untuk mencoba alur dan template.</span>
+            <span class="hint">Tanpa memanggil model bahasa dan tanpa biaya; API key tidak diperlukan. Isi makalah berupa teks contoh; berguna untuk mencoba alur dan template.</span>
           </span>
         </label>
       </fieldset>

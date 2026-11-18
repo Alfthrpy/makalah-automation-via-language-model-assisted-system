@@ -1,3 +1,4 @@
+import os
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
@@ -68,6 +69,6 @@ class WriteFormatCrew():
             tasks=self.tasks, # Automatically created by the @task decorator
             process=Process.sequential,
             verbose=True,
-            output_log_file="logs/write_format_crew.json",
+            output_log_file="logs/write_format_crew.json" if os.getenv("MALAS_DEBUG_LOGS") == "1" else None,
             max_rpm=None if is_mock() else 10
         )

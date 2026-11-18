@@ -10,9 +10,10 @@ import yaml
 
 # Windows console default (cp1252) tidak bisa encode emoji yang dipakai di print()
 # statement di seluruh flow ini - tanpa ini proses crash begitu print emoji pertama jalan.
-if sys.stdout and sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
-    sys.stdout.reconfigure(encoding="utf-8")
-    sys.stderr.reconfigure(encoding="utf-8")
+for _stream in (sys.stdout, sys.stderr):
+    _enc = getattr(_stream, "encoding", None)
+    if _enc and _enc.lower() != "utf-8" and hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8")
 # Matikan prompt interaktif 'view execution traces' bawaan CrewAI.
 os.environ.setdefault("CREWAI_TRACING_ENABLED", "false")
 os.environ.setdefault("OTEL_SDK_DISABLED", "true")  # telemetry CrewAI: tanpa ini ada error koneksi berisik saat offline

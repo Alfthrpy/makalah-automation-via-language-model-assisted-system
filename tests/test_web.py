@@ -17,7 +17,7 @@ VALID = {
 }
 
 
-def fake_runner(job, progress, out):
+def fake_runner(job, progress, out, runtime=None):
     progress("input", "running"); progress("input", "done")
     progress("tulis", "running"); progress("tulis", "info", "1/2 · 2.1 Teori"); progress("tulis", "done")
     out.write_bytes(b"PK-fake-docx")
@@ -62,7 +62,7 @@ def test_alur_job_selesai_dan_unduh(make):
     r = client.post("/api/jobs", json=VALID)
     assert r.status_code == 202
     jid = r.json()["id"]
-    assert "template_path" not in r.json()  # path internal tidak bocor
+    assert "template_path" not in r.json() and "owner" not in r.json()  # data internal tidak bocor
     job = wait_for(client, jid, {"done"})
     assert job["steps"]["input"]["status"] == "done"
     assert job["steps"]["tulis"]["detail"] == "1/2 · 2.1 Teori"
@@ -118,7 +118,7 @@ def test_id_tidak_valid_dan_traversal(make):
 
 
 def test_runner_gagal_menjadi_error_ramah(make):
-    def boom(job, progress, out):
+    def boom(job, progress, out, runtime=None):
         progress("outline", "running")
         progress("outline", "error", "AuthenticationError")
         raise RuntimeError('litellm.AuthenticationError: {"error": {"code": 400, "message": "API key not valid"}}')
@@ -134,7 +134,7 @@ def test_runner_gagal_menjadi_error_ramah(make):
 def test_antrean_batal_dan_hapus(make):
     gate = threading.Event()
 
-    def slow(job, progress, out):
+    def slow(job, progress, out, runtime=None):
         gate.wait(5)
         return fake_runner(job, progress, out)
 
@@ -162,17 +162,19 @@ def test_riwayat_selamat_dari_restart(make, tmp_path):
     m.shutdown()
 
     client2, _ = make(root=tmp_path)
+    client2.cookies.set("malas_sid", client.cookies.get("malas_sid"))  # browser yang sama
     assert [j["id"] for j in client2.get("/api/jobs").json()] == [jid]
     assert client2.get(f"/api/jobs/{jid}/download").content == b"PK-fake-docx"
 
 
 def test_job_menggantung_ditandai_interrupted(make, tmp_path):
     gate = threading.Event()
-    client, m = make(lambda j, p, o: gate.wait(5))
+    client, m = make(lambda j, p, o, r=None: gate.wait(5))
     jid = client.post("/api/jobs", json=VALID).json()["id"]
     wait_for(client, jid, {"running"})
     m.shutdown()  # simulasi server mati; job.json masih berstatus running
     client2, _ = make(root=tmp_path)
+    client2.cookies.set("malas_sid", client.cookies.get("malas_sid"))
     assert client2.get(f"/api/jobs/{jid}").json()["status"] == "interrupted"
     gate.set()
 
