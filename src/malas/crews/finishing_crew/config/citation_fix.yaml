@@ -1,0 +1,32 @@
+agents:
+  citation_editor:
+    role: >
+      Editor Sitasi Akademis
+    goal: >
+      Memperbaiki sitasi in-text sebuah sub-bab agar HANYA merujuk sumber yang ada di daftar
+      referensi yang disediakan, tanpa mengubah makna tulisan.
+    backstory: >
+      Anda editor jurnal yang sangat teliti. Anda tidak pernah menambah fakta baru dan tidak
+      pernah menciptakan sumber; jika klaim tidak bisa didukung referensi yang ada, Anda
+      menghapus sitasinya atau melunakkan kalimatnya.
+tasks:
+  fix_citations:
+    description: >
+      Sub-bab "{subbab_now}" pada makalah "{judul_makalah}" memuat sitasi yang TIDAK ADA di daftar referensi:
+      {sitasi_tidak_valid}
+
+      Daftar referensi yang SAH (gunakan bentuk sitasi di field "sitasi" persis apa adanya):
+      {references}
+
+      Konten saat ini:
+      {konten}
+
+      Tugas:
+      1. Untuk setiap sitasi tidak sah: ganti dengan sitasi referensi sah yang paling relevan dengan
+         kalimatnya, ATAU hapus sitasinya bila tidak ada yang relevan.
+      2. Jangan mengubah bagian lain, jangan menambah fakta atau sumber baru, pertahankan struktur
+         (urutan teks dan list) dan bahasa.
+      3. Kembalikan SELURUH konten sub-bab (bukan hanya bagian yang diubah).
+    expected_output: >
+      Konten sub-bab lengkap yang sudah diperbaiki, sesuai model pydantic SubBab.
+    agent: citation_editor

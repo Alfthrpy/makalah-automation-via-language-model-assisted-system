@@ -4,3 +4,7 @@ lib/
 .DS_Store
 /chroma_db
 /arxiv_pdfs
+/output
+.env
+/logs
+/.cache

@@ -1,0 +1,15 @@
+# Data masukan makalah. Jalankan: uv run kickoff --input input/contoh.yaml
+judul: Sistem Rekomendasi Berbasis Machine Learning
+mata_kuliah: Kecerdasan Buatan
+dosen_pengampu: Dr. Budi Santoso
+penyusun:
+  - nama: Al-Fathir
+    nim: "123456789"
+  - nama: Muhammad Rizki
+    nim: "987654321"
+kelas: IF-4
+universitas: Universitas Teknologi Nusantara
+fakultas: Fakultas Teknik
+jurusan: Teknik Informatika
+kota: Bandung
+tahun: "2025"

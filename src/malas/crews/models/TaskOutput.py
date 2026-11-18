@@ -37,6 +37,10 @@ class ContentList(BaseModel):
 # Union type untuk konten
 ContentItem = Union[ContentText, ContentList]
 
+class KataPengantar(BaseModel):
+    isi: str = Field(description="Teks kata pengantar lengkap; paragraf dipisah baris baru.")
+
+
 # Model untuk struktur Makalah yang detail
 class Penyusun(BaseModel):
     nama: str = "PetaniHandal"

@@ -10,38 +10,83 @@ MALAS (Makalah Automation via Language-model Assisted System) is a project desig
 
 ## Instalasi
 
-### Prasyarat
-- Python 3.8+
-- API Key dari penyedia LLM yang didukung (misalnya, OpenAI, Groq).
+Prasyarat: Python 3.10–3.13, [uv](https://docs.astral.sh/uv/), dan API key penyedia LLM (default: Gemini).
 
-### Langkah-langkah
-1.  **Clone repository ini:**
-    ```bash
-    git clone https://github.com/your-username/malas.git
-    cd malas
-    ```
+```bash
+git clone https://github.com/Alfthrpy/makalah-automation-via-language-model-assisted-system.git
+cd makalah-automation-via-language-model-assisted-system
+uv sync
+```
 
-2.  **Buat dan aktifkan virtual environment (disarankan):**
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # Di Windows, gunakan `venv\Scripts\activate`
-    ```
+Buat file `.env`:
 
-3.  **Instal dependensi yang diperlukan:**
-    ```bash
-    pip install -r requirements.txt
-    ```
+```env
+GEMINI_API_KEY="isi_api_key_anda"
 
-4.  **Konfigurasi Environment Variables:**
-    Buat file `.env` di direktori root proyek dan tambahkan API key Anda.
-    ```env
-    # Contoh untuk OpenAI
-    OPENAI_API_KEY="ganti_dengan_api_key_anda"
+# Opsional
+# MALAS_MODEL=gemini/gemini-2.5-flash       # model untuk semua peran
+# MALAS_MODEL_WRITER=...                    # override per peran (PLANNER / WRITER / REVIEWER)
+#
+# Contoh OpenRouter (murah): isi OPENROUTER_API_KEY lalu
+# MALAS_MODEL_PLANNER=openrouter/deepseek/deepseek-v3.2
+# MALAS_MODEL_WRITER=openrouter/google/gemini-2.5-flash
+# MALAS_MOCK=1                              # LLM palsu, tanpa API call (uji alur)
+# MALAS_FULLTEXT=0                          # matikan pengambilan full-text referensi
+# MALAS_FULLTEXT_CHARS=3000                 # batas kutipan full-text per sub-bab (~750 token)
+```
 
-    # Contoh untuk Groq
-    # GROQ_API_KEY="ganti_dengan_api_key_anda"
-    ```
+## Cara pakai
 
-## ⚠️ Coming soon!
+### Antarmuka web (disarankan)
 
-> Masih dalam tahap pengembangan!
+```bash
+uv run malas-web
+```
+
+Buka <http://127.0.0.1:8000>, isi formulir, lalu tekan **Buat makalah**. Halaman menampilkan
+progres tiap tahap, ringkasan hasil (jumlah sub-bab, referensi, sitasi, token), tombol unduh
+`.docx`, dan riwayat. Hasil tersimpan di `output/jobs/<id>/` sehingga selamat dari restart.
+
+- **Mode uji**: centang untuk mencoba alur tanpa memanggil LLM (isi berupa teks contoh).
+- **Satu makalah sekaligus**: job berikutnya mengantre agar kuota API tidak berebut. Job yang
+  sedang berjalan tidak bisa dihentikan di tengah jalan (CrewAI tidak mendukungnya); job yang
+  masih mengantre bisa dibatalkan.
+- **Keamanan**: server hanya mendengarkan `127.0.0.1` dan menolak Host asing. Tidak ada login,
+  jadi jangan dibuka ke jaringan publik; siapa pun yang bisa mengakses akan memakai kuota API Anda.
+  Untuk membukanya di jaringan tepercaya: `MALAS_WEB_HOST=0.0.0.0 uv run malas-web`.
+- Env opsional: `MALAS_WEB_HOST`, `MALAS_WEB_PORT`, `MALAS_OUTPUT_DIR`, `MALAS_WEB_ALLOWED_HOSTS`.
+
+### Baris perintah
+
+1. Salin `input/contoh.yaml` dan isi judul, mata kuliah, penyusun, kampus.
+2. Jalankan:
+
+```bash
+uv run kickoff --input input/makalah-saya.yaml
+```
+
+Opsi lain: `--template "path/template.docx"` dan `--output hasil.docx`.
+Default hasil ada di `output/makalah_<waktu>.docx`. Uji tanpa biaya API: `MALAS_MOCK=1 uv run kickoff`.
+
+## Cara kerja
+
+1. `PlannerCrew`: outline + pencarian referensi (Arxiv, Semantic Scholar, CrossRef, DuckDuckGo).
+2. **Full-text hemat token** (`malas/fulltext.py`, tanpa LLM): PDF open-access referensi (arXiv,
+   Semantic Scholar/DOI open-access, atau halaman web) diunduh dan di-cache di `.cache/fulltext/`.
+   Per sub-bab hanya beberapa potongan paling relevan (BM25 kata kunci, bukan embedding) yang
+   dikirim ke Writer, dibatasi `MALAS_FULLTEXT_CHARS` dan tidak diulang antar sub-bab. Bila gagal
+   diunduh, referensi tetap dipakai lewat abstraknya.
+3. `WriteFormatCrew`: menulis tiap sub-bab dengan konteks referensi. Setiap referensi diberi
+   bentuk sitasi siap-salin (mis. `(Smith & Lee, 2024)`) agar LLM tidak mengarang sitasi.
+4. **Verifikasi sitasi** (`malas/citations.py`, tanpa LLM): sitasi in-text dicocokkan dengan
+   daftar pustaka. Sub-bab dengan sitasi tidak sah diperbaiki satu kali oleh `citation_editor`;
+   referensi yang tidak pernah dikutip dibuang dari daftar pustaka (aturan APA).
+5. Kata Pengantar ditulis otomatis dari data makalah.
+6. `DocxConverter` merender ke template Word (`docxtpl`/Jinja2). Template per kampus dapat
+   diganti dengan `--template`.
+
+## Tes
+
+```bash
+uv run pytest
+```

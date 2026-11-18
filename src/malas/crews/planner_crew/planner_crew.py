@@ -1,10 +1,10 @@
-from crewai import LLM, Agent, Crew, Process, Task
+from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
 from typing import List, Optional,Dict
 from pydantic import BaseModel
 from malas.crews.models.TaskOutput import Outline, References
-from malas.mock.mock_llm import AutoFakeLLM
+from malas.config import get_llm, is_mock
 from malas.tools.custom_tool import (
     DuckDuckGoSearchTool,
     LimitedArxivTool,
@@ -27,12 +27,6 @@ reference_finder_tool = ReferenceFinderTool()
 search_tool = DuckDuckGoSearchTool()
 extractor_tool = ResearchExtractorTool()
 
-MOCKUP = False
-if MOCKUP:
-    llm = AutoFakeLLM(model_name='gpt-6')
-else:
-    llm = LLM(model='gemini/gemini-2.5-flash-lite-preview-09-2025')
-
 
 
 @CrewBase
@@ -49,7 +43,7 @@ class PlannerCrew:
     def outline_planner(self) -> Agent:
         return Agent(
             config=self.agents_config["outline_planner"],  # type: ignore[index]
-            llm=llm,  
+            llm=get_llm("planner"),
             
         )
     
@@ -57,7 +51,7 @@ class PlannerCrew:
     def academic_researcher(self) -> Agent:
         return Agent(
             config=self.agents_config["academic_researcher"],  # type: ignore[index]
-            llm=llm,
+            llm=get_llm("planner"),
         )
 
     @task
@@ -86,5 +80,5 @@ class PlannerCrew:
             process=Process.sequential,
             verbose=True,
             output_log_file="logs/planner_crew_log.json",
-            max_rpm=5
+            max_rpm=None if is_mock() else 5
         )

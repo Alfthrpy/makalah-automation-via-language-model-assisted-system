@@ -7,9 +7,15 @@ write_content_task:
     1. Untuk Bab 2, WAJIB gunakan referensi yang telah disediakan.
     2. Setiap referensi punya field "excerpt" berisi abstract/ringkasan asli sumbernya - gunakan
        excerpt itu sebagai dasar konten yang anda tulis, jangan hanya menyebut judulnya saja.
-       Jika excerpt kosong/tidak tersedia untuk suatu referensi, gunakan Scientific Paper
-       Knowledge Base atau DuckDuckGo Search Tool untuk melengkapi konteksnya.
+       Jika excerpt kosong/tidak tersedia untuk suatu referensi, gunakan DuckDuckGo
+       Search Tool untuk melengkapi konteksnya.
+    2b. Jika sebuah referensi punya field "kutipan" (potongan teks asli dari isi paper, bahasa Inggris),
+       prioritaskan kutipan itu sebagai sumber fakta, data, dan istilah; parafrasekan ke Bahasa Indonesia,
+       jangan menyalin mentah, dan jangan menambahkan klaim yang tidak ada di kutipan/excerpt.
     3. Lakukan sitasi dalam teks (in-text citation) menggunakan format APA 7th Edition.
+       HANYA kutip referensi yang ada di daftar "referensi yang disediakan". Salin bentuk sitasi
+       dari field "sitasi" persis apa adanya, mis. (Smith & Lee, 2024). Bentuk naratif juga boleh:
+       Smith dan Lee (2024). DILARANG menciptakan sumber/penulis/tahun yang tidak ada di daftar.
     4. Pastikan setiap bagian mengalir secara logis ke bagian berikutnya.
     5. Gunakan bahasa Indonesia formal yang sesuai untuk karya ilmiah.
     6. output berupa content lengkap untuk subab {subbab_now} pada bab {bab_now} saja.
