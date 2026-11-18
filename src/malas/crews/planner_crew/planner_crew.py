@@ -1,10 +1,10 @@
-from crewai import LLM, Agent, Crew, Process, Task
+from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
 from typing import List, Optional,Dict
 from pydantic import BaseModel
 from malas.crews.models.TaskOutput import Outline, References
-from malas.mock.mock_llm import AutoFakeLLM
+from malas.config import get_llm
 from malas.tools.custom_tool import (
     DuckDuckGoSearchTool,
     LimitedArxivTool,
@@ -27,11 +27,7 @@ reference_finder_tool = ReferenceFinderTool()
 search_tool = DuckDuckGoSearchTool()
 extractor_tool = ResearchExtractorTool()
 
-MOCKUP = False
-if MOCKUP:
-    llm = AutoFakeLLM(model_name='gpt-6')
-else:
-    llm = LLM(model='gemini/gemini-2.5-flash-lite-preview-09-2025')
+llm = get_llm("planner")
 
 
 

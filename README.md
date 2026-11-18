@@ -10,38 +10,48 @@ MALAS (Makalah Automation via Language-model Assisted System) is a project desig
 
 ## Instalasi
 
-### Prasyarat
-- Python 3.8+
-- API Key dari penyedia LLM yang didukung (misalnya, OpenAI, Groq).
+Prasyarat: Python 3.10–3.13, [uv](https://docs.astral.sh/uv/), dan API key penyedia LLM (default: Gemini).
 
-### Langkah-langkah
-1.  **Clone repository ini:**
-    ```bash
-    git clone https://github.com/your-username/malas.git
-    cd malas
-    ```
+```bash
+git clone https://github.com/Alfthrpy/makalah-automation-via-language-model-assisted-system.git
+cd makalah-automation-via-language-model-assisted-system
+uv sync
+```
 
-2.  **Buat dan aktifkan virtual environment (disarankan):**
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # Di Windows, gunakan `venv\Scripts\activate`
-    ```
+Buat file `.env`:
 
-3.  **Instal dependensi yang diperlukan:**
-    ```bash
-    pip install -r requirements.txt
-    ```
+```env
+GEMINI_API_KEY="isi_api_key_anda"
 
-4.  **Konfigurasi Environment Variables:**
-    Buat file `.env` di direktori root proyek dan tambahkan API key Anda.
-    ```env
-    # Contoh untuk OpenAI
-    OPENAI_API_KEY="ganti_dengan_api_key_anda"
+# Opsional
+# MALAS_MODEL=gemini/gemini-2.5-flash       # model untuk semua peran
+# MALAS_MODEL_WRITER=...                    # override per peran (PLANNER / WRITER)
+# MALAS_MOCK=1                              # LLM palsu, tanpa API call (uji alur)
+```
 
-    # Contoh untuk Groq
-    # GROQ_API_KEY="ganti_dengan_api_key_anda"
-    ```
+## Cara pakai
 
-## ⚠️ Coming soon!
+1. Salin `input/contoh.yaml` dan isi judul, mata kuliah, penyusun, kampus.
+2. Jalankan:
 
-> Masih dalam tahap pengembangan!
+```bash
+uv run kickoff --input input/makalah-saya.yaml
+```
+
+Opsi lain: `--template "path/template.docx"` dan `--output hasil.docx`.
+Default hasil ada di `output/makalah_<waktu>.docx`.
+
+Uji alur tanpa biaya API: `MALAS_MOCK=1 uv run kickoff`.
+
+## Cara kerja
+
+`PlannerCrew` membuat outline + mencari referensi (Arxiv, Semantic Scholar, CrossRef,
+DuckDuckGo) -> `WriteFormatCrew` menulis tiap sub-bab dengan konteks referensi ->
+`DocxConverter` merender ke template Word (`docxtpl`/Jinja2). Template per kampus dapat
+diganti dengan `--template`.
+
+## Tes
+
+```bash
+uv run pytest
+```

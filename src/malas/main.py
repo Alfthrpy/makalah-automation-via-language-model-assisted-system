@@ -1,32 +1,42 @@
 #!/usr/bin/env python
+import argparse
 import os
-import re
 import sys
-from typing import Dict, List
+from pathlib import Path
+
+import yaml
 
 # Windows console default (cp1252) tidak bisa encode emoji yang dipakai di print()
 # statement di seluruh flow ini - tanpa ini proses crash begitu print emoji pertama jalan.
 if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
     sys.stdout.reconfigure(encoding="utf-8")
     sys.stderr.reconfigure(encoding="utf-8")
+# Matikan prompt interaktif 'view execution traces' bawaan CrewAI.
+os.environ.setdefault("CREWAI_TRACING_ENABLED", "false")
 from crewai.flow import Flow, listen, start
-import logging
-from pydantic import BaseModel
 from malas.crews.planner_crew.planner_crew import PlannerCrew
 from malas.crews.models.TaskOutput import (
     Penyusun, 
     ContentText, 
     ContentList,
-    ReferenceItem, 
     SubBab, 
     Bab, 
     Makalah
 )
 from malas.crews.write_format_crew.write_format_crew import WriteFormatCrew
-from tests.utils import DocxConverter
+from malas.docx_converter import DocxConverter
 
-# Diasumsikan semua import yang dibutuhkan sudah ada di atas
-# import os, re, logging, etc.
+DEFAULT_INPUT = "input/contoh.yaml"
+DEFAULT_TEMPLATE = "template_and_output/template makalah.docx"
+
+
+def load_input(path: str) -> dict:
+    """Baca data makalah (judul, penyusun, kampus, ...) dari file YAML."""
+    file = Path(path)
+    if not file.exists():
+        raise FileNotFoundError(f"File input tidak ditemukan: {path}")
+    return yaml.safe_load(file.read_text(encoding="utf-8")) or {}
+
 
 class MalasFlow(Flow[Makalah]):
     """
@@ -35,23 +45,21 @@ class MalasFlow(Flow[Makalah]):
     """
 
 
+    input_path: str = DEFAULT_INPUT
+    template_path: str = DEFAULT_TEMPLATE
+    output_path: str | None = None
+
     @start()
     def inputDataMakalah(self):
-        """Langkah awal: Mengisi data dasar untuk makalah."""
-        self.state.judul = "Sistem Rekomendasi Berbasis Machine Learning"
-        self.state.mata_kuliah = "Kecerdasan Buatan"
-        self.state.dosen_pengampu = "Dr. Budi Santoso"
-        self.state.penyusun = [
-            Penyusun(nama="Al-Fathir", nim="123456789"),
-            Penyusun(nama="Muhammad Rizki", nim="987654321"),
-        ]
-        self.state.kelas = "IF-4"
-        self.state.universitas = "Universitas Teknologi Nusantara"
-        self.state.fakultas = "Fakultas Teknik"
-        self.state.jurusan = "Teknik Informatika"
-        self.state.kota = "Bandung"
-        self.state.tahun = 2025
-        print("✅ Data awal makalah berhasil disimpan.")
+        """Langkah awal: muat data dasar makalah dari file YAML."""
+        data = load_input(self.input_path)
+        if not data.get("judul"):
+            raise ValueError(f"Field 'judul' wajib diisi di {self.input_path}")
+        penyusun = [Penyusun(**p) for p in data.pop("penyusun", [])]
+        data["tahun"] = str(data.get("tahun", self.state.tahun))
+        for key, value in {**data, "penyusun": penyusun}.items():
+            setattr(self.state, key, value)
+        print(f"✅ Data makalah dimuat dari {self.input_path}")
 
     @listen(inputDataMakalah)
     def generate_outline(self):
@@ -148,14 +156,21 @@ class MalasFlow(Flow[Makalah]):
     def finalize_and_save(self):
         """Langkah akhir: Konversi state akhir ke format DOCX."""
         print("\n🏁 Finalisasi flow, menyimpan hasil ke file DOCX...")
-        docx_converter = DocxConverter("template_and_output/template makalah.docx",hardcoded=False)
-        docx_converter.convert(self.state)
-        print("🎉 Makalah berhasil dibuat!")
+        converter = DocxConverter(self.template_path, self.output_path)
+        hasil = converter.convert(self.state)
+        print(f"🎉 Makalah berhasil dibuat: {hasil}")
 
 
 def kickoff():
-    malas_flow = MalasFlow()
-    malas_flow.kickoff()
+    parser = argparse.ArgumentParser(description="MALAS - generator makalah otomatis")
+    parser.add_argument("--input", default=DEFAULT_INPUT, help="File YAML data makalah")
+    parser.add_argument("--template", default=DEFAULT_TEMPLATE, help="Template .docx")
+    parser.add_argument("--output", default=None, help="Path file .docx hasil (default: output/makalah_<waktu>.docx)")
+    args = parser.parse_args()
+
+    flow = MalasFlow()
+    flow.input_path, flow.template_path, flow.output_path = args.input, args.template, args.output
+    flow.kickoff()
 
 
 if __name__ == "__main__":

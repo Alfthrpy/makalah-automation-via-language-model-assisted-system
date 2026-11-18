@@ -9,7 +9,6 @@ outline_planner:
     adalah membedah topik kompleks menjadi kerangka tulisan yang terstruktur dan mudah diikuti.
     Anda sangat memahami standar penulisan karya ilmiah di Indonesia, mulai dari Pendahuluan,
     Pembahasan, hingga Penutup.
-  llm: gemini/gemini-2.5-flash-lite-preview-09-2025
 
 
 
@@ -27,4 +26,3 @@ academic_researcher:
     (Semantic Scholar, CrossRef), dan kapan harus beralih ke pencarian web biasa karena
     topiknya tidak tercakup literatur akademis. Anda selalu mengutip abstract/ringkasan asli
     dari sumber, bukan mengarang isi.
-  llm: gemini/gemini-2.5-flash-lite-preview-09-2025
