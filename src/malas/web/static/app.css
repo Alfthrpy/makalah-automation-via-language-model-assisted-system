@@ -84,7 +84,7 @@ legend { font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transf
 @media (max-width: 560px) { .grid2, .grid3 { grid-template-columns: minmax(0, 1fr); } }
 label { display: block; font-weight: 600; font-size: .92rem; margin-bottom: 5px; }
 .req { color: var(--bad); }
-input[type="text"], input:not([type]), input[inputmode], select, textarea {
+input[type="text"], input[type="password"], input:not([type]), input[inputmode], select, textarea {
   width: 100%; font: inherit; color: var(--text); background: var(--surface);
   border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; min-height: 44px;
   transition: border-color .15s, box-shadow .15s;
@@ -95,6 +95,7 @@ input:hover, select:hover, textarea:hover { border-color: color-mix(in srgb, var
 input:focus-visible, select:focus-visible, textarea:focus-visible { border-color: var(--accent); outline-offset: 0; }
 [aria-invalid="true"] { border-color: var(--bad) !important; }
 .hint { font-size: .82rem; color: var(--muted); margin-top: 5px; }
+.hint a { color: var(--accent); text-underline-offset: 2px; }
 .err { font-size: .84rem; color: var(--bad); margin-top: 5px; font-weight: 500; }
 .err:empty { display: none; }
 
@@ -110,6 +111,20 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { border-color
 .check input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--accent); flex: none; }
 .check strong { display: block; font-size: .92rem; }
 .check .hint { display: block; margin-top: 2px; }
+
+.seg { display: grid; gap: 8px; margin-bottom: 14px; }
+.seg[hidden] { display: none; }
+.radio { display: flex; align-items: center; gap: 10px; font-weight: 500; margin: 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); cursor: pointer; min-height: 44px; }
+.radio input { width: 18px; height: 18px; accent-color: var(--accent); flex: none; }
+.keyrow { display: flex; gap: 8px; }
+.keyrow input { flex: 1 1 auto; min-width: 0; }
+.keyrow .btn { flex: none; min-height: 44px; }
+#own-wrap[hidden] { display: none; }
+.privacy { margin: 4px 0 4px; padding: 12px 14px; border-radius: 10px; background: var(--accent-soft); font-size: .86rem; }
+.privacy strong { display: block; margin-bottom: 4px; }
+.privacy ul { margin: 0; padding-left: 1.1em; }
+.privacy li + li { margin-top: 3px; }
+#insecure { margin: 0 0 12px; }
 
 /* buttons */
 .btn {

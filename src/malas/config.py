@@ -1,10 +1,17 @@
 """Konfigurasi runtime MALAS, dibaca dari environment variable (.env)."""
 import os
+from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
 from dotenv import load_dotenv
 
 load_dotenv()  # muat .env dari working directory sebelum env dibaca
+
+# Matikan telemetry/tracing CrewAI SEBELUM crewai diimpor dari jalur mana pun (CLI, web, tes):
+# tanpa ini data pemakaian dikirim keluar dan ada error koneksi berisik saat offline.
+for _k, _v in (("OTEL_SDK_DISABLED", "true"), ("CREWAI_DISABLE_TELEMETRY", "true"),
+               ("CREWAI_DISABLE_TRACKING", "true"), ("CREWAI_TRACING_ENABLED", "false")):
+    os.environ.setdefault(_k, _v)
 
 # Model default; ganti lewat env tanpa menyentuh kode, contoh:
 #   MALAS_MODEL=gemini/gemini-2.5-flash
@@ -24,6 +31,28 @@ _KEY_ENV: Dict[str, List[str]] = {
 
 # Override proses-lebar (dipakai web UI yang menjalankan satu job pada satu waktu).
 _mock_override: Optional[bool] = None
+
+
+@dataclass
+class Runtime:
+    """Kredensial milik pengguna untuk SATU job (BYOK). Hanya ada di memori; key tidak ikut repr."""
+
+    provider_id: str
+    api_key: str = field(repr=False)
+    planner_model: str
+    writer_model: str
+
+    def model_for(self, role: str) -> str:
+        return self.planner_model if role == "planner" else self.writer_model  # reviewer memakai model penulis
+
+
+_runtime: Optional[Runtime] = None
+
+
+def set_runtime(rt: Optional[Runtime]) -> None:
+    """Pasang/lepas kredensial job. Web UI hanya menjalankan satu job pada satu waktu."""
+    global _runtime
+    _runtime = rt
 
 
 def set_mock_override(value: Optional[bool]) -> None:
@@ -54,6 +83,17 @@ def get_llm(role: str = "default"):
 
     from crewai import LLM
 
+    if _runtime is not None:
+        from malas.providers import get_provider
+
+        prov = get_provider(_runtime.provider_id)
+        if prov is None or not prov.enabled:
+            raise RuntimeError("Penyedia model tidak tersedia")
+        return LLM(
+            model=prov.litellm_prefix + _runtime.model_for(role),
+            api_key=_runtime.api_key,
+            base_url=prov.base_url,
+        )
     return LLM(model=model_for(role))
 
 
