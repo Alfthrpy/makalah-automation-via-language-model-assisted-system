@@ -2,6 +2,7 @@
 import argparse
 import os
 import sys
+import time
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Callable, Optional
@@ -19,6 +20,7 @@ os.environ.setdefault("CREWAI_TRACING_ENABLED", "false")
 os.environ.setdefault("OTEL_SDK_DISABLED", "true")  # telemetry CrewAI: tanpa ini ada error koneksi berisik saat offline
 from crewai.flow import Flow, listen, start
 
+from malas import checkpoint
 from malas.citations import (
     check_citations, citation_label, content_text, prune_unused_references,
 )
@@ -35,6 +37,15 @@ FULLTEXT_CACHE = Path(".cache/fulltext")
 
 # Callback progres: (kunci_tahap, status, detail). status: running | done | skipped | error | info
 ProgressCallback = Callable[[str, str, str], None]
+
+# Galat yang tidak ada gunanya diulang (key salah, saldo habis, model tidak ada, akses ditolak).
+_FATAL = ("api key", "api_key", "authentication", "unauthorized", "invalid_argument", "no auth", "401", "403",
+          "forbidden", "insufficient", "credit", "402", "payment", "model not found", "does not exist", "no endpoints")
+
+
+def is_fatal_error(e: Exception) -> bool:
+    low = str(e).lower()
+    return any(k in low for k in _FATAL)
 
 
 def _env_int(name: str, default: int) -> int:
@@ -71,6 +82,8 @@ class MalasFlow(Flow[Makalah]):
     template_path: str = DEFAULT_TEMPLATE
     output_path: str | None = None
     progress: Optional[ProgressCallback] = None
+    checkpoint_path: Optional[Path] = None  # tulis checkpoint di sini (None = nonaktif)
+    resume: bool = False  # True = pakai checkpoint yang sudah ada
 
     # --- pelaporan -----------------------------------------------------------------
     def _emit(self, step: str, status: str, detail: str = "") -> None:
@@ -92,6 +105,16 @@ class MalasFlow(Flow[Makalah]):
         if not hasattr(self, "usage"):
             self.usage = {"calls": 0, "prompt": 0, "completion": 0, "total": 0}
             self.stats: dict = {}
+
+    def _save_checkpoint(self) -> None:
+        if self.checkpoint_path:
+            try:
+                checkpoint.save(self.checkpoint_path, self.state, self.usage, self.stats)
+            except OSError:
+                pass  # checkpoint hanya optimasi; jangan menggagalkan job
+
+    def _resume_data(self) -> Optional[dict]:
+        return checkpoint.load(self.checkpoint_path) if (self.resume and self.checkpoint_path) else None
 
     def _add_usage(self, crew_output) -> None:
         self._ensure_counters()
@@ -122,6 +145,18 @@ class MalasFlow(Flow[Makalah]):
     def generate_outline(self):
         """Membuat struktur Bab dan Sub-bab berdasarkan judul makalah."""
         with self._stage("outline"):
+            ck = self._resume_data()
+            if ck and ck["meta"]["outline"]:
+                restored = Makalah.model_validate(ck["state"])
+                self.state.bab = restored.bab
+                self.state.daftar_pustaka = restored.daftar_pustaka
+                self.usage.update(ck.get("usage") or {})
+                self.stats.update(ck.get("stats") or {})
+                m = ck["meta"]
+                print("♻️ Melanjutkan dari checkpoint.")
+                self._emit("outline", "info",
+                           f"memakai hasil sebelumnya ({m['done']}/{m['total']} sub-bab sudah ditulis)")
+                return
             planner = PlannerCrew()
             crew_instance = planner.crew()
 
@@ -151,6 +186,7 @@ class MalasFlow(Flow[Makalah]):
             print("🗺️ Outline dan daftar pustaka berhasil dibuat.")
             self._emit("outline", "info",
                        f"{self.stats['subbab_count']} sub-bab, {self.stats['refs_found']} referensi")
+            self._save_checkpoint()  # outline = ± 5 menit kerja; jangan sampai hilang bila tahap berikutnya gagal
 
     def _references_for(self, subbab_judul: str) -> list[dict]:
         """Referensi untuk prompt Writer: abstrak + (jika ada) beberapa kutipan full-text relevan.
@@ -177,6 +213,30 @@ class MalasFlow(Flow[Makalah]):
                 item["kutipan"] = kutipan
             hasil.append(item)
         return hasil
+
+    def _write_subbab(self, crew, writer, inputs: dict, judul: str):
+        """Jalankan Writer untuk satu sub-bab; ulangi 1x untuk galat sementara/keluaran kosong.
+
+        Galat fatal (key salah, saldo habis, model tidak ada) langsung dilempar. Bila tetap gagal,
+        job berhenti dengan checkpoint utuh sehingga bisa dilanjutkan tanpa mengulang yang sudah jadi.
+        """
+        last: Exception = RuntimeError(f"Sub-bab '{judul}' tidak menghasilkan isi yang valid")
+        for attempt in (1, 2):
+            try:
+                self._add_usage(crew.kickoff(inputs=inputs))
+                out = writer.tasks[0].output
+                content = out.pydantic.content if out and out.pydantic else None
+                if content:
+                    return content
+                last = RuntimeError(f"Sub-bab '{judul}' tidak menghasilkan isi yang valid")
+            except Exception as e:  # noqa: BLE001
+                if is_fatal_error(e):
+                    raise
+                last = e
+            if attempt == 1:
+                self._emit("tulis", "info", f"{judul}: percobaan pertama gagal, mengulang sekali…")
+                time.sleep(3)
+        raise last
 
     @listen(generate_outline)
     def fetch_fulltexts(self):
@@ -206,6 +266,10 @@ class MalasFlow(Flow[Makalah]):
             for bab_key, bab in self.state.bab.items():
                 for subbab_index, subbab in enumerate(bab.subbab):
                     nomor += 1
+                    if subbab.content:  # sudah ditulis pada percobaan sebelumnya (checkpoint)
+                        generated_contents[subbab.judul] = subbab.content
+                        self._emit("tulis", "info", f"{nomor}/{total} · {subbab.judul} (sudah ada, dilewati)")
+                        continue
                     print(f"\n✍️ Mengerjakan: {bab.judul} - {subbab.judul}")
                     self._emit("tulis", "info", f"{nomor}/{total} · {subbab.judul}")
 
@@ -227,16 +291,11 @@ class MalasFlow(Flow[Makalah]):
                         "judul_makalah": self.state.judul,
                         "mata_kuliah": self.state.mata_kuliah,
                     }
-                    self._add_usage(crew_instance.kickoff(inputs=inputs))
-
-                    # 3. Simpan output ke state utama dan state sementara
-                    subbab_output = writer.tasks[0].output
-                    if subbab_output and subbab_output.pydantic:
-                        new_content = subbab_output.pydantic.content
-                        subbab.content = new_content
-                        generated_contents[subbab.judul] = new_content
-                    else:
-                        self._emit("tulis", "info", f"⚠ {subbab.judul}: keluaran tidak valid, dilewati")
+                    # 3. Tulis (dengan 1x ulang bila gagal/kosong), lalu simpan checkpoint
+                    new_content = self._write_subbab(crew_instance, writer, inputs, subbab.judul)
+                    subbab.content = new_content
+                    generated_contents[subbab.judul] = new_content
+                    self._save_checkpoint()
 
             print("\n✅ Semua konten sub-bab telah diisi.")
 

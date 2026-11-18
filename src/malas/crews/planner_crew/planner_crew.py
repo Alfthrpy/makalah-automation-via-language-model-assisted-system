@@ -5,6 +5,7 @@ from crewai.agents.agent_builder.base_agent import BaseAgent
 from typing import List, Optional,Dict
 from pydantic import BaseModel
 from malas.crews.models.TaskOutput import Outline, References
+from malas.tolerant import TolerantConverter
 from malas.config import get_llm, is_mock
 from malas.tools.custom_tool import (
     DuckDuckGoSearchTool,
@@ -60,6 +61,7 @@ class PlannerCrew:
         return Task(
             config=self.tasks_config["make_outline_task"],  # type: ignore[index]
             output_pydantic=Outline,
+            converter_cls=TolerantConverter,
         )
     
     @task
@@ -67,6 +69,7 @@ class PlannerCrew:
         return Task(
             config=self.tasks_config["search_reference_task"],  # type: ignore[index]
             output_pydantic=References,
+            converter_cls=TolerantConverter,
             tools=[paper_tool, semantic_scholar_tool, reference_finder_tool, search_tool, extractor_tool]
         )
 

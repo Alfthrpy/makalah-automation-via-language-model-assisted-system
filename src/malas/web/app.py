@@ -82,6 +82,16 @@ class JobRequest(BaseModel):
     api_key: Optional[SecretStr] = None
     model_planner: Optional[str] = None
     model_writer: Optional[str] = None
+    resume_from: Optional[str] = None  # id job gagal milik sendiri yang ingin dilanjutkan
+
+    @field_validator("resume_from", mode="before")
+    @classmethod
+    def _cek_resume(cls, v):
+        if v is None or (isinstance(v, str) and not v.strip()):
+            return None
+        if not isinstance(v, str) or not ID_RE.match(v.strip()):
+            raise PydanticCustomError("resume_format", "Id job tidak valid.")
+        return v.strip()
 
     @field_validator("api_key", mode="before")
     @classmethod
@@ -213,6 +223,12 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
     def create_job(req: JobRequest, request: Request) -> dict:
         owner = request.state.owner
         templates = list_templates()
+        resume_job = None
+        if req.resume_from:
+            resume_job = _own_job(req.resume_from, request)  # 404 bila bukan milik pengguna ini
+            if resume_job["status"] not in {"error", "interrupted"} or not (resume_job.get("resume") or {}).get("available"):
+                raise HTTPException(409, "Job ini tidak bisa dilanjutkan (tidak ada hasil tersimpan atau sudah selesai).")
+            req.template = req.template or resume_job.get("template")
         name = req.template or (DEFAULT_TEMPLATE_NAME if DEFAULT_TEMPLATE_NAME in templates else (templates[0] if templates else ""))
         if name not in templates:  # cegah path traversal: hanya nama dari daftar
             raise HTTPException(422, detail=[{"loc": ["body", "template"], "type": "value_error", "msg": "Template tidak tersedia"}])
@@ -241,8 +257,11 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
             if sum(1 for j in mgr.list(limit=1000) if j["status"] in {"queued", "running"}) >= max_queue:
                 raise HTTPException(429, "Antrean penuh. Coba lagi beberapa menit lagi.")
 
-        data = req.model_dump(exclude={"template", "mock", "provider", "api_key", "model_planner", "model_writer"})
-        job = mgr.submit(data, req.mock, str(TEMPLATE_DIR / name), name, owner=owner, runtime=runtime)
+        data = req.model_dump(exclude={"template", "mock", "provider", "api_key", "model_planner", "model_writer", "resume_from"})
+        if resume_job:  # data makalah harus sama dengan job asal agar checkpoint (outline/referensi) tetap cocok
+            data = resume_job["request"]
+        job = mgr.submit(data, req.mock, str(TEMPLATE_DIR / name), name, owner=owner, runtime=runtime,
+                         resume_from=resume_job["id"] if resume_job else None)
         return _public(job)
 
     @app.get("/api/jobs")

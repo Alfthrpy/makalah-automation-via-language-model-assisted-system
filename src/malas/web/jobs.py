@@ -21,6 +21,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Callable, Dict, List, Optional
 
+from malas import checkpoint
 from malas.config import Runtime
 from malas.steps import STEP_KEYS
 from malas.web.vault import Sink, Vault, install_log_redaction
@@ -51,6 +52,8 @@ def default_runner(job: dict, progress: Callable[[str, str, str], None], output_
         flow.template_path = job["template_path"]
         flow.output_path = str(output_path)
         flow.progress = progress
+        flow.checkpoint_path = Path(output_path).parent / "checkpoint.json"
+        flow.resume = bool(job.get("resume_from"))
         flow.kickoff()
         return {"usage": getattr(flow, "usage", {}), "stats": getattr(flow, "stats", {})}
     finally:
@@ -103,8 +106,16 @@ class JobManager:
             if job.get("status") in ACTIVE:  # server mati saat job berjalan
                 job["status"], job["error"] = "interrupted", "Server berhenti saat job ini berjalan."
                 job["finished_at"] = job.get("finished_at") or _now()
+                job["resume"] = self._resume_info(job["id"])
                 self._save(job)
             self._jobs[job["id"]] = job
+
+    def _resume_info(self, job_id: str) -> Optional[dict]:
+        """Info 'bisa dilanjutkan' dari checkpoint di disk (None bila tidak ada)."""
+        meta = checkpoint.read_meta(self._dir(job_id) / "checkpoint.json")
+        if not meta:
+            return None
+        return {"available": bool(meta["outline"]), "done": meta["done"], "total": meta["total"]}
 
     def purge(self) -> int:
         """Hapus job selesai yang melewati masa simpan. Dipanggil lazy (tanpa thread latar)."""
@@ -126,7 +137,7 @@ class JobManager:
 
     # ------------------------------------------------------------------ API
     def submit(self, request: dict, mock: bool, template_path: str, template_name: str, *,
-               owner: str = "", runtime: Optional[Runtime] = None) -> dict:
+               owner: str = "", runtime: Optional[Runtime] = None, resume_from: Optional[str] = None) -> dict:
         self.purge()
         job_id = uuid.uuid4().hex
         job = {
@@ -141,6 +152,8 @@ class JobManager:
             "byok": runtime is not None,  # hanya penanda; key TIDAK disimpan di sini
             "provider": runtime.provider_id if runtime else None,
             "models": {"planner": runtime.planner_model, "writer": runtime.writer_model} if runtime else None,
+            "resume_from": resume_from,  # id job asal bila ini kelanjutan
+            "resume": None,  # diisi saat berhenti: {"available", "done", "total"}
             "template": template_name,
             "template_path": template_path,
             "request": request,
@@ -153,6 +166,12 @@ class JobManager:
             "has_file": False,
         }
         with self._lock:
+            if resume_from:  # salin checkpoint job asal; job asal tetap utuh (bisa dilanjutkan lagi)
+                src = self._dir(resume_from) / "checkpoint.json"
+                if not src.is_file():
+                    raise ValueError("Checkpoint job asal tidak ditemukan")
+                self._dir(job_id).mkdir(parents=True, exist_ok=True)
+                shutil.copy2(src, self._dir(job_id) / "checkpoint.json")
             if runtime is not None:
                 self.vault.put(job_id, runtime.api_key)
             self._jobs[job_id] = job
@@ -172,7 +191,7 @@ class JobManager:
         with self._lock:
             jobs = sorted((j for j in self._jobs.values() if visible(j)), key=lambda j: j["created_at"], reverse=True)[:limit]
             return [
-                {k: j[k] for k in ("id", "status", "title", "created_at", "finished_at", "mock", "byok", "has_file")}
+                {k: j.get(k) for k in ("id", "status", "title", "created_at", "finished_at", "mock", "byok", "has_file", "resume")}
                 for j in jobs
             ]
 
@@ -280,17 +299,22 @@ class JobManager:
             def ok(j: dict) -> None:
                 j["status"], j["finished_at"], j["has_file"] = "done", _now(), True
                 j["usage"], j["stats"] = result.get("usage"), result.get("stats")
+                j["resume"] = None
 
             self._update(job_id, ok)
+            (self._dir(job_id) / "checkpoint.json").unlink(missing_ok=True)  # selesai: draf tidak perlu disimpan
         except Exception as e:  # noqa: BLE001 - semua kegagalan harus tampil di UI
             # Traceback dibersihkan dari key sebelum menyentuh konsol/log host.
             if not self._quiet:
                 print(self.vault.redact("".join(traceback.format_exception(e))), flush=True)
             friendly = _friendly_error(Exception(self.vault.redact(str(e))))
 
+            resume = self._resume_info(job_id)
+
             def fail(j: dict) -> None:
                 j["status"], j["finished_at"] = "error", _now()
                 j["error"] = friendly
+                j["resume"] = resume
 
             self._update(job_id, fail)
         finally:

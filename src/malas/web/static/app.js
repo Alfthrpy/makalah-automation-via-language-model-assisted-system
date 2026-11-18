@@ -15,6 +15,7 @@ let pollTimer = null;
 let tickTimer = null;
 let lastJob = null;
 let rowSeq = 0;
+let resumeFrom = null; // id job gagal yang sedang dilanjutkan
 
 /* ---------- util ---------- */
 function el(tag, attrs = {}, ...kids) {
@@ -122,6 +123,7 @@ function collect(forStorage = false) {
   data.template = $('#template').value || null;
   data.mock = $('#mock').checked;
   data.source = usingOwnKey() ? 'own' : 'server';
+  if (resumeFrom && !forStorage) data.resume_from = resumeFrom;
   if (data.source === 'own') {
     data.provider = $('#provider').value;
     data.model_planner = $('#model_planner').value.trim() || null;
@@ -220,7 +222,9 @@ function syncProvider(resetModels = true) {
     : 'Isi id model sesuai katalog ' + prov.label + '; model berakhiran :free bisa dipakai tanpa biaya.');
 }
 function syncProviderUI() {
-  const own = usingOwnKey() && !$('#mock').checked;
+  const mock = $('#mock').checked;
+  $('#fs-provider').hidden = mock; // mode uji tidak butuh penyedia/key: sembunyikan seluruh seksi
+  const own = usingOwnKey() && !mock;
   $('#own-wrap').hidden = !own;
   const insecure = own && location.protocol === 'http:' && !['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
   $('#insecure').hidden = !insecure;
@@ -355,8 +359,17 @@ function renderResult(job) {
     box.hidden = false;
     box.classList.add('bad');
     const retry = el('button', { type: 'button', class: 'btn' }, 'Isi ulang formulir dari job ini');
-    retry.addEventListener('click', () => { fillForm({ ...job.request, template: job.template, mock: job.mock, source: job.byok ? 'own' : 'server', provider: job.provider, model_planner: job.models && job.models.planner, model_writer: job.models && job.models.writer }); $('#judul').scrollIntoView({ behavior: 'smooth', block: 'center' }); $('#judul').focus({ preventScroll: true }); });
-    box.append(el('h3', {}, 'Proses gagal'), el('p', {}, job.error || 'Terjadi kesalahan tak dikenal.'), retry);
+    retry.addEventListener('click', () => { clearResume(); fillForm({ ...job.request, template: job.template, mock: job.mock, source: job.byok ? 'own' : 'server', provider: job.provider, model_planner: job.models && job.models.planner, model_writer: job.models && job.models.writer }); $('#judul').scrollIntoView({ behavior: 'smooth', block: 'center' }); $('#judul').focus({ preventScroll: true }); });
+    const r = job.resume;
+    const resumeBtn = r && r.available ? el('button', { type: 'button', class: 'btn primary' }, 'Lanjutkan dari titik terakhir') : null;
+    if (resumeBtn) resumeBtn.addEventListener('click', () => startResume(job));
+    box.append(
+      el('h3', {}, 'Proses gagal'),
+      el('p', {}, job.error || 'Terjadi kesalahan tak dikenal.'),
+      r && r.available ? el('p', {}, `Hasil yang sudah jadi tersimpan: outline & referensi, dan ${r.done} dari ${r.total} sub-bab. Anda bisa melanjutkan tanpa mengulang dari awal.`) : null,
+      resumeBtn,
+      retry,
+    );
   }
 }
 
@@ -379,7 +392,7 @@ async function loadHistory() {
     return el('li', { class: 'h-item' },
       el('div', { class: 'h-main' },
         el('div', { class: 'h-title' }, j.title),
-        el('div', { class: 'h-meta' }, el('span', { class: 'badge', 'data-s': j.status }, BADGE[j.status] || j.status), j.mock ? el('span', {}, 'mode uji') : null, el('span', {}, fmtDate(j.created_at)))),
+        el('div', { class: 'h-meta' }, el('span', { class: 'badge', 'data-s': j.status }, BADGE[j.status] || j.status), j.mock ? el('span', {}, 'mode uji') : null, j.resume && j.resume.available ? el('span', {}, `dapat dilanjutkan (${j.resume.done}/${j.resume.total})`) : null, el('span', {}, fmtDate(j.created_at)))),
       actions);
   }));
   $('#history-empty').hidden = items.length > 0;
@@ -397,6 +410,41 @@ async function removeJob(j) {
   loadHistory();
 }
 
+/* ---------- lanjutkan job gagal ---------- */
+function lockTopic(lock) {
+  for (const f of TEXT_FIELDS) $('#' + f).readOnly = lock;
+  document.querySelectorAll('.pen-nama, .pen-nim-input').forEach((i) => { i.readOnly = lock; });
+  document.querySelectorAll('[data-remove]').forEach((b) => { b.disabled = lock || document.querySelectorAll('.pen-row').length === 1; });
+  $('#add-penyusun').disabled = lock;
+}
+function clearResume() {
+  if (!resumeFrom) return;
+  resumeFrom = null;
+  lockTopic(false);
+  syncPenyusunControls();
+  $('#resume-note').hidden = true;
+  $('#resume-note').replaceChildren();
+}
+function startResume(job) {
+  clearResume();
+  fillForm({ ...job.request, template: job.template, mock: job.mock, source: job.byok ? 'own' : 'server', provider: job.provider, model_planner: job.models && job.models.planner, model_writer: job.models && job.models.writer });
+  resumeFrom = job.id;
+  lockTopic(true);
+  const r = job.resume;
+  const note = $('#resume-note');
+  const needKey = usingOwnKey() && !$('#mock').checked;
+  const cancel = el('button', { type: 'button', class: 'btn sm' }, 'Batalkan, mulai dari awal');
+  cancel.addEventListener('click', clearResume);
+  note.replaceChildren(...[
+    el('p', {}, el('strong', {}, `Melanjutkan “${job.title}”`), ` — outline, referensi, dan ${r.done} dari ${r.total} sub-bab yang sudah jadi akan dipakai ulang. Data makalah dikunci agar tetap cocok.`),
+    needKey ? el('p', {}, 'Masukkan API key Anda lagi: key tidak disimpan setelah job berhenti.') : null,
+    cancel,
+  ].filter(Boolean)); // replaceChildren(null) akan menulis teks "null"
+  note.hidden = false;
+  (needKey ? $('#api_key') : $('#submit')).scrollIntoView({ behavior: 'smooth', block: 'center' });
+  (needKey ? $('#api_key') : $('#submit')).focus({ preventScroll: true });
+}
+
 /* ---------- submit ---------- */
 async function onSubmit(ev) {
   ev.preventDefault();
@@ -411,6 +459,7 @@ async function onSubmit(ev) {
     const { source, ...body } = data; // 'source' hanya untuk UI
     const job = await api('/api/jobs', { method: 'POST', body });
     $('#api_key').value = ''; // key sudah di server; jangan biarkan tersisa di halaman
+    clearResume();
     saveForm();
     setCurrent(job.id);
     loadHistory();
