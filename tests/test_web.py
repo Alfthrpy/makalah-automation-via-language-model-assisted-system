@@ -186,3 +186,20 @@ def test_host_asing_ditolak_dan_header_keamanan(make):
     assert r.headers["x-content-type-options"] == "nosniff"
     assert "default-src 'self'" in r.headers["content-security-policy"]
     assert r.headers["cache-control"] == "no-store"
+
+
+def test_healthz_lolos_dengan_host_apa_pun_dan_tanpa_cookie(make):
+    client, _ = make()
+    r = client.get("/healthz", headers={"host": "10.0.0.7:10000"})
+    assert r.status_code == 200 and r.text == "ok"
+    assert "set-cookie" not in r.headers
+    assert client.get("/api/config", headers={"host": "10.0.0.7:10000"}).status_code == 400  # selain health: tetap ditolak
+
+
+def test_server_allowed_hosts():
+    from malas.web.app import server_allowed_hosts
+
+    assert server_allowed_hosts("127.0.0.1", {}) is None
+    assert server_allowed_hosts("0.0.0.0", {}) == ["*"]
+    got = server_allowed_hosts("0.0.0.0", {"RENDER_EXTERNAL_HOSTNAME": "malas.onrender.com", "MALAS_WEB_ALLOWED_HOSTS": "a.com, b.com"})
+    assert got[:3] == ["a.com", "b.com", "malas.onrender.com"] and "localhost" in got

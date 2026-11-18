@@ -21,7 +21,7 @@ from typing import Annotated, List, Optional
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import FileResponse, JSONResponse, Response
+from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, SecretStr, StringConstraints, field_validator
 from pydantic_core import PydanticCustomError
@@ -138,6 +138,8 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
     # ---- sesi anonim: cookie acak -> pemilik job (tanpa login, tapi riwayat tidak bocor antar pengguna)
     @app.middleware("http")
     async def session_and_headers(request: Request, call_next):
+        if request.url.path == "/healthz":  # health check platform: tanpa cookie, tanpa pemeriksaan Host
+            return PlainTextResponse("ok", headers={"Cache-Control": "no-store"})
         sid = request.cookies.get(COOKIE)
         fresh = not (sid and SID_RE.match(sid))
         if fresh:
@@ -279,23 +281,34 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
     return app
 
 
+def server_allowed_hosts(host: str, env=os.environ) -> Optional[List[str]]:
+    """Daftar Host yang diterima saat server dibuka ke jaringan (None = bawaan lokal).
+
+    Urutan: MALAS_WEB_ALLOWED_HOSTS (koma) + RENDER_EXTERNAL_HOSTNAME (diisi otomatis oleh Render).
+    Tanpa keduanya -> "*" (server publik tanpa cookie/otoritas login, jadi pemeriksaan Host
+    tidak melindungi apa pun; yang penting health check platform tetap lolos).
+    """
+    if host in {"127.0.0.1", "localhost", "::1"}:
+        return None
+    names = [h.strip() for h in env.get("MALAS_WEB_ALLOWED_HOSTS", "").split(",") if h.strip()]
+    render = env.get("RENDER_EXTERNAL_HOSTNAME", "").strip()
+    if render:
+        names.append(render)
+    return (names + LOCAL_HOSTS) if names else ["*"]
+
+
 def main() -> None:
     import uvicorn
 
     host = os.getenv("MALAS_WEB_HOST", "127.0.0.1")
-    port = int(os.getenv("MALAS_WEB_PORT", "8000"))
-    allowed = None
-    local = host in {"127.0.0.1", "localhost", "::1"}
-    if not local:
-        if _flag("MALAS_WEB_REQUIRE_KEY"):
-            extra = os.getenv("MALAS_WEB_ALLOWED_HOSTS", "").strip()
-            allowed = [h.strip() for h in extra.split(",") if h.strip()] or ["*"]
-        else:
-            print(
-                "⚠️  Server dibuka ke jaringan TANPA mode BYOK: pengguna akan memakai API key di .env server. "
-                "Set MALAS_WEB_REQUIRE_KEY=1 agar setiap pengguna memakai key sendiri.",
-            )
-            allowed = ["*"]
+    # PORT: diisi otomatis oleh Render/Heroku-style platform; MALAS_WEB_PORT menimpa.
+    port = int(os.getenv("MALAS_WEB_PORT") or os.getenv("PORT") or "8000")
+    allowed = server_allowed_hosts(host)
+    if allowed is not None and not _flag("MALAS_WEB_REQUIRE_KEY"):
+        print(
+            "⚠️  Server dibuka ke jaringan TANPA mode BYOK: pengguna akan memakai API key di .env server. "
+            "Set MALAS_WEB_REQUIRE_KEY=1 agar setiap pengguna memakai key sendiri.",
+        )
     print(f"MALAS web UI -> http://{host if host != '0.0.0.0' else '127.0.0.1'}:{port}"
           f"{' (mode hosting/BYOK)' if _flag('MALAS_WEB_REQUIRE_KEY') else ''}")
     # proxy_headers: di balik proxy HTTPS (Render, dsb.) agar skema https terdeteksi untuk cookie Secure.

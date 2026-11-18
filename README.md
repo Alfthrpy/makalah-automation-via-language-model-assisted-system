@@ -60,6 +60,8 @@ progres tiap tahap, ringkasan hasil (jumlah sub-bab, referensi, sitasi, token), 
 
 ### Hosting publik tanpa login (mode BYOK)
 
+> Deploy ke Render langkah demi langkah: lihat **[DEPLOY.md](DEPLOY.md)** (sudah ada `Dockerfile` dan `render.yaml`).
+
 ```bash
 MALAS_WEB_REQUIRE_KEY=1 MALAS_WEB_HOST=0.0.0.0 MALAS_WEB_ALLOWED_HOSTS="app-anda.onrender.com" uv run malas-web
 ```
