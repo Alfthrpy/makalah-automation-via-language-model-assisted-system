@@ -1,4 +1,4 @@
-"""Web UI MALAS: FastAPI + halaman statis (tanpa build step).
+"""API web MALAS: FastAPI (UI ada di apps/web, dilayani terpisah).
 
 Jalankan:  uv run malas-web      (default http://127.0.0.1:8000)
 
@@ -22,8 +22,7 @@ from typing import Annotated, List, Optional
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from starlette.concurrency import run_in_threadpool
-from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, Response
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse, PlainTextResponse, Response
 from pydantic import BaseModel, Field, SecretStr, StringConstraints, field_validator
 from pydantic_core import PydanticCustomError
 from starlette.middleware.trustedhost import TrustedHostMiddleware
@@ -36,8 +35,8 @@ from malas_api.auth import Authenticator, AuthError, authenticator_from_env, tok
 from malas_api.crypto import cipher_from_env
 from malas_api.db import database_url_from_env, migrate_url_from_env
 from malas_api.jobs import ID_RE, JobManager
+from malas_api.schemas import ConfigOut, JobOut, JobSummary, KeysOut, MeOut, ResultOut
 
-STATIC_DIR = Path(__file__).parent / "static"
 TEMPLATE_DIR = paths.TEMPLATES_DIR
 DEFAULT_TEMPLATE_NAME = paths.DEFAULT_TEMPLATE_NAME
 LOCAL_HOSTS = ["localhost", "127.0.0.1", "[::1]", "testserver"]
@@ -212,7 +211,7 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
 
         resp: Response = await call_next(request)
         path = request.url.path
-        if fresh and auth is None and (path == "/" or path.startswith("/api/")):
+        if fresh and auth is None and path.startswith("/api/"):
             https = request.url.scheme == "https" or request.headers.get("x-forwarded-proto") == "https"
             resp.set_cookie(COOKIE, sid, max_age=60 * 60 * 24 * 365, httponly=True, samesite="lax", secure=https, path="/")
         resp.headers["X-Content-Type-Options"] = "nosniff"
@@ -221,7 +220,7 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
         resp.headers["Content-Security-Policy"] = (
             "default-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
         )
-        if path.startswith("/api/") or path == "/":
+        if path.startswith("/api/"):
             resp.headers["Cache-Control"] = "no-store"
         return resp
 
@@ -244,11 +243,7 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
     async def http_error(_: Request, exc: HTTPException) -> JSONResponse:
         return JSONResponse({"detail": exc.detail}, status_code=exc.status_code)
 
-    @app.get("/", include_in_schema=False)
-    def index() -> FileResponse:
-        return FileResponse(STATIC_DIR / "index.html", media_type="text/html; charset=utf-8")
-
-    @app.get("/api/config")
+    @app.get("/api/config", response_model=ConfigOut)
     def get_config(request: Request) -> dict:
         desc = config.describe()
         return {
@@ -269,7 +264,7 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
             "year": datetime.now().year,
         }
 
-    @app.post("/api/jobs", status_code=202)
+    @app.post("/api/jobs", status_code=202, response_model=JobOut)
     def create_job(req: JobRequest, request: Request) -> dict:
         owner = request.state.owner
         templates = list_templates()
@@ -339,11 +334,11 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
             raise
         return _public(job)
 
-    @app.get("/api/jobs")
+    @app.get("/api/jobs", response_model=List[JobSummary])
     def list_jobs(request: Request) -> list:
         return mgr.list(request.state.owner)
 
-    @app.get("/api/jobs/{job_id}")
+    @app.get("/api/jobs/{job_id}", response_model=JobOut)
     def get_job(job_id: str, request: Request) -> dict:
         job = _public(_own_job(job_id, request))
         job["queue_position"] = mgr.queue_position(job_id) if job["status"] == "queued" else None
@@ -361,7 +356,7 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
             headers={"Content-Disposition": f'attachment; filename="makalah-{_slug(job["title"])}.docx"'},
         )
 
-    @app.delete("/api/jobs/{job_id}")
+    @app.delete("/api/jobs/{job_id}", response_model=ResultOut)
     def delete_job(job_id: str, request: Request) -> dict:
         if not ID_RE.match(job_id):
             raise HTTPException(404, "Job tidak ditemukan")
@@ -373,7 +368,7 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
             raise HTTPException(409, "Job sedang berjalan dan tidak bisa dihentikan; tunggu sampai selesai.")
         return {"result": result}
 
-    @app.get("/api/me")
+    @app.get("/api/me", response_model=MeOut)
     def me(request: Request) -> dict:
         owner = request.state.owner
         used = mgr.quota_used(owner, quota_day()) if daily_quota else 0
@@ -385,17 +380,16 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
         }
 
     # ---- API key tersimpan (opsi 3b): hanya daftar penyedia; nilai key TIDAK PERNAH dikembalikan
-    @app.get("/api/keys")
+    @app.get("/api/keys", response_model=KeysOut)
     def list_keys(request: Request) -> dict:
         return {"enabled": mgr.key_storage_enabled, "keys": mgr.list_user_keys(request.state.owner)}
 
-    @app.delete("/api/keys/{provider}")
+    @app.delete("/api/keys/{provider}", response_model=ResultOut)
     def delete_key(provider: str, request: Request) -> dict:
         if get_provider(provider) is None or not mgr.delete_user_key(request.state.owner, provider):
             raise HTTPException(404, "Key tersimpan tidak ditemukan")
         return {"result": "deleted"}
 
-    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
     return app
 
 

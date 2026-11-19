@@ -196,7 +196,7 @@ def test_tanpa_login_hanya_jalur_publik(make):
     m, a, _ = make()
     c = client(m, a)
     assert c.get("/healthz").text == "ok"
-    assert c.get("/").status_code == 200
+    assert c.get("/").status_code == 404  # UI ada di apps/web, bukan di API
     cfg = c.get("/api/config").json()
     assert cfg["auth"] == {"mode": "clerk", "required": True} and cfg["active_job"] is None
     for method, path in [("get", "/api/jobs"), ("post", "/api/jobs"), ("get", "/api/me"), ("get", "/api/keys"),

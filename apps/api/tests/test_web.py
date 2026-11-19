@@ -21,7 +21,7 @@ def fake_runner(job, progress, out, runtime=None):
     progress("input", "running"); progress("input", "done")
     progress("tulis", "running"); progress("tulis", "info", "1/2 · 2.1 Teori"); progress("tulis", "done")
     out.write_bytes(b"PK-fake-docx")
-    return {"usage": {"total": 1234}, "stats": {"refs_final": 3}}
+    return {"usage": {"calls": 2, "prompt": 1000, "completion": 234, "total": 1234}, "stats": {"refs_final": 3}}
 
 
 def wait_for(client, job_id, want, timeout=5.0):
@@ -66,7 +66,7 @@ def test_alur_job_selesai_dan_unduh(make):
     job = wait_for(client, jid, {"done"})
     assert job["steps"]["input"]["status"] == "done"
     assert job["steps"]["tulis"]["detail"] == "1/2 · 2.1 Teori"
-    assert job["usage"] == {"total": 1234} and job["has_file"]
+    assert job["usage"] == {"calls": 2, "prompt": 1000, "completion": 234, "total": 1234} and job["has_file"]
 
     d = client.get(f"/api/jobs/{jid}/download")
     assert d.status_code == 200 and d.content == b"PK-fake-docx"
@@ -220,7 +220,7 @@ def test_ringkasan_riwayat_memuat_progres_dan_posisi_antrean(make):
     end = time.time() + 5
     while time.time() < end:
         row = next(j for j in client.get("/api/jobs").json() if j["id"] == a)
-        if row["current_step"] == "outline":
+        if row["current_step"] == "outline" and row["current_detail"]:
             break
         time.sleep(0.02)
     assert row["mata_kuliah"] == "Kecerdasan Buatan"

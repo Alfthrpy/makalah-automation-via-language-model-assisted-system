@@ -35,14 +35,16 @@ apps/api/                 # paket Python `malas_api`
     auth.py               # Authenticator Clerk: JWT RS256 via PyJWKClient, azp, token_from_request (cookie hanya GET)
     crypto.py             # KeyCipher (Fernet+HKDF), cipher_from_env, rotasi lewat MALAS_SECRET_KEY_OLD
     vault.py              # key sesi di memori + redaksi log/error
-    static/               # UI statis lama: AKAN DIHAPUS di Fase 4
+    schemas.py            # model respons Pydantic (sumber kontrak OpenAPI + penyaring keluaran)
+    export_openapi.py     # `uv run malas-openapi` -> packages/api-types/openapi.json
   tests/                  # test_web, test_byok, test_resume, test_db (Fase 2), conftest (PG opsional)
   Dockerfile              # build context = ROOT: docker build -f apps/api/Dockerfile .
+packages/api-types/       # @malas/api-types: openapi.json + schema.d.ts (generate: `pnpm --filter @malas/api-types generate`)
 packages/engine/          # paket Python `malas`: crews, docx_converter, citations, fulltext, tolerant, CLI `kickoff`
   src/malas/{paths.py,templates/,examples/}
 render.yaml               # Blueprint Render lama; diganti ke HF Space di Fase 5
 ```
-Perintah penting: `uv sync --all-packages`, `uv run pytest -q` (133 lulus + 1 skip khusus Postgres), `uv run malas-web`,
+Perintah penting: `uv sync --all-packages`, `uv run pytest -q` (136 lulus + 1 skip khusus Postgres), `uv run malas-web`,
 `MALAS_MOCK=1 uv run kickoff --output x.docx`.
 Tes ke Postgres: `MALAS_TEST_DATABASE_URL=postgresql://postgres@localhost:54329/malas_test uv run pytest apps/api`
 (database DIKOSONGKAN tiap tes). Postgres 16 ada di sandbox: `/usr/lib/postgresql/16/bin`, jalankan sebagai user `postgres`
@@ -75,8 +77,8 @@ dengan data dir milik `postgres` (mis. `/var/tmp/pgdata-malas`, port 54329, `-A 
     atau submit gagal; job lanjutan, auto-resume, dan Mode uji tidak dihitung. `MALAS_DAILY_QUOTA`, `MALAS_QUOTA_TZ`.
   - BELUM dites dengan Clerk asli (tidak ada akun). Risiko: format `azp`/`iss` instance nyata, dan cookie `__session` di
     belakang proxy Netlify (domain/SameSite). Verifikasi saat Fase 5.
-- [x] **Fase 4: Frontend React** (`apps/web`), M0-M5 selesai dan diverifikasi di sandbox; M6 sebagian (lihat "Status Fase 4" di bawah).
-  Sisa: `packages/api-types` dari OpenAPI (B4), hapus UI statis backend (B5), uji Clerk asli.
+- [x] **Fase 4: Frontend React** (`apps/web`), M0-M6 + B1-B5 selesai dan diverifikasi di sandbox.
+  Sisa kecil: uji dengan Clerk asli, tes komponen MSW (opsional), B6 (label template ramah, hanya bila pemilik minta).
 - [ ] **Fase 5: Deploy + CI**: Dockerfile HF Space (port 7860, `PORT`), `netlify.toml`, GitHub Actions (pytest SQLite+Postgres service,
   ruff terbatas pada kode baru, typecheck + build web), `S3Storage` untuk R2, update DEPLOY.md. Ingat: HF Space bisa tidur; disk ephemeral.
 - [ ] **Fase 6 (opsional)**: ToS/Privasi, email (Resend), Sentry, admin, pembayaran.
@@ -175,12 +177,14 @@ landing -> masuk -> dasbor -> buat -> job selesai -> unduh .docx valid ("PK") ->
 Jalankan e2e: `uv run malas-web` + `pnpm --filter web dev`, lalu `NODE_PATH=$(npm root -g) node apps/web/e2e/flow.cjs` (dan `states.cjs`).
 **Belum teruji / diketahui:** (1) Clerk asli (`<SignIn/>`, `<SignUp/>`, `getToken`, `openUserProfile`; hanya lolos typecheck/build), (2) Neon dan Netlify/HF asli, (3) pembaca layar sungguhan dan kontras dengan alat ukur selain axe, (4) animasi landing hanya dilihat dalam mode reduced-motion di tangkapan layar (perilaku animasi dan tombol jeda belum dicek otomatis), (5) tangkapan layar app tidak dibandingkan piksel-ke-piksel dengan prototipe (landing dibandingkan visual dan nyaris identik),
 (6) Ketentuan Layanan/Kebijakan Privasi masih halaman placeholder (`/ketentuan`, `/privasi`), (7) tidak ada layar `_design`/catatan (dokumentasi tetap di `docs/design`), (8) polish landing yang tercatat di desain (kedip `color` saat stabilo di mode gelap) belum ditangani.
-**Belum dikerjakan:** B4 (response model Pydantic + ekspor OpenAPI -> `packages/api-types`), B5 (hapus `apps/api/.../static/` + rute `/`), B6 (label template ramah), bundle size/code-splitting lanjutan (layar sudah `lazy`), tes komponen dengan MSW (tes saat ini: fungsi murni + e2e).
+**B4 selesai:** `malas_api/schemas.py` (model respons, dipasang sebagai `response_model` di semua endpoint JSON; field tak tercantum, mis. `owner`/`template_path`, tidak pernah keluar) + `uv run malas-openapi` -> `packages/api-types/{openapi.json,schema.d.ts}` (openapi-typescript, TypeScript 5 di-pin khusus paket itu karena TS 7 tak punya compiler API). `apps/web/src/lib/types.ts` kini alias dari skema generasi untuk RESPONS; tipe INPUT form (`PaperRequest`, `CreateJobBody`) tetap manual karena skema `JobRequest` menandai field ber-default sebagai wajib. Tes `test_openapi.py` gagal bila `openapi.json` usang: ubah model -> `pnpm --filter @malas/api-types generate` -> commit.
+**B5 selesai:** `apps/api/.../static/`, rute `/` dan mount `/static` dihapus; API tidak lagi melayani HTML (`/` = 404). Cookie sesi anonim kini hanya diterbitkan di `/api/*`.
+**Belum dikerjakan:** B6 (label template ramah), bundle size/code-splitting lanjutan (layar sudah `lazy`), tes komponen dengan MSW (tes saat ini: fungsi murni + e2e).
+Catatan: tes `test_ringkasan_riwayat_memuat_progres_dan_posisi_antrean` pernah flaky (race menunggu `current_detail`); sudah diperbaiki.
 
 ## Langkah berikutnya (mulai di sini)
-**Tutup Fase 4:** uji dengan akun Clerk dev (isi `VITE_AUTH_MODE=clerk` + `VITE_CLERK_PUBLISHABLE_KEY`, backend `CLERK_ISSUER`), kerjakan B4 (OpenAPI -> `packages/api-types`) dan B5 (hapus UI statis backend + sesuaikan tes), tes komponen MSW bila perlu.
+**Fase 4 praktis selesai.** Yang tersisa hanya yang butuh kredensial: uji login nyata dengan akun Clerk dev (`VITE_AUTH_MODE=clerk` + `VITE_CLERK_PUBLISHABLE_KEY`, backend `CLERK_ISSUER`), dan Neon asli.
+Yang dibutuhkan dari pemilik (via env/secret, JANGAN di chat): Publishable key Clerk (+ akun dev); connection string Neon bila ingin verifikasi ke Neon asli.
 
-Yang dibutuhkan dari pemilik (via env/secret, JANGAN di chat): Publishable key Clerk (+ akun dev) untuk uji login nyata; connection string Neon bila ingin verifikasi ke Neon asli.
-Tanpa itu, kerjakan dengan `AuthProvider` mode `dev` + MSW + backend lokal (mode anonim).
-
-Setelah web berjalan: **Fase 5** (HF Space Dockerfile port 7860, `netlify.toml`, GitHub Actions, `S3Storage`/R2, DEPLOY.md) lalu Fase 6 (opsional).
+**Lanjut ke Fase 5** (tidak butuh kredensial untuk ditulis): `apps/api/Dockerfile` untuk HF Space (port 7860, `PORT`; sekarang `SPACE_HOST` sudah otomatis diizinkan), `netlify.toml` (build `apps/web`, redirect `/api/*` -> `https://<space>.hf.space/api/:splat` status 200 force, fallback SPA, header keamanan/CSP termasuk domain Clerk),
+GitHub Actions (pytest SQLite + service Postgres, ruff terbatas pada kode baru, typecheck + test + build web; tes drift OpenAPI sudah ada di pytest), `S3Storage` untuk R2, update DEPLOY.md, hapus `render.yaml`. Lalu Fase 6 (opsional).

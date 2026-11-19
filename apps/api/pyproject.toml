@@ -20,6 +20,7 @@ malas-engine = { workspace = true }
 
 [project.scripts]
 malas-web = "malas_api.app:main"
+malas-openapi = "malas_api.export_openapi:main"
 
 [build-system]
 requires = ["hatchling"]

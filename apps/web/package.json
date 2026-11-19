@@ -16,6 +16,7 @@
     "@fontsource-variable/bricolage-grotesque": "^5.3.0",
     "@fontsource/jetbrains-mono": "^5.3.0",
     "@fontsource/plus-jakarta-sans": "^5.3.0",
+    "@malas/api-types": "workspace:*",
     "@tanstack/react-query": "^5.108.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
