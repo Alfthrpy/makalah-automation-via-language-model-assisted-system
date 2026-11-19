@@ -4,8 +4,8 @@ import time
 import pytest
 from fastapi.testclient import TestClient
 
-from malas.web.app import create_app
-from malas.web.jobs import JobManager
+from malas_api.app import create_app
+from malas_api.jobs import JobManager
 
 VALID = {
     "judul": "Sistem Rekomendasi & Machine Learning",
@@ -197,7 +197,7 @@ def test_healthz_lolos_dengan_host_apa_pun_dan_tanpa_cookie(make):
 
 
 def test_server_allowed_hosts():
-    from malas.web.app import server_allowed_hosts
+    from malas_api.app import server_allowed_hosts
 
     assert server_allowed_hosts("127.0.0.1", {}) is None
     assert server_allowed_hosts("0.0.0.0", {}) == ["*"]

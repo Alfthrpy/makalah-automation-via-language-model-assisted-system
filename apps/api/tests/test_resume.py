@@ -7,8 +7,8 @@ from fastapi.testclient import TestClient
 
 from malas import checkpoint
 from malas.crews.models.TaskOutput import Bab, ContentText, Makalah, ReferenceItem, SubBab
-from malas.web.app import create_app
-from malas.web.jobs import JobManager, default_runner
+from malas_api.app import create_app
+from malas_api.jobs import JobManager, default_runner
 
 BASE = {"judul": "Uji Lanjut", "mata_kuliah": "Uji", "penyusun": [{"nama": "Ani"}], "mock": True}
 

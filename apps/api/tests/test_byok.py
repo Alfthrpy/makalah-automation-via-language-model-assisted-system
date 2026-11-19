@@ -9,8 +9,8 @@ import pytest
 from fastapi.testclient import TestClient
 
 from malas import config
-from malas.web.app import create_app
-from malas.web.jobs import JobManager
+from malas_api.app import create_app
+from malas_api.jobs import JobManager
 
 KEY = "sk-or-v1-RAHASIA1234567890abcdef"
 BASE = {
@@ -134,7 +134,7 @@ def test_error_dan_log_dibersihkan_dari_key(make, caplog, capsys):
 
 
 def test_bentuk_key_umum_dibersihkan_walau_tak_dikenal_brankas(make):
-    from malas.web.vault import Vault
+    from malas_api.vault import Vault
 
     v = Vault()
     assert "sk-or-v1-abcdefghijklmnop" not in v.redact("error: bad key sk-or-v1-abcdefghijklmnop here")
@@ -301,7 +301,7 @@ def test_sink_menyerupai_file_teks():
     import contextlib
     import io
 
-    from malas.web.vault import Sink
+    from malas_api.vault import Sink
 
     s = Sink()
     with contextlib.redirect_stdout(s):
@@ -315,7 +315,7 @@ def test_sink_menyerupai_file_teks():
 
 def test_pipeline_asli_mock_selesai_di_mode_hosting(tmp_path, capsys):
     """Regresi: runner sungguhan (MalasFlow + AutoFakeLLM) harus jalan di bawah stdout senyap."""
-    from malas.web.jobs import default_runner
+    from malas_api.jobs import default_runner
 
     m = JobManager(tmp_path, runner=default_runner, quiet=True)
     try:
@@ -341,7 +341,7 @@ def test_pipeline_asli_mock_selesai_di_mode_hosting(tmp_path, capsys):
     ("hal aneh yang belum dikenal", "hal aneh"),
 ])
 def test_pesan_error_ramah(msg, kata):
-    from malas.web.jobs import _friendly_error
+    from malas_api.jobs import _friendly_error
 
     out = _friendly_error(RuntimeError(msg))
     assert kata in out and "litellm" not in out

@@ -1,4 +1,4 @@
-# Data masukan makalah. Jalankan: uv run kickoff --input input/contoh.yaml
+# Data masukan makalah. Jalankan: uv run kickoff --input <file.yaml>
 judul: Sistem Rekomendasi Berbasis Machine Learning
 mata_kuliah: Kecerdasan Buatan
 dosen_pengampu: Dr. Budi Santoso

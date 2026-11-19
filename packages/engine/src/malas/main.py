@@ -20,7 +20,7 @@ os.environ.setdefault("CREWAI_TRACING_ENABLED", "false")
 os.environ.setdefault("OTEL_SDK_DISABLED", "true")  # telemetry CrewAI: tanpa ini ada error koneksi berisik saat offline
 from crewai.flow import Flow, listen, start
 
-from malas import checkpoint
+from malas import checkpoint, paths
 from malas.citations import (
     check_citations, citation_label, content_text, prune_unused_references,
 )
@@ -31,8 +31,8 @@ from malas.crews.write_format_crew.write_format_crew import WriteFormatCrew
 from malas.docx_converter import DocxConverter
 from malas.fulltext import FullTextStore
 
-DEFAULT_INPUT = "input/contoh.yaml"
-DEFAULT_TEMPLATE = "template_and_output/template makalah.docx"
+DEFAULT_INPUT = str(paths.DEFAULT_INPUT)
+DEFAULT_TEMPLATE = str(paths.DEFAULT_TEMPLATE)
 FULLTEXT_CACHE = Path(".cache/fulltext")
 
 # Callback progres: (kunci_tahap, status, detail). status: running | done | skipped | error | info

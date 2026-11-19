@@ -1,10 +1,23 @@
 .env
+.env.*
+!.env.example
 __pycache__/
+.venv/
 lib/
 .DS_Store
-/chroma_db
-/arxiv_pdfs
 /output
-.env
 /logs
 /.cache
+/chroma_db
+/arxiv_pdfs
+.pytest_cache/
+.ruff_cache/
+# JS
+node_modules/
+dist/
+.netlify/
+*.tsbuildinfo
+# hasil keluaran lama bukan template
+*.docx
+!packages/engine/src/malas/templates/*.docx
+~$*

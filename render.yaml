@@ -4,7 +4,7 @@ services:
   - type: web
     name: malas
     runtime: docker
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: ./apps/api/Dockerfile
     dockerContext: .
     plan: free            # 512 MB RAM; bila sering kehabisan memori pilih paket dengan RAM lebih besar (DEPLOY.md)
     region: singapore     # terdekat dari Indonesia; ganti bila perlu (oregon, frankfurt, ohio, virginia)

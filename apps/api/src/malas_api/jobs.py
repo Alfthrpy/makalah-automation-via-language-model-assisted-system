@@ -24,7 +24,7 @@ from typing import Callable, Dict, List, Optional
 from malas import checkpoint
 from malas.config import Runtime
 from malas.steps import STEP_KEYS
-from malas.web.vault import Sink, Vault, install_log_redaction
+from malas_api.vault import Sink, Vault, install_log_redaction
 
 ID_RE = re.compile(r"^[0-9a-f]{32}$")
 MAX_LOG = 300

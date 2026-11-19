@@ -15,8 +15,18 @@ Prasyarat: Python 3.10–3.13, [uv](https://docs.astral.sh/uv/), dan API key pen
 ```bash
 git clone https://github.com/Alfthrpy/makalah-automation-via-language-model-assisted-system.git
 cd makalah-automation-via-language-model-assisted-system
-uv sync
+uv sync --all-packages
 ```
+
+## Struktur monorepo
+
+```
+apps/api          FastAPI + antrean job (paket Python `malas_api`)
+packages/engine   engine crewAI, konverter .docx, CLI `kickoff` (paket Python `malas`)
+                  template .docx di src/malas/templates, contoh input di src/malas/examples
+```
+
+Roadmap SaaS (frontend React di Netlify, Neon Postgres, Clerk, backend di HF Space): lihat `HANDOFF.md`.
 
 Buat file `.env`:
 
@@ -60,7 +70,7 @@ progres tiap tahap, ringkasan hasil (jumlah sub-bab, referensi, sitasi, token), 
 
 ### Hosting publik tanpa login (mode BYOK)
 
-> Deploy ke Render langkah demi langkah: lihat **[DEPLOY.md](DEPLOY.md)** (sudah ada `Dockerfile` dan `render.yaml`).
+> Deploy ke Render langkah demi langkah: lihat **[DEPLOY.md](DEPLOY.md)** (sudah ada `apps/api/Dockerfile` dan `render.yaml`).
 
 ```bash
 MALAS_WEB_REQUIRE_KEY=1 MALAS_WEB_HOST=0.0.0.0 MALAS_WEB_ALLOWED_HOSTS="app-anda.onrender.com" uv run malas-web
@@ -85,11 +95,11 @@ yang tidur/restart, riwayat hilang (disk sementara); unduh segera setelah selesa
 
 ### Baris perintah
 
-1. Salin `input/contoh.yaml` dan isi judul, mata kuliah, penyusun, kampus.
+1. Salin `packages/engine/src/malas/examples/contoh.yaml` dan isi judul, mata kuliah, penyusun, kampus.
 2. Jalankan:
 
 ```bash
-uv run kickoff --input input/makalah-saya.yaml
+uv run kickoff --input makalah-saya.yaml
 ```
 
 Opsi lain: `--template "path/template.docx"` dan `--output hasil.docx`.

@@ -1,0 +1,10 @@
+{
+  "name": "malas-monorepo",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "dev:api": "uv run malas-web",
+    "test:py": "uv run pytest -q",
+    "lint:py": "uv run ruff check ."
+  }
+}

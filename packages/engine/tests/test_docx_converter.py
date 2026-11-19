@@ -5,9 +5,10 @@ from docx import Document
 from malas.crews.models.TaskOutput import (
     Bab, ContentList, ContentText, Makalah, Penyusun, ReferenceItem, SubBab,
 )
+from malas import paths
 from malas.docx_converter import DocxConverter, format_apa7
 
-TEMPLATE = Path(__file__).parent.parent / "template_and_output" / "template makalah.docx"
+TEMPLATE = paths.DEFAULT_TEMPLATE
 
 
 def _makalah() -> Makalah:

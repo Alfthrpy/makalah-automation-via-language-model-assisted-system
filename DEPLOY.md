@@ -9,14 +9,14 @@ API key sendiri (OpenRouter atau Kenari), jadi server tidak menyimpan dan tidak 
 
 | File | Fungsi |
 |---|---|
-| `Dockerfile` | Image produksi (Python 3.13, dependensi dari `uv.lock`, tanpa dependensi dev, jalan sebagai non-root) |
+| `apps/api/Dockerfile` | Image produksi (build context = root repo) (Python 3.13, dependensi dari `uv.lock` workspace, tanpa dependensi dev, jalan sebagai non-root) |
 | `.dockerignore` | Menjaga image kecil dan tidak ikut membawa `.env`, `output/`, `tests/`, dsb. |
 | `render.yaml` | Blueprint Render: layanan, region, health check, dan semua env var |
 | `GET /healthz` | Health check ringan (tidak memeriksa Host, tidak memasang cookie) |
 
 ## 1. Prasyarat
 - Akun [Render](https://render.com) yang sudah terhubung ke GitHub dan diberi akses ke repo ini.
-- Branch `main` berisi `Dockerfile` dan `render.yaml` (sudah, setelah merge).
+- Branch `main` berisi `apps/api/Dockerfile` dan `render.yaml` (sudah, setelah merge).
 
 ## 2. Cara A: Blueprint (disarankan)
 1. Dashboard Render → **New** → **Blueprint**.
@@ -103,7 +103,7 @@ Bila log menunjukkan *out of memory* / layanan sering restart saat job berjalan:
 
 ## 10. Uji lokal dengan Docker (opsional)
 ```bash
-docker build -t malas .
+docker build -f apps/api/Dockerfile -t malas .
 docker run --rm -p 10000:10000 -e PORT=10000 malas
 # buka http://localhost:10000
 ```

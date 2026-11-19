@@ -1,4 +1,5 @@
-# MALAS web UI (mode hosting/BYOK). Dibuat untuk Render, tapi jalan di platform Docker mana pun.
+# MALAS API (mode hosting/BYOK). Build context = ROOT repo:  docker build -f apps/api/Dockerfile .
+# Dibuat untuk Render, tapi jalan di platform Docker mana pun.
 FROM python:3.13-slim
 
 ENV PYTHONUNBUFFERED=1 \
@@ -18,12 +19,14 @@ WORKDIR /app
 
 # Lapisan dependensi (di-cache selama pyproject.toml/uv.lock tidak berubah)
 COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-dev --no-install-project
+COPY packages/engine/pyproject.toml packages/engine/pyproject.toml
+COPY apps/api/pyproject.toml apps/api/pyproject.toml
+RUN uv sync --frozen --no-dev --no-install-workspace --package malas-api
 
-# Kode aplikasi + template dokumen (dibutuhkan saat merender .docx)
-COPY src ./src
-COPY template_and_output ./template_and_output
-RUN uv sync --frozen --no-dev
+# Kode aplikasi (template .docx ikut di packages/engine/src/malas/templates)
+COPY packages/engine ./packages/engine
+COPY apps/api ./apps/api
+RUN uv sync --frozen --no-dev --package malas-api
 
 # Jalan sebagai non-root; folder tulis: /tmp/malas-output (hasil) dan /app/.cache (cache PDF)
 RUN useradd --create-home --uid 10001 app \

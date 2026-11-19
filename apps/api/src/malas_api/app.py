@@ -27,15 +27,15 @@ from pydantic import BaseModel, Field, SecretStr, StringConstraints, field_valid
 from pydantic_core import PydanticCustomError
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from malas import config
+from malas import config, paths
 from malas.docx_converter import xml_safe
 from malas.providers import PROVIDERS, get_provider, public_info
 from malas.steps import STEPS
-from malas.web.jobs import ID_RE, JobManager
+from malas_api.jobs import ID_RE, JobManager
 
 STATIC_DIR = Path(__file__).parent / "static"
-TEMPLATE_DIR = Path("template_and_output")
-DEFAULT_TEMPLATE_NAME = "template makalah.docx"
+TEMPLATE_DIR = paths.TEMPLATES_DIR
+DEFAULT_TEMPLATE_NAME = paths.DEFAULT_TEMPLATE_NAME
 LOCAL_HOSTS = ["localhost", "127.0.0.1", "[::1]", "testserver"]
 COOKIE = "malas_sid"
 SID_RE = re.compile(r"^[A-Za-z0-9_\-]{30,80}$")
