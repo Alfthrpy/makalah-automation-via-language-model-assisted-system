@@ -111,6 +111,23 @@ Pertanyaan terbuka untuk pemilik: (1) template tampil sebagai nama berkas atau l
 (email Resend / browser)?; (5) kuota final 3/hari dan selalu tampil di header?; (6) metode masuk Clerk & wajib verifikasi email?;
 (7) estimasi biaya sebelum kirim atau cukup token sesudahnya?; (8) model OpenRouter diketik bebas atau daftar teruji?;
 (9) Mode uji terlihat semua pengguna atau di "Opsi lanjutan"?; (10) siapa menulis ToS/Privasi + persetujuan eksplisit saat daftar?
+### Revisi v2 (landing ditulis ulang atas masukan pemilik: "kurang pas, harusnya relate sama rasa males")
+- Headline: "Males bikin makalah? Santai, biar MALAS yang bikinin drafnya." (alternatif: "Tugas makalah numpuk? Ketik judulnya, drafnya
+  biar MALAS yang nyusun." / "Mager nulis? Kasih judulnya, MALAS yang nyusun drafnya."). Sub-judul: 3 langkah + "10-30 menit, tergantung model".
+- Urutan landing: hero (coba ketik judul, pratinjau outline+sitasi tiruan) -> 3 langkah (mini-animasi, "Putar ulang") ->
+  "Kamu lagi di mana?" (4 chip opsional) -> "Biar adil" (draf, cek sitasi, aturan kampus, waktu/biaya/kuota) -> privasi key -> FAQ (7) -> CTA -> footer.
+- Aturan "tidak memaksa": tanpa popup/modal otomatis/scroll-jacking/suara/urgensi palsu/CTA lengket; animasi berhenti sendiri, ada tombol
+  "Jeda animasi", `prefers-reduced-motion` = keadaan akhir statis. DILARANG: klaim lolos deteksi AI, jaminan nilai, saran menyembunyikan AI.
+- Dua overflow ponsel (Detail job, Catatan desain) sudah diperbaiki. Panel "Landing v2" di Catatan desain memuat panduan suara (Pakai/Jangan).
+- Verifikasi (agen + saya, Playwright): nol error konsol/pageerror dan nol overflow horizontal di semua layar x terang/gelap x 1280/390;
+  keadaan reduced-motion benar. Belum: mode "Bingkai ponsel", pembaca layar asli, kontras AA dengan alat ukur.
+- Polish kecil untuk porting: saat stabilo "menggores" kata MALAS di mode gelap, huruf yang belum tersorot sempat redup ~0,9 dtk karena
+  `color` ikut dianimasikan (keyframe `swipe`); animasi landing mengulang tiap kembali ke #beranda; pratinjau hero berganti setelah judul selesai diketik.
+- Pertanyaan terbuka baru: (a) nada santai ("kamu") dipakai di seluruh aplikasi atau landing saja? Saran agen: "kamu" di semua, candaan hanya
+  di empty state/sapaan/toast sukses; error, privasi, hapus, kuota habis, sesi berakhir tetap lugas. (b) pilih headline final dari 3 opsi;
+  (c) ganti sitasi tiruan di pratinjau ("Pratama, 2023") dengan penanda netral "(Penulis, Tahun)"?; (d) chip "Jam 2 pagi, deadline jam 8"
+  dipertahankan atau dihapus (bisa terbaca mendorong kerja mepet)?
+
 LANGKAH: jangan mulai coding `apps/web` sebelum pemilik menyetujui/merevisi desain ini.
 
 ## Langkah berikutnya (mulai di sini)
