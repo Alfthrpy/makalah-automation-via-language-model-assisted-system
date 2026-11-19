@@ -68,6 +68,27 @@ progres tiap tahap, ringkasan hasil (jumlah sub-bab, referensi, sitasi, token), 
 - Env opsional: `MALAS_WEB_HOST`, `MALAS_WEB_PORT`, `MALAS_OUTPUT_DIR`, `MALAS_WEB_ALLOWED_HOSTS`,
   `MALAS_DEBUG_LOGS=1` (tulis log crew ke `logs/`; default mati agar tidak ada jejak).
 
+### Database, antrean, dan key tersimpan (opsional)
+
+Status job, progres, checkpoint, dan hasil `.docx` disimpan di database, bukan di disk, jadi riwayat selamat dari
+restart/tidurnya host. Disk hanya dipakai sebagai folder kerja sementara. Detail variabel: `apps/api/.env.example`.
+
+| Env | Fungsi |
+|---|---|
+| `DATABASE_URL` | Kosong = SQLite di `MALAS_OUTPUT_DIR` (lokal). Produksi: Neon Postgres, URL **pooled** (`postgres://…-pooler…`) |
+| `DATABASE_URL_DIRECT` | URL **direct** (tanpa `-pooler`) khusus migrasi skema saat server naik (disarankan di Neon) |
+| `MALAS_SECRET_KEY` | Rahasia ≥ 32 karakter. Tanpa ini, fitur **simpan API key** mati. Rotasi: `MALAS_SECRET_KEY_OLD` |
+
+- Skema dikelola Alembic dan dimigrasi otomatis saat server naik (aman dijalankan dua instance sekaligus).
+- Antrean = tabel `jobs`; pekerja mengambil job dengan claim atomik (`FOR UPDATE SKIP LOCKED` di Postgres) dan mengirim
+  heartbeat. Job `running` yang heartbeat-nya basi (proses mati) ditandai **Terhenti** dan bisa dilanjutkan dari checkpoint.
+- **API key tersimpan (opsional, atas pilihan pengguna)**: kirim `save_key: true` bersama `api_key`; key dienkripsi (Fernet)
+  dan hanya didekripsi saat job jalan. Job berikutnya cukup `use_saved_key: true`. Dengan key tersimpan, job yang terputus
+  **dilanjutkan otomatis** dari checkpoint sekali. `GET /api/keys` hanya menampilkan daftar penyedia (nilai key tidak pernah
+  dikembalikan); `DELETE /api/keys/{provider}` menghapus. Tanpa memilih menyimpan, key tetap hanya di memori selama job.
+- Tes: `uv run pytest` (SQLite). Untuk Postgres: `MALAS_TEST_DATABASE_URL=postgresql://… uv run pytest apps/api`
+  (database itu **dikosongkan** tiap tes; pakai database khusus tes).
+
 ### Hosting publik tanpa login (mode BYOK)
 
 > Deploy ke Render langkah demi langkah: lihat **[DEPLOY.md](DEPLOY.md)** (sudah ada `apps/api/Dockerfile` dan `render.yaml`).

@@ -18,34 +18,58 @@ memakai layanan gratis. Bahasa percakapan dan UI: Indonesia.
 | 6 | File hasil | Antarmuka `Storage`; MVP boleh `bytea` di Neon, target **Cloudflare R2** |
 | 7 | Antrean | Tabel Postgres + `FOR UPDATE SKIP LOCKED` (tanpa Redis) |
 
-## Struktur repo sekarang (setelah Fase 1)
+## Struktur repo sekarang (setelah Fase 2)
 ```
 pyproject.toml            # root uv workspace (virtual) + dev group (pytest, httpx, ruff) + config pytest
-uv.lock
 pnpm-workspace.yaml / package.json   # skeleton JS (apps/web belum ada)
-apps/api/                 # paket Python `malas_api`: app.py (FastAPI), jobs.py (JobManager berbasis file), vault.py (BYOK in-memory)
-  src/malas_api/static/   # UI statis lama (index.html, app.js, app.css): AKAN DIHAPUS di Fase 4
-  tests/                  # test_web, test_byok, test_resume
+apps/api/                 # paket Python `malas_api`
+  .env.example            # semua env backend (DATABASE_URL, DATABASE_URL_DIRECT, MALAS_SECRET_KEY, ...)
+  alembic.ini             # hanya untuk CLI; runtime memakai malas_api.db.migrate() (script_location di dalam paket)
+  src/malas_api/
+    app.py                # FastAPI: routes, middleware sesi/header (auth cookie anonim, diganti Clerk di Fase 3)
+    jobs.py               # JobManager: worker thread, claim antrean, heartbeat, pemulihan, key sesi/tersimpan
+    repo.py               # SATU-SATUNYA tempat SQL: job/checkpoint/key; job <-> dict
+    db.py                 # model SQLAlchemy 2, make_engine (Neon/SQLite), migrate(), Database
+    migrations/           # Alembic: env.py, versions/0001_initial.py
+    storage.py            # Storage Protocol + DbStorage (bytea). R2 = implementasi berikutnya
+    crypto.py             # KeyCipher (Fernet+HKDF), cipher_from_env, rotasi lewat MALAS_SECRET_KEY_OLD
+    vault.py              # key sesi di memori + redaksi log/error
+    static/               # UI statis lama: AKAN DIHAPUS di Fase 4
+  tests/                  # test_web, test_byok, test_resume, test_db (Fase 2), conftest (PG opsional)
   Dockerfile              # build context = ROOT: docker build -f apps/api/Dockerfile .
 packages/engine/          # paket Python `malas`: crews, docx_converter, citations, fulltext, tolerant, CLI `kickoff`
-  src/malas/paths.py      # lokasi templates/examples terlepas dari cwd
-  src/malas/templates/    # template makalah*.docx (dulu template_and_output/)
-  src/malas/examples/     # contoh.yaml (dulu input/)
-  tests/                  # test_docx_converter, citations, fulltext, tolerant, utils
-render.yaml               # Blueprint Render lama; diganti pindah ke HF Space di Fase 5
+  src/malas/{paths.py,templates/,examples/}
+render.yaml               # Blueprint Render lama; diganti ke HF Space di Fase 5
 ```
-Perintah penting: `uv sync --all-packages`, `uv run pytest -q` (90 tes), `uv run malas-web`,
+Perintah penting: `uv sync --all-packages`, `uv run pytest -q` (108 lulus + 1 skip khusus Postgres), `uv run malas-web`,
 `MALAS_MOCK=1 uv run kickoff --output x.docx`.
+Tes ke Postgres: `MALAS_TEST_DATABASE_URL=postgresql://postgres@localhost:54329/malas_test uv run pytest apps/api`
+(database DIKOSONGKAN tiap tes). Postgres 16 ada di sandbox: `/usr/lib/postgresql/16/bin`, jalankan sebagai user `postgres`
+dengan data dir milik `postgres` (mis. `/var/tmp/pgdata-malas`, port 54329, `-A trust`); tidak aktif lagi di sesi baru.
 
 ## Status fase
-- [x] **Fase 1: Restrukturisasi** (perilaku tidak berubah). Selesai. 90 tes lulus; CLI mode uji jalan; server
-  dari instalasi bersih `uv sync --frozen --no-dev --package malas-api` jalan (healthz/config/index/static OK).
-  Dockerfile BELUM pernah di-build (tidak ada Docker daemon di sandbox); langkahnya divalidasi manual.
-- [ ] **Fase 2: Backend + Neon**: SQLAlchemy 2 + psycopg 3 + Alembic; tabel `users`, `jobs`, `job_checkpoints`, `files`, `usage`;
-  ganti JobManager berbasis file; worker `SKIP LOCKED` + heartbeat; `Storage`; enkripsi key BYOK (Fernet) opsional.
-- [ ] **Fase 3: Auth + multi-tenant**: JWT Clerk, filter `user_id`, kuota, pertahankan proteksi lama (redaksi log/error, batas body, TrustedHost).
-- [ ] **Fase 4: Frontend React** (`apps/web`), port semua fitur `app.js`; `packages/api-types` dari OpenAPI; hapus `static/`.
-- [ ] **Fase 5: Deploy + CI**: Dockerfile untuk HF Space (port 7860), `netlify.toml`, GitHub Actions (pytest, ruff, typecheck, build web, cek tipe OpenAPI), update DEPLOY.md.
+- [x] **Fase 1: Restrukturisasi** (perilaku tidak berubah).
+- [x] **Fase 2: Backend + Neon**. Selesai dan terverifikasi di SQLite dan Postgres 16 sungguhan.
+  - Skema (Alembic 0001): `users`, `jobs` (kolom nyata + JSON `data`/`resume`), `job_checkpoints`, `job_files`, `user_api_keys`.
+    Tabel `usage` SENGAJA ditunda ke Fase 3 (kuota).
+  - Antrean di DB: `claim_next` (`FOR UPDATE SKIP LOCKED` + UPDATE bersyarat), 1 worker thread/proses, heartbeat
+    (default tiap 20 dtk, basi 90 dtk), `recover_stale()` saat start + berkala, job zombie tidak menimpa job yang
+    sudah dinyatakan mati (`_finish` hanya mengubah job `running`).
+  - Checkpoint & `.docx` di DB (zlib / bytea); folder kerja per job di `<root>/work` dihapus setelah job.
+  - Opsi 3b: `save_key`/`use_saved_key` di `POST /api/jobs`, `GET/DELETE /api/keys`, auto-resume sekali bila
+    `key_source="saved"` + checkpoint ada. Key sesi (tanpa simpan) tetap hanya di memori; job antre yang kehilangan key
+    karena restart gagal dengan pesan jelas.
+  - Neon: `DATABASE_URL` (pooled) + `DATABASE_URL_DIRECT` (migrasi), `prepare_threshold=None` (PgBouncer), `pool_pre_ping`,
+    `pg_advisory_xact_lock` saat migrasi.
+  - Smoke test: server dari instalasi bersih (`--no-dev`) + Postgres: job mode uji selesai, restart server, riwayat & unduhan tetap ada.
+  - BELUM dites terhadap Neon asli (tidak ada kredensial di sandbox). Yang berisiko: latensi cold-start Neon, perilaku PgBouncer.
+- [ ] **Fase 3: Auth + multi-tenant**: JWT Clerk (JWKS), ganti cookie anonim dengan `users.external_id = clerk user id`
+  (`repo.ensure_user` sudah ada), tabel `usage` + kuota harian, pertahankan proteksi lama (redaksi, batas body, TrustedHost).
+  Catatan desain: `request.state.owner` dipakai di seluruh `app.py` sebagai string pemilik; cukup ganti sumbernya.
+- [ ] **Fase 4: Frontend React** (`apps/web`), port semua fitur `app.js` + UI simpan/hapus key tersimpan; `packages/api-types` dari OpenAPI
+  (sekarang `openapi_url=None`, perlu dinyalakan untuk generasi tipe saat build); hapus `static/`.
+- [ ] **Fase 5: Deploy + CI**: Dockerfile HF Space (port 7860, `PORT`), `netlify.toml`, GitHub Actions (pytest SQLite+Postgres service,
+  ruff terbatas pada kode baru, typecheck + build web), `S3Storage` untuk R2, update DEPLOY.md. Ingat: HF Space bisa tidur; disk ephemeral.
 - [ ] **Fase 6 (opsional)**: ToS/Privasi, email (Resend), Sentry, admin, pembayaran.
 
 ## Hal yang perlu diketahui
@@ -59,12 +83,13 @@ Perintah penting: `uv sync --all-packages`, `uv run pytest -q` (90 tes), `uv run
 - Jangan buat PR kecuali diminta. Push hanya ke `claude/jolly-maxwell-xdh9bs`.
 
 ## Langkah berikutnya (mulai di sini)
-Fase 2. Urutan yang disarankan:
-1. Tambah dependensi (sqlalchemy, psycopg[binary], alembic, cryptography) di `apps/api/pyproject.toml`; `uv lock`.
-2. Rancang skema + migrasi Alembic pertama; tes pakai Postgres lokal atau SQLite untuk unit, Postgres untuk integrasi bila tersedia.
-3. Buat repository (`JobRepo`) dengan antarmuka yang sama dengan JobManager sekarang agar tes lama bisa dipakai ulang.
-4. Pindahkan checkpoint (`malas.checkpoint`) ke DB lewat antarmuka, bukan file.
-5. Worker + heartbeat + penandaan job basi.
+Fase 3. Urutan yang disarankan:
+1. `apps/api/src/malas_api/auth.py`: verifikasi JWT Clerk (PyJWT + JWKS cache; env `CLERK_JWKS_URL`/`CLERK_ISSUER`, opsional
+   `CLERK_AUTHORIZED_PARTIES`). Dependency FastAPI yang mengisi `request.state.owner`.
+2. Ganti middleware cookie anonim: pertahankan header keamanan, batas body, TrustedHost, `/healthz`; hapus cookie `malas_sid`.
+   Beri mode dev tanpa Clerk (env) agar tes dan CLI lokal tetap jalan.
+3. Migrasi 0002: tabel `usage` + kuota (mis. N makalah/hari, env `MALAS_DAILY_QUOTA`), hitung di `create_job`.
+4. Perbarui tes (pemilik = user Clerk palsu dengan JWT yang ditandatangani kunci uji).
 
-Yang saya butuhkan dari pengguna sebelum/selama Fase 2: connection string Neon (pooled + direct), via env/secret,
-**jangan ditempel di chat**.
+Yang saya butuhkan dari pengguna: akun/aplikasi **Clerk** (Publishable key untuk web, Issuer/JWKS URL untuk backend),
+dan connection string **Neon** (pooled + direct) bila ingin verifikasi ke Neon asli. Lewat env/secret, **jangan ditempel di chat**.

@@ -39,7 +39,7 @@ def make(tmp_path):
     managers = []
 
     def _make(runner=fake_runner, root=None):
-        m = JobManager(root or tmp_path, runner=runner)
+        m = JobManager(root or tmp_path, runner=runner, stale_after=0)  # stale_after=0: restart dianggap langsung basi
         managers.append(m)
         return TestClient(create_app(m)), m
 
@@ -172,7 +172,7 @@ def test_job_menggantung_ditandai_interrupted(make, tmp_path):
     client, m = make(lambda j, p, o, r=None: gate.wait(5))
     jid = client.post("/api/jobs", json=VALID).json()["id"]
     wait_for(client, jid, {"running"})
-    m.shutdown()  # simulasi server mati; job.json masih berstatus running
+    m.shutdown()  # simulasi server mati; job masih berstatus running di DB
     client2, _ = make(root=tmp_path)
     client2.cookies.set("malas_sid", client.cookies.get("malas_sid"))
     assert client2.get(f"/api/jobs/{jid}").json()["status"] == "interrupted"

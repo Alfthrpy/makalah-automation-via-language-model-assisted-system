@@ -285,9 +285,10 @@ def test_retensi_menghapus_job_lama(make, tmp_path):
     client, m = make(retention_hours=1)
     jid = client.post("/api/jobs", json={**BASE, "mock": True}).json()["id"]
     wait_for(client, jid, {"done"})
-    m._jobs[jid]["finished_at"] = (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat(timespec="seconds")
+    old = (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat(timespec="seconds")
+    m.repo.update(jid, lambda j: j.update(finished_at=old))
     assert client.get("/api/jobs").json() == []
-    assert not (tmp_path / "jobs" / jid).exists()  # berkas ikut terhapus
+    assert m.get(jid) is None and m.storage.get(jid) is None  # berkas ikut terhapus
 
 
 def test_body_terlalu_besar_ditolak(make):

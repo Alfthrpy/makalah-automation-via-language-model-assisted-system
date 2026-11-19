@@ -31,6 +31,8 @@ from malas import config, paths
 from malas.docx_converter import xml_safe
 from malas.providers import PROVIDERS, get_provider, public_info
 from malas.steps import STEPS
+from malas_api.crypto import cipher_from_env
+from malas_api.db import database_url_from_env, migrate_url_from_env
 from malas_api.jobs import ID_RE, JobManager
 
 STATIC_DIR = Path(__file__).parent / "static"
@@ -83,6 +85,9 @@ class JobRequest(BaseModel):
     model_planner: Optional[str] = None
     model_writer: Optional[str] = None
     resume_from: Optional[str] = None  # id job gagal milik sendiri yang ingin dilanjutkan
+    # Opsi 3b: simpan key terenkripsi di server (butuh MALAS_SECRET_KEY) agar job terputus bisa lanjut otomatis.
+    save_key: bool = False  # api_key dikirim DAN disimpan
+    use_saved_key: bool = False  # api_key kosong; pakai key tersimpan untuk `provider`
 
     @field_validator("resume_from", mode="before")
     @classmethod
@@ -136,6 +141,9 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
             Path(os.getenv("MALAS_OUTPUT_DIR", "output")),
             retention_hours=float(retention) if retention else (6.0 if hosted else None),
             quiet=hosted,
+            database_url=database_url_from_env(),
+            migrate_url=migrate_url_from_env(),
+            cipher=cipher_from_env(),
         )
     mgr = manager
     max_queue = int(os.getenv("MALAS_WEB_MAX_QUEUE", "5"))
@@ -174,13 +182,9 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
             resp.headers["Cache-Control"] = "no-store"
         return resp
 
-    def visible_to(owner: str):
-        # Job lama tanpa pemilik hanya terlihat di mode lokal (satu pengguna).
-        return lambda j: j.get("owner") == owner or (not j.get("owner") and not hosted)
-
     def _own_job(job_id: str, request: Request) -> dict:
         job = mgr.get(job_id)
-        if not job or not visible_to(request.state.owner)(job):
+        if not job or job.get("owner") != request.state.owner:
             raise HTTPException(404, "Job tidak ditemukan")  # 404, bukan 403: tidak membocorkan keberadaan
         return job
 
@@ -215,7 +219,8 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
             "templates": list_templates(),
             "default_template": DEFAULT_TEMPLATE_NAME,
             "steps": [{"key": k, "label": l, "hint": h} for k, l, h in STEPS],
-            "active_job": mgr.active_job(visible_to(request.state.owner)),
+            "active_job": mgr.active_job(request.state.owner),
+            "key_storage": mgr.key_storage_enabled,
             "year": datetime.now().year,
         }
 
@@ -234,8 +239,9 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
             raise HTTPException(422, detail=[{"loc": ["body", "template"], "type": "value_error", "msg": "Template tidak tersedia"}])
 
         runtime = None
+        key_source = provider_id = models = None
         if not req.mock:
-            if req.api_key is not None:
+            if req.api_key is not None or req.use_saved_key:
                 prov = get_provider(req.provider)
                 if prov is None or not prov.enabled:
                     raise HTTPException(422, detail=[{"loc": ["body", "provider"], "type": "value_error", "msg": "Penyedia tidak tersedia"}])
@@ -244,44 +250,58 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
                 for field, val in (("model_planner", planner), ("model_writer", writer)):
                     if not val:
                         raise HTTPException(422, detail=[{"loc": ["body", field], "type": "missing", "msg": "Model wajib diisi"}])
-                runtime = config.Runtime(prov.id, req.api_key.get_secret_value(), planner, writer)
+                provider_id, models = prov.id, {"planner": planner, "writer": writer}
+                if req.api_key is not None and not req.save_key:
+                    runtime = config.Runtime(prov.id, req.api_key.get_secret_value(), planner, writer)
+                else:  # key tersimpan (terenkripsi) dipakai job
+                    if not mgr.key_storage_enabled:
+                        raise HTTPException(409, "Penyimpanan API key tidak aktif di server ini.")
+                    if req.api_key is not None:
+                        mgr.save_user_key(owner, prov.id, req.api_key.get_secret_value())
+                    elif not mgr.has_user_key(owner, prov.id):
+                        raise HTTPException(422, detail=[{"loc": ["body", "api_key"], "type": "missing", "msg": "Belum ada API key tersimpan untuk penyedia ini"}])
+                    key_source = "saved"
             elif hosted:
                 raise HTTPException(422, detail=[{"loc": ["body", "api_key"], "type": "missing", "msg": "API key wajib diisi"}])
             elif not config.describe()["api_key_ok"]:
                 raise HTTPException(400, detail="API key server belum terdeteksi. Isi .env (lihat README), masukkan API key Anda, atau pakai Mode uji.")
 
         if hosted:  # cegah satu pengguna/bot memenuhi antrean bersama
-            mine = mgr.active_job(lambda j: j.get("owner") == owner)
-            if mine:
+            if mgr.active_job(owner):
                 raise HTTPException(429, "Anda masih punya makalah yang sedang diproses. Tunggu sampai selesai.")
-            if sum(1 for j in mgr.list(limit=1000) if j["status"] in {"queued", "running"}) >= max_queue:
+            if mgr.count_active() >= max_queue:
                 raise HTTPException(429, "Antrean penuh. Coba lagi beberapa menit lagi.")
 
-        data = req.model_dump(exclude={"template", "mock", "provider", "api_key", "model_planner", "model_writer", "resume_from"})
+        data = req.model_dump(exclude={"template", "mock", "provider", "api_key", "model_planner", "model_writer", "resume_from",
+                                          "save_key", "use_saved_key"})
         if resume_job:  # data makalah harus sama dengan job asal agar checkpoint (outline/referensi) tetap cocok
             data = resume_job["request"]
-        job = mgr.submit(data, req.mock, str(TEMPLATE_DIR / name), name, owner=owner, runtime=runtime,
-                         resume_from=resume_job["id"] if resume_job else None)
+        try:
+            job = mgr.submit(data, req.mock, str(TEMPLATE_DIR / name), name, owner=owner, runtime=runtime,
+                             resume_from=resume_job["id"] if resume_job else None,
+                             key_source=key_source, provider=provider_id, models=models)
+        except ValueError as e:
+            raise HTTPException(409, str(e)) from e
         return _public(job)
 
     @app.get("/api/jobs")
     def list_jobs(request: Request) -> list:
-        return mgr.list(visible_to(request.state.owner))
+        return mgr.list(request.state.owner)
 
     @app.get("/api/jobs/{job_id}")
     def get_job(job_id: str, request: Request) -> dict:
         return _public(_own_job(job_id, request))
 
     @app.get("/api/jobs/{job_id}/download")
-    def download(job_id: str, request: Request) -> FileResponse:
+    def download(job_id: str, request: Request) -> Response:
         job = _own_job(job_id, request)
-        path = mgr.file_path(job_id)
-        if not path:
+        content = mgr.read_file(job_id)
+        if content is None:
             raise HTTPException(409, "Berkas belum tersedia")
-        return FileResponse(
-            path,
-            filename=f"makalah-{_slug(job['title'])}.docx",
+        return Response(
+            content,
             media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={"Content-Disposition": f'attachment; filename="makalah-{_slug(job["title"])}.docx"'},
         )
 
     @app.delete("/api/jobs/{job_id}")
@@ -295,6 +315,17 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
         if result == "running":
             raise HTTPException(409, "Job sedang berjalan dan tidak bisa dihentikan; tunggu sampai selesai.")
         return {"result": result}
+
+    # ---- API key tersimpan (opsi 3b): hanya daftar penyedia; nilai key TIDAK PERNAH dikembalikan
+    @app.get("/api/keys")
+    def list_keys(request: Request) -> dict:
+        return {"enabled": mgr.key_storage_enabled, "keys": mgr.list_user_keys(request.state.owner)}
+
+    @app.delete("/api/keys/{provider}")
+    def delete_key(provider: str, request: Request) -> dict:
+        if get_provider(provider) is None or not mgr.delete_user_key(request.state.owner, provider):
+            raise HTTPException(404, "Key tersimpan tidak ditemukan")
+        return {"result": "deleted"}
 
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
     return app

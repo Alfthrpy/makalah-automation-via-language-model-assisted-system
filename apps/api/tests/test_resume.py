@@ -133,7 +133,7 @@ def test_gagal_di_tengah_lalu_dilanjutkan(tmp_path, monkeypatch):
         assert "memakai hasil sebelumnya (3/11" in j2["steps"]["outline"]["detail"]
         assert "dilewati" in "\n".join(l["msg"] for l in j2["log"])
         assert client.get(f"/api/jobs/{j2['id']}/download").content[:2] == b"PK"
-        assert not (tmp_path / "jobs" / j2["id"] / "checkpoint.json").exists()  # selesai: draf dibuang
+        assert m.repo.checkpoint_meta(j2["id"]) is None  # selesai: draf dibuang
 
         # job asal tetap bisa dilanjutkan lagi; job selesai tidak bisa
         assert client.get(f"/api/jobs/{j1['id']}").json()["resume"]["available"] is True
