@@ -91,6 +91,28 @@ dengan data dir milik `postgres` (mis. `/var/tmp/pgdata-malas`, port 54329, `-A 
 - Batas free tier (Neon, HF, Netlify, Clerk, R2) berubah-ubah; cek ulang saat deploy.
 - Jangan buat PR kecuali diminta. Push hanya ke `claude/jolly-maxwell-xdh9bs`.
 
+## Desain UI Fase 4 (DRAFT, menunggu review pemilik)
+Prototipe klik (satu berkas HTML, dibuat dengan Opus): `docs/design/malas-ui.html`.
+Artifact (privat): https://claude.ai/artifact/Ab8P4YSww4WU7wKKAhgWfE. Routing hash: `#beranda #masuk #dasbor #buat #job #pengaturan #keadaan #catatan`.
+Layar: landing, masuk (tiruan Clerk, diganti `<SignIn/>`/`<SignUp/>`), dasbor, buat makalah, detail job (6 status + simulasi progres),
+pengaturan, state khusus (401/429/antrean penuh/offline/skeleton), catatan desain (token, komponen, peta rute ke API).
+Keputusan desain: identitas "pulpen biru & stabilo" (biru tinta untuk aksi, kuning stabilo hanya untuk sitasi); font Bricolage
+Grotesque (judul), Plus Jakarta Sans (teks), JetBrains Mono (id model/NIM/log); token di `:root` + mode gelap; form SATU halaman
+bersegmen (bukan wizard); key tersimpan jadi pilihan bawaan bila ada, "Simpan key saya" default mati; aksi terlarang tetap tampil
+tapi nonaktif + alasan; "Lanjutkan" lewat dialog (n/m sub-bab, tidak memakai kuota); status = ikon + teks (bukan warna saja);
+container query + bottom nav 3 tab di ponsel.
+Diverifikasi saya: tidak ada error JS di 8 layar x terang/gelap x desktop/ponsel. Masalah kecil yang tersisa (cuma di ponsel):
+overflow horizontal 4px di Detail job (baris id model) dan 135px di Catatan desain (tabel); bukan bagian produk, boleh diabaikan atau
+dirapikan saat porting.
+Celah API yang ditemukan desain (kandidat tugas backend kecil): riwayat (`GET /api/jobs`) belum memuat `mata_kuliah` dan ringkasan
+progres; belum ada posisi antrean; durasi per tahap belum dicatat; OpenAPI perlu dinyalakan untuk generasi tipe.
+Pertanyaan terbuka untuk pemilik: (1) template tampil sebagai nama berkas atau label ramah + pratinjau (butuh metadata server);
+(2) lama simpan riwayat/.docx dan hitung mundur penghapusan; (3) key tersimpan kedaluwarsa otomatis?; (4) notifikasi selesai
+(email Resend / browser)?; (5) kuota final 3/hari dan selalu tampil di header?; (6) metode masuk Clerk & wajib verifikasi email?;
+(7) estimasi biaya sebelum kirim atau cukup token sesudahnya?; (8) model OpenRouter diketik bebas atau daftar teruji?;
+(9) Mode uji terlihat semua pengguna atau di "Opsi lanjutan"?; (10) siapa menulis ToS/Privasi + persetujuan eksplisit saat daftar?
+LANGKAH: jangan mulai coding `apps/web` sebelum pemilik menyetujui/merevisi desain ini.
+
 ## Langkah berikutnya (mulai di sini)
 Fase 4: frontend `apps/web` (Vite + React + TS + Tailwind + `@clerk/clerk-react`).
 1. Scaffold `apps/web`, proxy dev `/api` -> `http://127.0.0.1:8000`, `.env.example` (`VITE_CLERK_PUBLISHABLE_KEY`).
