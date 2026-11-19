@@ -173,7 +173,7 @@ class JobManager:
     def submit(self, request: dict, mock: bool, template_path: str, template_name: str, *,
                owner: str = "", runtime: Optional[Runtime] = None, resume_from: Optional[str] = None,
                key_source: Optional[str] = None, provider: Optional[str] = None,
-               models: Optional[dict] = None) -> dict:
+               models: Optional[dict] = None, quota_day: Optional[str] = None) -> dict:
         self.purge()
         if runtime is not None:
             key_source, provider = "session", runtime.provider_id
@@ -204,6 +204,7 @@ class JobManager:
             "usage": None,
             "stats": None,
             "has_file": False,
+            "quota_day": quota_day,  # hari kuota yang dipakai job ini (untuk refund bila dibatalkan sebelum jalan)
         }
         if resume_from and not (self.repo.checkpoint_meta(resume_from)):
             raise ValueError("Checkpoint job asal tidak ditemukan")
@@ -252,6 +253,8 @@ class JobManager:
             if self.repo.cancel_queued(job_id):
                 with self._lock:
                     self._discard_secret(job_id)
+                if job.get("quota_day"):
+                    self.repo.refund_quota(job["owner"], job["quota_day"])  # batal sebelum jalan: kuota kembali
                 return "cancelled"
             return "running"  # keburu diambil pekerja
         self.storage.delete(job_id)
@@ -259,6 +262,16 @@ class JobManager:
         with self._lock:
             self._discard_secret(job_id)
         return "deleted"
+
+    # --- kuota harian
+    def quota_used(self, owner: str, day: str) -> int:
+        return self.repo.quota_used(owner, day)
+
+    def consume_quota(self, owner: str, day: str, limit: int) -> bool:
+        return self.repo.consume_quota(owner, day, limit)
+
+    def refund_quota(self, owner: str, day: str) -> None:
+        self.repo.refund_quota(owner, day)
 
     # --- key tersimpan (opsi 3b)
     def save_user_key(self, owner: str, provider: str, key: str) -> None:

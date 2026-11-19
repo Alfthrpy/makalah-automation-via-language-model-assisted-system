@@ -15,12 +15,13 @@ import os
 import re
 import secrets
 import unicodedata
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Annotated, List, Optional
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
+from starlette.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, SecretStr, StringConstraints, field_validator
@@ -31,6 +32,7 @@ from malas import config, paths
 from malas.docx_converter import xml_safe
 from malas.providers import PROVIDERS, get_provider, public_info
 from malas.steps import STEPS
+from malas_api.auth import Authenticator, AuthError, authenticator_from_env, token_from_request
 from malas_api.crypto import cipher_from_env
 from malas_api.db import database_url_from_env, migrate_url_from_env
 from malas_api.jobs import ID_RE, JobManager
@@ -44,6 +46,7 @@ SID_RE = re.compile(r"^[A-Za-z0-9_\-]{30,80}$")
 KEY_RE = re.compile(r"^[\x21-\x7e]{8,300}$")  # ASCII tercetak, tanpa spasi/kontrol
 MODEL_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/\-]{0,99}$")
 MAX_BODY = 100_000
+PUBLIC_API = {"/api/config"}  # boleh diakses tanpa login (UI perlu tahu mode auth)
 
 Str = lambda mx, mn=0: Annotated[str, StringConstraints(strip_whitespace=True, min_length=mn, max_length=mx)]  # noqa: E731
 
@@ -132,9 +135,34 @@ def _public(job: dict) -> dict:
     return {k: v for k, v in job.items() if k not in {"template_path", "owner"}}
 
 
+def quota_tz():
+    from zoneinfo import ZoneInfo
+
+    return ZoneInfo(os.getenv("MALAS_QUOTA_TZ", "Asia/Jakarta"))
+
+
+def quota_day() -> str:
+    return datetime.now(quota_tz()).strftime("%Y-%m-%d")
+
+
+def quota_resets_at() -> str:
+    now = datetime.now(quota_tz())
+    nxt = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+    return nxt.isoformat(timespec="seconds")
+
+
 def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[List[str]] = None,
-               hosted: Optional[bool] = None) -> FastAPI:
+               hosted: Optional[bool] = None, auth: Optional[Authenticator] = None,
+               daily_quota: Optional[int] = None) -> FastAPI:
+    """auth: verifikator Clerk. None = ambil dari env (CLERK_*); bila tetap kosong -> mode anonim (cookie acak).
+    daily_quota: maks job NYATA (bukan Mode uji, bukan lanjutan) per pengguna per hari; 0/None = tanpa batas
+    (default dari MALAS_DAILY_QUOTA)."""
     hosted = _flag("MALAS_WEB_REQUIRE_KEY") if hosted is None else hosted
+    auth = authenticator_from_env() if auth is None else auth
+    if daily_quota is None:
+        daily_quota = int(os.getenv("MALAS_DAILY_QUOTA", "0") or 0)
+    if _flag("MALAS_AUTH_REQUIRED") and auth is None:
+        raise RuntimeError("MALAS_AUTH_REQUIRED=1 tetapi CLERK_ISSUER/CLERK_JWKS_URL belum diisi.")
     if manager is None:
         retention = os.getenv("MALAS_WEB_RETENTION_HOURS")
         manager = JobManager(
@@ -158,18 +186,33 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
     async def session_and_headers(request: Request, call_next):
         if request.url.path == "/healthz":  # health check platform: tanpa cookie, tanpa pemeriksaan Host
             return PlainTextResponse("ok", headers={"Cache-Control": "no-store"})
-        sid = request.cookies.get(COOKIE)
-        fresh = not (sid and SID_RE.match(sid))
-        if fresh:
-            sid = secrets.token_urlsafe(32)
-        request.state.owner = hashlib.sha256(sid.encode()).hexdigest()
+        fresh = False
+        if auth is not None:  # Clerk: pemilik = `sub` JWT; tanpa token sah, hanya jalur publik
+            token = token_from_request(request.headers, request.cookies, request.method)
+            owner = None
+            if token:
+                try:
+                    owner = await run_in_threadpool(auth.verify, token)  # bisa mengunduh JWKS (I/O)
+                except AuthError:
+                    owner = None
+            request.state.owner = owner
+            path0 = request.url.path
+            if owner is None and path0.startswith("/api/") and path0 not in PUBLIC_API:
+                return JSONResponse({"detail": "Silakan masuk terlebih dahulu."}, status_code=401,
+                                    headers={"Cache-Control": "no-store", "WWW-Authenticate": "Bearer"})
+        else:  # anonim: cookie acak -> pemilik (riwayat tidak bocor antar browser)
+            sid = request.cookies.get(COOKIE)
+            fresh = not (sid and SID_RE.match(sid))
+            if fresh:
+                sid = secrets.token_urlsafe(32)
+            request.state.owner = hashlib.sha256(sid.encode()).hexdigest()
 
         if request.method == "POST" and int(request.headers.get("content-length") or 0) > MAX_BODY:
             return JSONResponse({"detail": "Permintaan terlalu besar."}, status_code=413)
 
         resp: Response = await call_next(request)
         path = request.url.path
-        if fresh and (path == "/" or path.startswith("/api/")):
+        if fresh and auth is None and (path == "/" or path.startswith("/api/")):
             https = request.url.scheme == "https" or request.headers.get("x-forwarded-proto") == "https"
             resp.set_cookie(COOKIE, sid, max_age=60 * 60 * 24 * 365, httponly=True, samesite="lax", secure=https, path="/")
         resp.headers["X-Content-Type-Options"] = "nosniff"
@@ -219,7 +262,9 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
             "templates": list_templates(),
             "default_template": DEFAULT_TEMPLATE_NAME,
             "steps": [{"key": k, "label": l, "hint": h} for k, l, h in STEPS],
-            "active_job": mgr.active_job(request.state.owner),
+            "active_job": mgr.active_job(request.state.owner) if request.state.owner else None,
+            "auth": {"mode": "clerk" if auth else "anonymous", "required": auth is not None},
+            "daily_quota": daily_quota or None,
             "key_storage": mgr.key_storage_enabled,
             "year": datetime.now().year,
         }
@@ -272,6 +317,12 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
             if mgr.count_active() >= max_queue:
                 raise HTTPException(429, "Antrean penuh. Coba lagi beberapa menit lagi.")
 
+        consumed_day = None
+        if daily_quota and not req.mock and not resume_job:  # lanjutan & Mode uji tidak memakai kuota
+            consumed_day = quota_day()
+            if not mgr.consume_quota(owner, consumed_day, daily_quota):
+                raise HTTPException(429, f"Kuota harian ({daily_quota} makalah) habis. Coba lagi besok.")
+
         data = req.model_dump(exclude={"template", "mock", "provider", "api_key", "model_planner", "model_writer", "resume_from",
                                           "save_key", "use_saved_key"})
         if resume_job:  # data makalah harus sama dengan job asal agar checkpoint (outline/referensi) tetap cocok
@@ -279,9 +330,13 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
         try:
             job = mgr.submit(data, req.mock, str(TEMPLATE_DIR / name), name, owner=owner, runtime=runtime,
                              resume_from=resume_job["id"] if resume_job else None,
-                             key_source=key_source, provider=provider_id, models=models)
-        except ValueError as e:
-            raise HTTPException(409, str(e)) from e
+                             key_source=key_source, provider=provider_id, models=models, quota_day=consumed_day)
+        except Exception as e:
+            if consumed_day:
+                mgr.refund_quota(owner, consumed_day)  # job tidak terbentuk: kuota dikembalikan
+            if isinstance(e, ValueError):
+                raise HTTPException(409, str(e)) from e
+            raise
         return _public(job)
 
     @app.get("/api/jobs")
@@ -316,6 +371,17 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
             raise HTTPException(409, "Job sedang berjalan dan tidak bisa dihentikan; tunggu sampai selesai.")
         return {"result": result}
 
+    @app.get("/api/me")
+    def me(request: Request) -> dict:
+        owner = request.state.owner
+        used = mgr.quota_used(owner, quota_day()) if daily_quota else 0
+        return {
+            "id": owner if auth else None,  # id Clerk (bukan rahasia); anonim: tidak ditampilkan
+            "mode": "clerk" if auth else "anonymous",
+            "quota": ({"limit": daily_quota, "used": used, "remaining": max(daily_quota - used, 0),
+                       "resets_at": quota_resets_at()} if daily_quota else None),
+        }
+
     # ---- API key tersimpan (opsi 3b): hanya daftar penyedia; nilai key TIDAK PERNAH dikembalikan
     @app.get("/api/keys")
     def list_keys(request: Request) -> dict:
@@ -334,16 +400,17 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
 def server_allowed_hosts(host: str, env=os.environ) -> Optional[List[str]]:
     """Daftar Host yang diterima saat server dibuka ke jaringan (None = bawaan lokal).
 
-    Urutan: MALAS_WEB_ALLOWED_HOSTS (koma) + RENDER_EXTERNAL_HOSTNAME (diisi otomatis oleh Render).
+    Urutan: MALAS_WEB_ALLOWED_HOSTS (koma) + RENDER_EXTERNAL_HOSTNAME / SPACE_HOST (diisi otomatis oleh Render / HF Spaces).
     Tanpa keduanya -> "*" (server publik tanpa cookie/otoritas login, jadi pemeriksaan Host
     tidak melindungi apa pun; yang penting health check platform tetap lolos).
     """
     if host in {"127.0.0.1", "localhost", "::1"}:
         return None
     names = [h.strip() for h in env.get("MALAS_WEB_ALLOWED_HOSTS", "").split(",") if h.strip()]
-    render = env.get("RENDER_EXTERNAL_HOSTNAME", "").strip()
-    if render:
-        names.append(render)
+    for var in ("RENDER_EXTERNAL_HOSTNAME", "SPACE_HOST"):  # diisi otomatis oleh Render / Hugging Face Spaces
+        host_ = env.get(var, "").strip()
+        if host_:
+            names.append(host_)
     return (names + LOCAL_HOSTS) if names else ["*"]
 
 
@@ -359,8 +426,11 @@ def main() -> None:
             "⚠️  Server dibuka ke jaringan TANPA mode BYOK: pengguna akan memakai API key di .env server. "
             "Set MALAS_WEB_REQUIRE_KEY=1 agar setiap pengguna memakai key sendiri.",
         )
+    clerk = bool(os.getenv("CLERK_ISSUER") or os.getenv("CLERK_JWKS_URL"))
+    if allowed is not None and not clerk:
+        print("⚠️  Server dibuka ke jaringan TANPA login (CLERK_ISSUER/CLERK_JWKS_URL kosong): pengguna dibedakan hanya oleh cookie acak.")
     print(f"MALAS web UI -> http://{host if host != '0.0.0.0' else '127.0.0.1'}:{port}"
-          f"{' (mode hosting/BYOK)' if _flag('MALAS_WEB_REQUIRE_KEY') else ''}")
+          f"{' (mode hosting/BYOK)' if _flag('MALAS_WEB_REQUIRE_KEY') else ''}{' (login Clerk)' if clerk else ''}")
     # proxy_headers: di balik proxy HTTPS (Render, dsb.) agar skema https terdeteksi untuk cookie Secure.
     uvicorn.run(create_app(allowed_hosts=allowed), host=host, port=port, log_level="warning",
                 proxy_headers=True, forwarded_allow_ips="*")

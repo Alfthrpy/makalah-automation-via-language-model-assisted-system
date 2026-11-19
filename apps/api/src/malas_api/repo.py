@@ -15,10 +15,10 @@ from typing import Callable, List, Optional, Tuple
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.exc import IntegrityError
 
-from malas_api.db import Database, Job, JobCheckpoint, User, UserApiKey, utcnow
+from malas_api.db import Database, Job, JobCheckpoint, Usage, User, UserApiKey, utcnow
 
 ACTIVE = ("queued", "running")
-DATA_KEYS = ("request", "models", "steps", "log", "usage", "stats", "auto_resumed")
+DATA_KEYS = ("request", "models", "steps", "log", "usage", "stats", "auto_resumed", "quota_day")
 COLUMN_KEYS = ("status", "started_at", "finished_at", "title", "mock", "byok", "key_source", "provider",
                "resume_from", "template", "template_path", "has_file", "error", "error_step", "resume")
 TIME_KEYS = ("created_at", "started_at", "finished_at")
@@ -219,3 +219,35 @@ class Repo:
             return False
         with self.db.session.begin() as s:
             return s.execute(delete(UserApiKey).where(UserApiKey.user_id == uid, UserApiKey.provider == provider)).rowcount > 0
+
+    # ------------------------------------------------------------------ kuota harian
+    def quota_used(self, owner: str, day: str) -> int:
+        with self.db.session() as s:
+            return s.scalar(select(Usage.jobs).join(User, User.id == Usage.user_id)
+                            .where(User.external_id == owner, Usage.day == day)) or 0
+
+    def consume_quota(self, owner: str, day: str, limit: int) -> bool:
+        """Tambah 1 pemakaian hari ini bila belum mencapai `limit`. Atomik: UPDATE bersyarat, tanpa baca-lalu-tulis."""
+        uid = self.ensure_user(owner)
+        for _ in range(3):
+            with self.db.session.begin() as s:
+                if s.execute(update(Usage).where(Usage.user_id == uid, Usage.day == day, Usage.jobs < limit)
+                             .values(jobs=Usage.jobs + 1)).rowcount == 1:
+                    return True
+                if s.get(Usage, (uid, day)) is not None:
+                    return False  # baris ada tapi sudah di batas
+                try:
+                    with s.begin_nested():
+                        s.add(Usage(user_id=uid, day=day, jobs=1))
+                    return True
+                except IntegrityError:  # balapan pembuatan baris: ulangi UPDATE
+                    continue
+        return False
+
+    def refund_quota(self, owner: str, day: str) -> None:
+        uid = self.user_id(owner)
+        if not uid:
+            return
+        with self.db.session.begin() as s:
+            s.execute(update(Usage).where(Usage.user_id == uid, Usage.day == day, Usage.jobs > 0)
+                      .values(jobs=Usage.jobs - 1))

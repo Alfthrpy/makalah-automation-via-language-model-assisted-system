@@ -89,6 +89,18 @@ restart/tidurnya host. Disk hanya dipakai sebagai folder kerja sementara. Detail
 - Tes: `uv run pytest` (SQLite). Untuk Postgres: `MALAS_TEST_DATABASE_URL=postgresql://… uv run pytest apps/api`
   (database itu **dikosongkan** tiap tes; pakai database khusus tes).
 
+### Login (Clerk) dan kuota
+
+Isi `CLERK_ISSUER` (atau `CLERK_JWKS_URL`) agar semua `/api/*` (kecuali `/api/config`, `/healthz`, halaman) mewajibkan
+token sesi Clerk: `Authorization: Bearer <JWT>`. Server memverifikasi tanda tangan RS256 lewat JWKS (di-cache), `iss`, `exp`,
+dan (opsional) `azp` dari `CLERK_AUTHORIZED_PARTIES`. Pemilik data = `sub` token, jadi riwayat, key tersimpan, dan kuota
+terpisah per akun. Cookie `__session` hanya diterima untuk `GET` (tautan unduh); `POST`/`DELETE` wajib header (anti-CSRF).
+Tanpa konfigurasi Clerk server tetap berjalan dalam mode anonim (cookie acak), cocok untuk lokal. Produksi: `MALAS_AUTH_REQUIRED=1`.
+
+- `MALAS_DAILY_QUOTA=N`: maks N makalah nyata per akun per hari (reset tengah malam `MALAS_QUOTA_TZ`, default Asia/Jakarta).
+  Mode uji dan "lanjutkan dari titik terakhir" tidak dihitung; job antre yang dibatalkan mengembalikan kuota. `GET /api/me`
+  menampilkan sisa kuota dan waktu reset.
+
 ### Hosting publik tanpa login (mode BYOK)
 
 > Deploy ke Render langkah demi langkah: lihat **[DEPLOY.md](DEPLOY.md)** (sudah ada `apps/api/Dockerfile` dan `render.yaml`).

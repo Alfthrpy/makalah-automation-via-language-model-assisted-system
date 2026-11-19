@@ -11,6 +11,8 @@ dependencies = [
     "psycopg[binary]>=3.2",
     "alembic>=1.13",
     "cryptography>=43",
+    "pyjwt[crypto]>=2.8",
+    "tzdata>=2024.1",
 ]
 
 [tool.uv.sources]

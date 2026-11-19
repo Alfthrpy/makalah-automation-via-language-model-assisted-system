@@ -21,6 +21,9 @@ def reset_postgres(url: str) -> None:
 
 @pytest.fixture(autouse=True)
 def _database(monkeypatch):
+    for var in ("CLERK_ISSUER", "CLERK_JWKS_URL", "CLERK_AUTHORIZED_PARTIES", "MALAS_AUTH_REQUIRED", "MALAS_DAILY_QUOTA",
+                "DATABASE_URL", "DATABASE_URL_DIRECT", "MALAS_SECRET_KEY"):
+        monkeypatch.delenv(var, raising=False)  # lingkungan pengembang tidak boleh mengubah hasil tes
     if PG_URL:
         reset_postgres(PG_URL)
         monkeypatch.setattr(jobsmod, "default_database_url", lambda root: PG_URL)

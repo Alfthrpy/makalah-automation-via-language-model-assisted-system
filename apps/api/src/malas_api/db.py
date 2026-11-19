@@ -110,6 +110,15 @@ class UserApiKey(Base):
     updated_at: Mapped[datetime] = mapped_column(UtcDateTime, default=utcnow)
 
 
+class Usage(Base):
+    """Pemakaian harian per pengguna (untuk kuota). `day` = tanggal lokal (zona kuota) 'YYYY-MM-DD'."""
+
+    __tablename__ = "usage"
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    day: Mapped[str] = mapped_column(String(10), primary_key=True)
+    jobs: Mapped[int] = mapped_column(Integer, default=0)
+
+
 def normalize_url(url: str) -> str:
     """postgres:// dan postgresql:// (format Neon) -> driver psycopg 3."""
     if url.startswith("postgres://"):

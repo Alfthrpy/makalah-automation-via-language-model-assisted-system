@@ -26,12 +26,13 @@ apps/api/                 # paket Python `malas_api`
   .env.example            # semua env backend (DATABASE_URL, DATABASE_URL_DIRECT, MALAS_SECRET_KEY, ...)
   alembic.ini             # hanya untuk CLI; runtime memakai malas_api.db.migrate() (script_location di dalam paket)
   src/malas_api/
-    app.py                # FastAPI: routes, middleware sesi/header (auth cookie anonim, diganti Clerk di Fase 3)
+    app.py                # FastAPI: routes, middleware sesi/header (auth Clerk bila CLERK_* diisi, selain itu cookie anonim)
     jobs.py               # JobManager: worker thread, claim antrean, heartbeat, pemulihan, key sesi/tersimpan
     repo.py               # SATU-SATUNYA tempat SQL: job/checkpoint/key; job <-> dict
     db.py                 # model SQLAlchemy 2, make_engine (Neon/SQLite), migrate(), Database
     migrations/           # Alembic: env.py, versions/0001_initial.py
     storage.py            # Storage Protocol + DbStorage (bytea). R2 = implementasi berikutnya
+    auth.py               # Authenticator Clerk: JWT RS256 via PyJWKClient, azp, token_from_request (cookie hanya GET)
     crypto.py             # KeyCipher (Fernet+HKDF), cipher_from_env, rotasi lewat MALAS_SECRET_KEY_OLD
     vault.py              # key sesi di memori + redaksi log/error
     static/               # UI statis lama: AKAN DIHAPUS di Fase 4
@@ -41,7 +42,7 @@ packages/engine/          # paket Python `malas`: crews, docx_converter, citatio
   src/malas/{paths.py,templates/,examples/}
 render.yaml               # Blueprint Render lama; diganti ke HF Space di Fase 5
 ```
-Perintah penting: `uv sync --all-packages`, `uv run pytest -q` (108 lulus + 1 skip khusus Postgres), `uv run malas-web`,
+Perintah penting: `uv sync --all-packages`, `uv run pytest -q` (133 lulus + 1 skip khusus Postgres), `uv run malas-web`,
 `MALAS_MOCK=1 uv run kickoff --output x.docx`.
 Tes ke Postgres: `MALAS_TEST_DATABASE_URL=postgresql://postgres@localhost:54329/malas_test uv run pytest apps/api`
 (database DIKOSONGKAN tiap tes). Postgres 16 ada di sandbox: `/usr/lib/postgresql/16/bin`, jalankan sebagai user `postgres`
@@ -63,9 +64,17 @@ dengan data dir milik `postgres` (mis. `/var/tmp/pgdata-malas`, port 54329, `-A 
     `pg_advisory_xact_lock` saat migrasi.
   - Smoke test: server dari instalasi bersih (`--no-dev`) + Postgres: job mode uji selesai, restart server, riwayat & unduhan tetap ada.
   - BELUM dites terhadap Neon asli (tidak ada kredensial di sandbox). Yang berisiko: latensi cold-start Neon, perilaku PgBouncer.
-- [ ] **Fase 3: Auth + multi-tenant**: JWT Clerk (JWKS), ganti cookie anonim dengan `users.external_id = clerk user id`
-  (`repo.ensure_user` sudah ada), tabel `usage` + kuota harian, pertahankan proteksi lama (redaksi, batas body, TrustedHost).
-  Catatan desain: `request.state.owner` dipakai di seluruh `app.py` sebagai string pemilik; cukup ganti sumbernya.
+- [x] **Fase 3: Auth + kuota**. Selesai; diverifikasi di SQLite (133 lulus) dan Postgres (108 api).
+  - `auth.py`: `Authenticator` (RS256 saja; `iss`, `exp`, `sub` wajib; `azp` bila `CLERK_AUTHORIZED_PARTIES`), JWKS via
+    `PyJWKClient`. Tes mencakup alg `none`, HS256-dengan-kunci-publik, issuer/azp salah, kunci lain, JWKS mati (-> 401),
+    dan JWKS sungguhan lewat server HTTP lokal. Tes sudah dimutasi untuk memastikan ia benar-benar menjaga.
+  - `app.py`: middleware: mode Clerk -> owner = `sub`, 401 untuk `/api/*` selain `/api/config`; tanpa Clerk -> cookie anonim
+    (kompatibel mundur). `GET /api/me` (id, mode, kuota). `/api/config` kini memuat `auth` dan `daily_quota`. `SPACE_HOST`
+    (HF) otomatis ke daftar Host yang diizinkan.
+  - Kuota: tabel `usage` (migrasi 0002), `Repo.consume_quota` atomik (UPDATE bersyarat), refund bila batal sebelum jalan
+    atau submit gagal; job lanjutan, auto-resume, dan Mode uji tidak dihitung. `MALAS_DAILY_QUOTA`, `MALAS_QUOTA_TZ`.
+  - BELUM dites dengan Clerk asli (tidak ada akun). Risiko: format `azp`/`iss` instance nyata, dan cookie `__session` di
+    belakang proxy Netlify (domain/SameSite). Verifikasi saat Fase 5.
 - [ ] **Fase 4: Frontend React** (`apps/web`), port semua fitur `app.js` + UI simpan/hapus key tersimpan; `packages/api-types` dari OpenAPI
   (sekarang `openapi_url=None`, perlu dinyalakan untuk generasi tipe saat build); hapus `static/`.
 - [ ] **Fase 5: Deploy + CI**: Dockerfile HF Space (port 7860, `PORT`), `netlify.toml`, GitHub Actions (pytest SQLite+Postgres service,
@@ -83,13 +92,16 @@ dengan data dir milik `postgres` (mis. `/var/tmp/pgdata-malas`, port 54329, `-A 
 - Jangan buat PR kecuali diminta. Push hanya ke `claude/jolly-maxwell-xdh9bs`.
 
 ## Langkah berikutnya (mulai di sini)
-Fase 3. Urutan yang disarankan:
-1. `apps/api/src/malas_api/auth.py`: verifikasi JWT Clerk (PyJWT + JWKS cache; env `CLERK_JWKS_URL`/`CLERK_ISSUER`, opsional
-   `CLERK_AUTHORIZED_PARTIES`). Dependency FastAPI yang mengisi `request.state.owner`.
-2. Ganti middleware cookie anonim: pertahankan header keamanan, batas body, TrustedHost, `/healthz`; hapus cookie `malas_sid`.
-   Beri mode dev tanpa Clerk (env) agar tes dan CLI lokal tetap jalan.
-3. Migrasi 0002: tabel `usage` + kuota (mis. N makalah/hari, env `MALAS_DAILY_QUOTA`), hitung di `create_job`.
-4. Perbarui tes (pemilik = user Clerk palsu dengan JWT yang ditandatangani kunci uji).
+Fase 4: frontend `apps/web` (Vite + React + TS + Tailwind + `@clerk/clerk-react`).
+1. Scaffold `apps/web`, proxy dev `/api` -> `http://127.0.0.1:8000`, `.env.example` (`VITE_CLERK_PUBLISHABLE_KEY`).
+2. Nyalakan OpenAPI saat build (`openapi_url=None` sekarang; buat skrip yang membuat skema tanpa membuka endpoint publik,
+   mis. `app.openapi()` dari `create_app`), generate `packages/api-types` (openapi-typescript) + klien fetch bertipe
+   yang menyisipkan `Authorization: Bearer` dari `useAuth().getToken()`.
+3. Halaman: landing, masuk/daftar (Clerk), dashboard riwayat (polling), form "Buat makalah" (port semua fitur `static/app.js`:
+   mode uji, BYOK OpenRouter/Kenari + model, simpan key, template, penyusun dinamis), detail job (progres per tahap, unduh
+   lewat fetch+blob dengan header, lanjutkan dari checkpoint, hapus), pengaturan (key tersimpan, sisa kuota dari `/api/me`).
+4. Hapus `apps/api/src/malas_api/static/` dan rute `/` + mount `/static` (atau sisakan halaman kecil), perbarui tes yang menyentuhnya.
+5. Pastikan CSP di `app.py` cocok dengan web (web di domain Netlify terpisah; API tidak menyajikan HTML lagi).
 
-Yang saya butuhkan dari pengguna: akun/aplikasi **Clerk** (Publishable key untuk web, Issuer/JWKS URL untuk backend),
-dan connection string **Neon** (pooled + direct) bila ingin verifikasi ke Neon asli. Lewat env/secret, **jangan ditempel di chat**.
+Yang saya butuhkan dari pengguna: Publishable key Clerk (aman dicantumkan di env web) dan, untuk uji penuh, akun Clerk
+dev. Frontend bisa dibangun dan dites tanpa itu (mock Clerk di tes), tapi uji login nyata butuh instance.
