@@ -4,3 +4,4 @@
 .err-summary a { color: var(--bad); font-weight: 600; }
 .sr-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 button.link { background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; font: inherit; }
+.choice.one { grid-template-columns: 1fr; }

@@ -345,7 +345,9 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
 
     @app.get("/api/jobs/{job_id}")
     def get_job(job_id: str, request: Request) -> dict:
-        return _public(_own_job(job_id, request))
+        job = _public(_own_job(job_id, request))
+        job["queue_position"] = mgr.queue_position(job_id) if job["status"] == "queued" else None
+        return job
 
     @app.get("/api/jobs/{job_id}/download")
     def download(job_id: str, request: Request) -> Response:

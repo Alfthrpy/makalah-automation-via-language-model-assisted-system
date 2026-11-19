@@ -230,6 +230,9 @@ class JobManager:
         self.purge()
         return self.repo.list(owner, limit)
 
+    def queue_position(self, job_id: str) -> Optional[int]:
+        return self.repo.queue_position(job_id)
+
     def active_job(self, owner: Optional[str] = None) -> Optional[str]:
         return self.repo.active_id(owner)
 
@@ -333,6 +336,11 @@ class JobManager:
                     st["detail"] = detail
                 else:
                     st["status"] = status
+                    if status == "running":  # B3: waktu per tahap untuk stepper
+                        st["started_at"], st["finished_at"] = _now(), None
+                    elif status in ("done", "skipped", "error"):
+                        st.setdefault("started_at", _now())
+                        st["finished_at"] = _now()
                     if detail:
                         st["detail"] = detail
                     if status == "error":

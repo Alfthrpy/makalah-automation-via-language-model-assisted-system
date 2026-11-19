@@ -227,7 +227,7 @@ export const id = {
   /* ---------------- formulir buat makalah ---------------- */
   form: {
     title: "Buat makalah",
-    sub: "Isian bertanda * wajib. Sisanya untuk sampul dan bisa dikosongkan.",
+    sub: ["Isian bertanda ", " wajib. Sisanya untuk sampul dan bisa dikosongkan."] as const,
     fillSample: "Isi contoh",
     clear: "Kosongkan",
     formLabel: "Formulir buat makalah",

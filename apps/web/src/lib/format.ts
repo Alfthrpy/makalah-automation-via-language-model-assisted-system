@@ -6,7 +6,7 @@ export function slug(t: string): string {
   return t.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "makalah";
 }
 
-/** "Hari ini, 09.41" / "Kemarin, 14.20" / "17 Nov, 20.05" (zona WIB). */
+/** "hari ini, 09.41" / "kemarin, 14.20" / "17 Nov, 20.05" (zona WIB). */
 export function whenLabel(iso: string | null | undefined, now: Date = new Date()): string {
   if (!iso) return "";
   const d = new Date(iso);
@@ -16,8 +16,8 @@ export function whenLabel(iso: string | null | undefined, now: Date = new Date()
   const day = ymd(d);
   const today = ymd(now);
   const yest = ymd(new Date(now.getTime() - 86_400_000));
-  if (day === today) return `Hari ini, ${time}`;
-  if (day === yest) return `Kemarin, ${time}`;
+  if (day === today) return `hari ini, ${time}`;
+  if (day === yest) return `kemarin, ${time}`;
   const dm = new Intl.DateTimeFormat("id-ID", { timeZone: TZ, day: "numeric", month: "short" }).format(d);
   return `${dm}, ${time}`;
 }

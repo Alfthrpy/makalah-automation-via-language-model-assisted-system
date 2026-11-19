@@ -53,6 +53,8 @@ export interface JobSummary {
   mata_kuliah?: string | null;
   progress?: { done: number; total: number } | null;
   current_step?: string | null;
+  current_detail?: string;
+  queue_position?: number | null;
 }
 
 export interface JobStepState { status: StepStatus; detail: string; started_at?: string | null; finished_at?: string | null }

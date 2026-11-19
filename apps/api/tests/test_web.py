@@ -203,3 +203,39 @@ def test_server_allowed_hosts():
     assert server_allowed_hosts("0.0.0.0", {}) == ["*"]
     got = server_allowed_hosts("0.0.0.0", {"RENDER_EXTERNAL_HOSTNAME": "malas.onrender.com", "MALAS_WEB_ALLOWED_HOSTS": "a.com, b.com"})
     assert got[:3] == ["a.com", "b.com", "malas.onrender.com"] and "localhost" in got
+
+
+def test_ringkasan_riwayat_memuat_progres_dan_posisi_antrean(make):
+    """B1/B2: riwayat memuat mata_kuliah, progres tahap, tahap berjalan; job antre punya posisi."""
+    gate = threading.Event()
+
+    def slow(job, progress, out, runtime=None):
+        progress("input", "running"); progress("input", "done")
+        progress("outline", "running"); progress("outline", "info", "menyusun outline")
+        gate.wait(5)
+        return fake_runner(job, progress, out)
+
+    client, _ = make(slow)
+    a = client.post("/api/jobs", json=VALID).json()["id"]
+    end = time.time() + 5
+    while time.time() < end:
+        row = next(j for j in client.get("/api/jobs").json() if j["id"] == a)
+        if row["current_step"] == "outline":
+            break
+        time.sleep(0.02)
+    assert row["mata_kuliah"] == "Kecerdasan Buatan"
+    assert row["progress"] == {"done": 1, "total": 7}
+    assert row["current_detail"] == "menyusun outline"
+    assert row["queue_position"] is None
+
+    b = client.post("/api/jobs", json=VALID).json()["id"]
+    rows = {j["id"]: j for j in client.get("/api/jobs").json()}
+    assert rows[b]["queue_position"] == 1
+    assert client.get(f"/api/jobs/{b}").json()["queue_position"] == 1
+    assert client.get(f"/api/jobs/{a}").json()["queue_position"] is None
+    gate.set()
+    done = wait_for(client, a, {"done"})
+    assert next(j for j in client.get("/api/jobs").json() if j["id"] == a)["progress"] is None
+    # B3: waktu per tahap
+    st = done["steps"]["input"]
+    assert st["started_at"] and st["finished_at"]

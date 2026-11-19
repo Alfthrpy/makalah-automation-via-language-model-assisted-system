@@ -23,6 +23,7 @@ COLUMN_KEYS = ("status", "started_at", "finished_at", "title", "mock", "byok", "
                "resume_from", "template", "template_path", "has_file", "error", "error_step", "resume")
 TIME_KEYS = ("created_at", "started_at", "finished_at")
 SUMMARY_KEYS = ("id", "status", "title", "created_at", "finished_at", "mock", "byok", "has_file", "resume")
+STEP_ORDER = ("input", "outline", "fulltext", "tulis", "sitasi", "pengantar", "docx")
 
 
 def _iso(dt: Optional[datetime]) -> Optional[str]:
@@ -100,18 +101,46 @@ class Repo:
             _apply(r[0], d)
             return d
 
+    def queue_ranks(self) -> dict:
+        """id job antre -> posisi (1 = berikutnya dijalankan)."""
+        with self.db.session() as s:
+            ids = list(s.scalars(select(Job.id).where(Job.status == "queued").order_by(Job.created_at, Job.id)))
+        return {jid: i + 1 for i, jid in enumerate(ids)}
+
+    def queue_position(self, job_id: str) -> Optional[int]:
+        return self.queue_ranks().get(job_id)
+
+    @staticmethod
+    def _progress(steps: Optional[dict]) -> Tuple[Optional[dict], Optional[str], str]:
+        """(progres tahap {done,total}, kunci tahap berjalan, detail tahap berjalan) dari data steps."""
+        if not steps:
+            return None, None, ""
+        done = sum(1 for k in STEP_ORDER if (steps.get(k) or {}).get("status") in ("done", "skipped"))
+        cur = next((k for k in STEP_ORDER if (steps.get(k) or {}).get("status") == "running"), None)
+        return {"done": done, "total": len(STEP_ORDER)}, cur, ((steps.get(cur) or {}).get("detail") or "") if cur else ""
+
     def list(self, owner: Optional[str] = None, limit: int = 30) -> List[dict]:
         q = (select(Job.id, Job.status, Job.title, Job.created_at, Job.finished_at, Job.mock, Job.byok,
-                    Job.has_file, Job.resume)
+                    Job.has_file, Job.resume, Job.data)
              .join(User, User.id == Job.user_id).order_by(Job.created_at.desc(), Job.id).limit(limit))
         if owner is not None:
             q = q.where(User.external_id == owner)
         with self.db.session() as s:
-            out = []
-            for r in s.execute(q):
-                m = r._mapping
-                out.append({k: (_iso(m[k]) if k in TIME_KEYS else m[k]) for k in SUMMARY_KEYS})
-            return out
+            rows = list(s.execute(q))
+        ranks = self.queue_ranks() if any(r._mapping["status"] == "queued" for r in rows) else {}
+        out = []
+        for r in rows:
+            m = r._mapping
+            item = {k: (_iso(m[k]) if k in TIME_KEYS else m[k]) for k in SUMMARY_KEYS}
+            data = m["data"] or {}
+            progress, cur, detail = self._progress(data.get("steps"))
+            item["mata_kuliah"] = (data.get("request") or {}).get("mata_kuliah")
+            item["progress"] = progress if m["status"] in ("queued", "running") else None
+            item["current_step"] = cur
+            item["current_detail"] = detail
+            item["queue_position"] = ranks.get(m["id"])
+            out.append(item)
+        return out
 
     def active_id(self, owner: Optional[str] = None) -> Optional[str]:
         q = select(Job.id).join(User, User.id == Job.user_id).where(Job.status.in_(ACTIVE)).order_by(Job.created_at).limit(1)
