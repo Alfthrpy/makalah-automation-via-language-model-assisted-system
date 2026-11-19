@@ -91,7 +91,7 @@ dengan data dir milik `postgres` (mis. `/var/tmp/pgdata-malas`, port 54329, `-A 
 - Batas free tier (Neon, HF, Netlify, Clerk, R2) berubah-ubah; cek ulang saat deploy.
 - Jangan buat PR kecuali diminta. Push hanya ke `claude/jolly-maxwell-xdh9bs`.
 
-## Desain UI Fase 4 (DRAFT, menunggu review pemilik)
+## Desain UI Fase 4 (DISETUJUI; riwayat revisi v1-v5 di bawah)
 Prototipe klik (satu berkas HTML, dibuat dengan Opus): `docs/design/malas-ui.html`.
 Artifact (privat): https://claude.ai/artifact/Ab8P4YSww4WU7wKKAhgWfE. Routing hash: `#beranda #masuk #dasbor #buat #job #pengaturan #keadaan #catatan`.
 Layar: landing, masuk (tiruan Clerk, diganti `<SignIn/>`/`<SignUp/>`), dasbor, buat makalah, detail job (6 status + simulasi progres),
