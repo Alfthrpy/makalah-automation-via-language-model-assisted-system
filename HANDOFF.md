@@ -75,7 +75,7 @@ dengan data dir milik `postgres` (mis. `/var/tmp/pgdata-malas`, port 54329, `-A 
     atau submit gagal; job lanjutan, auto-resume, dan Mode uji tidak dihitung. `MALAS_DAILY_QUOTA`, `MALAS_QUOTA_TZ`.
   - BELUM dites dengan Clerk asli (tidak ada akun). Risiko: format `azp`/`iss` instance nyata, dan cookie `__session` di
     belakang proxy Netlify (domain/SameSite). Verifikasi saat Fase 5.
-- [ ] **Fase 4: Frontend React** (`apps/web`), port semua fitur `app.js` + UI simpan/hapus key tersimpan; `packages/api-types` dari OpenAPI
+- [ ] **Fase 4: Frontend React** (DESAIN SELESAI & disetujui; implementasi belum dimulai) (`apps/web`), port semua fitur `app.js` + UI simpan/hapus key tersimpan; `packages/api-types` dari OpenAPI
   (sekarang `openapi_url=None`, perlu dinyalakan untuk generasi tipe saat build); hapus `static/`.
 - [ ] **Fase 5: Deploy + CI**: Dockerfile HF Space (port 7860, `PORT`), `netlify.toml`, GitHub Actions (pytest SQLite+Postgres service,
   ruff terbatas pada kode baru, typecheck + build web), `S3Storage` untuk R2, update DEPLOY.md. Ingat: HF Space bisa tidur; disk ephemeral.
@@ -156,19 +156,15 @@ Pertanyaan terbuka untuk pemilik: (1) template tampil sebagai nama berkas atau l
 - Pertanyaan terbuka: CTA "Coba gratis" atau lebih berkarakter ("Gaskeun")?; kepanjangan perlu muncul juga di halaman Masuk/Daftar atau "Tentang"?;
   "Mode uji gratis" kembali jadi chip hero?
 
-LANGKAH: jangan mulai coding `apps/web` sebelum pemilik menyetujui/merevisi desain ini.
+STATUS DESAIN: pemilik menyetujui arah ("sip") setelah v5. Implementasi: ikuti `docs/design/HANDOFF-frontend.md` (spesifikasi lengkap, kontrak API, tugas backend B1-B6, rencana tonggak M0-M6, default untuk pertanyaan terbuka).
 
 ## Langkah berikutnya (mulai di sini)
-Fase 4: frontend `apps/web` (Vite + React + TS + Tailwind + `@clerk/clerk-react`).
-1. Scaffold `apps/web`, proxy dev `/api` -> `http://127.0.0.1:8000`, `.env.example` (`VITE_CLERK_PUBLISHABLE_KEY`).
-2. Nyalakan OpenAPI saat build (`openapi_url=None` sekarang; buat skrip yang membuat skema tanpa membuka endpoint publik,
-   mis. `app.openapi()` dari `create_app`), generate `packages/api-types` (openapi-typescript) + klien fetch bertipe
-   yang menyisipkan `Authorization: Bearer` dari `useAuth().getToken()`.
-3. Halaman: landing, masuk/daftar (Clerk), dashboard riwayat (polling), form "Buat makalah" (port semua fitur `static/app.js`:
-   mode uji, BYOK OpenRouter/Kenari + model, simpan key, template, penyusun dinamis), detail job (progres per tahap, unduh
-   lewat fetch+blob dengan header, lanjutkan dari checkpoint, hapus), pengaturan (key tersimpan, sisa kuota dari `/api/me`).
-4. Hapus `apps/api/src/malas_api/static/` dan rute `/` + mount `/static` (atau sisakan halaman kecil), perbarui tes yang menyentuhnya.
-5. Pastikan CSP di `app.py` cocok dengan web (web di domain Netlify terpisah; API tidak menyajikan HTML lagi).
+**Fase 4: bangun `apps/web` dari desain.** Baca `docs/design/HANDOFF-frontend.md` (satu-satunya dokumen yang perlu untuk memulai) dan buka `docs/design/malas-ui.html` di browser.
+Ringkas: Vite + React + TS + Tailwind (token CSS variables dari prototipe) + Clerk + TanStack Query + zod; tonggak M0 (scaffold) -> M1 landing+merek -> M2 auth+shell -> M3 dasbor+detail job ->
+M4 buat makalah -> M5 pengaturan+state khusus -> M6 hardening/e2e. Tugas backend kecil B1-B4 (ringkasan riwayat lebih kaya, posisi antrean, durasi per tahap, response model + ekspor OpenAPI)
+sebaiknya masuk sebelum M3. Hapus UI statis backend (B5) setelah web berjalan.
 
-Yang saya butuhkan dari pengguna: Publishable key Clerk (aman dicantumkan di env web) dan, untuk uji penuh, akun Clerk
-dev. Frontend bisa dibangun dan dites tanpa itu (mock Clerk di tes), tapi uji login nyata butuh instance.
+Yang dibutuhkan dari pemilik (via env/secret, JANGAN di chat): Publishable key Clerk (+ akun dev) untuk uji login nyata; connection string Neon bila ingin verifikasi ke Neon asli.
+Tanpa itu, kerjakan dengan `AuthProvider` mode `dev` + MSW + backend lokal (mode anonim).
+
+Setelah web berjalan: **Fase 5** (HF Space Dockerfile port 7860, `netlify.toml`, GitHub Actions, `S3Storage`/R2, DEPLOY.md) lalu Fase 6 (opsional).
