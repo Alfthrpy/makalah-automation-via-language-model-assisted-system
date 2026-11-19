@@ -29,8 +29,6 @@
   --bad: #b3261e;  --bad-soft: #fbe6e4;
   --proto-bg: #23263a; --proto-fg: #e9ebf5; --proto-line: #4a4f6b;
   --frame: #20232f;
-  --ill-skin: #f6c79e;   /* ilustrasi: kulit, sama di terang & gelap */
-  --ill-paper: #fffdf6;  /* ilustrasi: kertas, sama di terang & gelap */
   --scrim: rgb(14 16 28 / .55);
   --shadow-1: 0 1px 2px rgb(22 26 44 / .06), 0 2px 8px rgb(22 26 44 / .04);
   --shadow-2: 0 2px 6px rgb(22 26 44 / .08), 0 16px 40px rgb(22 26 44 / .10);
@@ -319,8 +317,9 @@ textarea.input { resize: vertical; line-height: 1.5; }
 .mini-btn.press { transform: scale(.92); }
 .bar { height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); }
 .bar i { display: block; height: 100%; background: var(--accent); border-radius: 4px; transition: width .35s ease; }
-.s3-end { display: grid; gap: 8px; justify-items: start; }
-.s3-end .rb-c { width: 100%; max-width: 280px; }
+.s3-end { display: grid; gap: 8px; justify-items: center; }
+.s3-end .rb-c { width: 136px; }
+.s3-end .file-chip { justify-self: center; }
 .file-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 8px; background: var(--ok-soft); color: var(--ok); font-family: var(--font-mono); font-size: var(--fs-xs); font-weight: 500; max-width: 100%; overflow-wrap: anywhere; }
 .file-chip.pop { animation: pop .35s cubic-bezier(.3, 1.6, .5, 1) both; }
 @keyframes pop { from { transform: scale(.6); opacity: 0; } }
@@ -360,14 +359,14 @@ textarea.input { resize: vertical; line-height: 1.5; }
 .faq summary svg { transition: transform .2s; flex: none; }
 .faq details[open] summary svg { transform: rotate(180deg); }
 .faq details p { padding: 0 16px 16px; color: var(--muted); font-size: var(--fs-sm); max-width: 62ch; }
-.cta-band { background: var(--accent); color: var(--on-accent); border-radius: var(--r-lg); padding: var(--sp-6); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--sp-4) var(--sp-5); align-items: center; }
+.cta-band { background: var(--accent); color: var(--on-accent); border-radius: var(--r-lg); padding: var(--sp-6); display: grid; grid-template-columns: minmax(0, 34em) auto; justify-content: center; gap: var(--sp-4) var(--sp-7, 48px); align-items: center; }
 .cta-band h2 { font-size: var(--fs-xl); }
 .cta-band p { opacity: .9; max-width: 44em; }
 .cta-band .txt { display: grid; gap: 8px; min-width: 0; }
 .cta-band .btn { background: var(--surface); color: var(--ink); border-color: var(--surface); }
 .cta-band .btn.alt { background: transparent; color: var(--on-accent); border-color: currentColor; }
 .cta-band .btn-row { grid-column: 1; }
-.cta-band .rb-big { width: 340px; grid-column: 2; grid-row: 1 / span 2; }
+.cta-band .rb-big { width: 200px; grid-column: 2; grid-row: 1 / span 2; }
 .foot { border-top: 1px solid var(--line); padding-block: var(--sp-6); font-size: var(--fs-sm); color: var(--muted); }
 .foot-in { display: flex; flex-wrap: wrap; gap: var(--sp-3) var(--sp-5); justify-content: space-between; align-items: center; }
 .foot nav { display: flex; gap: var(--sp-4); flex-wrap: wrap; }
@@ -383,57 +382,39 @@ textarea.input { resize: vertical; line-height: 1.5; }
   .hero-copy { padding-top: 0; }
   .honest, .vs { grid-template-columns: minmax(0, 1fr); }
   .cta-band { grid-template-columns: minmax(0, 1fr); padding: var(--sp-5); }
-  .cta-band .rb-big { width: 100%; max-width: 340px; justify-self: center; grid-column: auto; grid-row: auto; }
+  .cta-band .rb-big { width: 168px; justify-self: center; grid-column: auto; grid-row: auto; }
   .cta-band .btn-row { grid-column: auto; }
   .section { padding-block: var(--sp-6); }
   .pp { padding-left: 46px; background-image: linear-gradient(90deg, transparent 32px, var(--margin-red) 32px, var(--margin-red) 34px, transparent 34px), repeating-linear-gradient(transparent 0 25px, var(--rule) 25px 26px); }
   .landing .btn.lg { white-space: normal; text-align: center; padding-block: 8px; }
 }
 
-/* ===== ilustrasi "rebahan" (dekoratif; warna dari token, tokoh sama di terang & gelap) ===== */
-.rb { display: block; max-width: 100%; height: auto; overflow: visible; }
-.rb .ln { stroke: var(--mark-ink); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
-.rb .fine { stroke: var(--mark-ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; fill: none; }
-.rb .skin { fill: var(--ill-skin); }
-.rb .hair { fill: var(--mark-ink); }
-.rb .hood { fill: var(--mark); }
-.rb .hood-d { fill: color-mix(in srgb, var(--mark) 70%, var(--margin-red)); }
-.rb .bag { fill: color-mix(in srgb, var(--accent-soft) 65%, var(--accent)); }
-.rb .bag-d { fill: var(--mark-ink); opacity: .1; }
-.rb .blk { fill: var(--margin-red); }
-.rb .blk-s { fill: var(--ill-paper); opacity: .45; }
-.rb .paper, .rb .lid, .rb .bub, .rb .mug { fill: var(--ill-paper); }
-.rb .rule { stroke: color-mix(in srgb, var(--accent) 35%, var(--ill-paper)); stroke-width: 2; stroke-linecap: round; }
-.rb .mred { stroke: var(--margin-red); stroke-width: 1.6; }
+/* ===== ilustrasi "lembar tidur": geometris, garis 3, warna dari token ===== */
+.rb { display: block; max-width: 100%; height: auto; overflow: visible; --rb-a: var(--accent); --rb-t: var(--accent-soft); }
+.cta-band .rb { --rb-a: var(--on-accent); --rb-t: color-mix(in srgb, var(--on-accent) 30%, var(--accent)); }
+.rb .o { stroke: var(--ink); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.rb .sheet { fill: var(--surface); }
+.rb .margin { stroke: var(--margin-red); stroke-width: 3; stroke-linecap: round; }
+.rb .face { fill: none; }
+.rb .cheek { fill: var(--margin-red); opacity: .45; }
 .rb .hl { fill: var(--mark); }
-.rb .shadow { fill: var(--mark-ink); opacity: .2; }
-.rb .z { fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
-.rb .bar-t { fill: color-mix(in srgb, var(--accent) 18%, var(--ill-paper)); }
-.rb .bar-f, .rb .ok { fill: color-mix(in srgb, var(--accent) 75%, var(--mark-ink)); }
-.rb .cheek { fill: var(--margin-red); opacity: .5; }
-.rb .steam { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; opacity: .55; }
-.rb .book1 { fill: var(--margin-red); }
-.rb .book2 { fill: var(--mark); }
-.rb .leaf { fill: color-mix(in srgb, var(--ok) 70%, var(--mark)); }
-.rb .pot { fill: var(--margin-red); }
-/* gerak: hanya saat .play (dipasang skrip saat terlihat); tanpa .play = keadaan akhir */
-.rb .breathe, .rb .bar-f, .rb .pop, .rb .pop-ok { transform-box: fill-box; }
-.rb.play .breathe { transform-origin: 50% 100%; animation: rb-breathe 3.4s ease-in-out 6; }
-@keyframes rb-breathe { 50% { transform: translateY(-1.6px) scaleY(1.012); } }
-.rb.play .z1, .rb.play .z2, .rb.play .z3 { animation: rb-z 3s ease-in-out 3 both; }
-.rb.play .z2 { animation-delay: .6s; }
-.rb.play .z3 { animation-delay: 1.2s; }
-@keyframes rb-z { 0% { opacity: 0; transform: translate(-4px, 6px); } 30%, 70% { opacity: 1; } 100% { opacity: 0; transform: translate(4px, -6px); } }
-.rb.play .steam { animation: rb-steam 2.6s ease-in-out 4; }
-@keyframes rb-steam { 50% { transform: translateY(-3px); opacity: .2; } }
-.rb.play .bar-f { transform-origin: 0 50%; animation: rb-fill 4.5s 1s ease-in-out both; }
-@keyframes rb-fill { from { transform: scaleX(.04); } }
-.rb.play .pop { transform-origin: 50% 100%; animation: rb-pop .5s 5.6s cubic-bezier(.3, 1.5, .5, 1) both; }
-.rb.play .pop-ok { transform-origin: 50% 50%; animation: rb-pop .4s 5.5s cubic-bezier(.3, 1.5, .5, 1) both; }
-@keyframes rb-pop { from { opacity: 0; transform: translateY(8px) scale(.6); } }
-/* versi kompak (langkah 3): kertas dikendalikan skrip lewat .done */
-.rb-c .cpop { transform-box: fill-box; transform-origin: 50% 100%; transition: opacity .3s, transform .45s cubic-bezier(.3, 1.5, .5, 1); }
-.rb-c:not(.done) .cpop { opacity: 0; transform: translateY(8px) scale(.6); }
+.rb .z { fill: none; stroke: var(--rb-a); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.rb .track { fill: var(--rb-t); }
+.rb .fillbar { fill: var(--rb-a); }
+.rb .badge { fill: var(--mark); }
+.rb .tick { fill: none; stroke: var(--mark-ink); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.rb .breathe, .rb .fillbar, .rb .pop { transform-box: fill-box; }
+.rb.play .breathe { transform-origin: 50% 100%; animation: rb-breathe 3.2s ease-in-out 6; }
+@keyframes rb-breathe { 50% { transform: scale(1.03); } }
+.rb.play .z1, .rb.play .z2 { animation: rb-z 2.8s ease-in-out 3 both; }
+.rb.play .z2 { animation-delay: .5s; }
+@keyframes rb-z { 0% { opacity: 0; transform: translate(-3px, 4px); } 30%, 70% { opacity: 1; } 100% { opacity: 0; transform: translate(3px, -4px); } }
+.rb.play .fillbar { transform-origin: 0 50%; animation: rb-fill 4s .6s ease-in-out both; }
+@keyframes rb-fill { from { transform: scaleX(.05); } }
+.rb.play .pop { transform-origin: 50% 50%; animation: rb-pop .4s 4.7s cubic-bezier(.3, 1.5, .5, 1) both; }
+@keyframes rb-pop { from { opacity: 0; transform: scale(.4); } }
+.rb-c .cpop { transform-box: fill-box; transform-origin: 50% 50%; transition: opacity .25s, transform .4s cubic-bezier(.3, 1.5, .5, 1); }
+.rb-c:not(.done) .cpop { opacity: 0; transform: scale(.4); }
 
 /* ---------- auth (kartu bergaya Clerk) ---------- */
 .auth-wrap { display: grid; justify-items: center; gap: var(--sp-4); padding-block: var(--sp-7); }
@@ -840,60 +821,22 @@ dialog::backdrop { background: var(--scrim); }
               <span class="mini-btn" data-s3-btn>Buat makalah</span>
               <div style="display:grid;gap:4px"><span class="mini-lbl num" data-s3-lbl>Selesai · 7/7 tahap</span><div class="bar"><i data-s3-bar style="width:100%"></i></div></div>
               <div class="s3-end">
-                <svg class="rb rb-c" data-s3-rest viewBox="0 0 260 110" aria-hidden="true" focusable="false">
-  <g transform="translate(-26 -18) scale(.64)">
-  <defs><clipPath id="rbClipStep"><path d="M128 174c14-26 42-60 70-62 26-2 42 36 62 70 4 8-2 16-10 16H138c-12 0-16-12-10-24z"/></clipPath></defs>
-  <ellipse class="shadow" cx="164" cy="203" rx="146" ry="7"/>
-  <path class="bag ln" d="M46 199c-16-28-14-72 14-94 26-20 62-16 82 6 14 16 18 38 34 56 10 12 12 24 6 32z"/>
-  <path class="bag-d" d="M60 196c-10-22-10-52 8-72-4 26-2 50 8 72z"/>
+                <svg class="rb rb-c" data-s3-rest viewBox="0 -2 128 112" aria-hidden="true" focusable="false">
   <g class="breathe">
-    <path class="hood-d ln" d="M50 96c0-20 16-34 36-32 18 2 28 16 26 32-1 9-6 15-12 18H62c-8-4-12-10-12-18z"/>
-    <path class="hood ln" d="M80 104c16-8 36-2 48 14l28 36c7 10 0 22-12 21l-42-4c-18-2-30-16-30-34 0-15 0-29 8-33z"/>
-    <path class="fine" d="M96 152c10 3 22 4 32 2" opacity=".55"/>
-    <path class="fine" d="M94 110l2 14M102 108l3 13"/>
-    <circle cx="96" cy="126" r="2" fill="var(--mark-ink)"/><circle cx="105" cy="123" r="2" fill="var(--mark-ink)"/>
-    <path class="hood ln" d="M60 112c-14-6-18-24-8-36l10 6c-5 8-2 16 6 20z"/>
-    <circle class="skin ln" cx="80" cy="86" r="20"/>
-    <path class="hair" d="M60 86c-3-16 8-29 24-29 13 0 22 8 22 18-6-3-13-3-19 1-9-5-18-1-27 10z"/>
-    <path class="ln" d="M60 86c-3-16 8-29 24-29 13 0 22 8 22 18" fill="none"/>
-    <path d="M62 80c2-17 15-28 30-26 11 2 18 9 20 18" fill="none" stroke="var(--mark-ink)" stroke-width="4.5" stroke-linecap="round"/>
-    <rect class="ln" x="55" y="77" width="11" height="17" rx="5.5" fill="var(--margin-red)"/>
-    <path class="fine" d="M72 90q3.5 3 7 0M87 90q3.5 3 7 0" style="stroke-width:2"/>
-    <path class="fine" d="M79 98q4 3.5 8 0" style="stroke-width:2"/>
-    <ellipse class="cheek" cx="70" cy="96" rx="3.6" ry="2.2"/>
-    <ellipse class="cheek" cx="96" cy="96" rx="3.6" ry="2.2"/>
+    <path class="sheet o" d="M34 14h46l16 16v62a10 10 0 0 1-10 10H34a10 10 0 0 1-10-10V24a10 10 0 0 1 10-10z"/>
+    <path class="face o" d="M80 14v10a6 6 0 0 0 6 6h10"/>
+    <path class="margin" d="M38 18v80"/>
+    <path class="face o" d="M52 50q5 6 10 0M70 50q5 6 10 0M60 62q6 5 12 0"/>
+    <ellipse class="cheek" cx="52" cy="62" rx="4" ry="2"/>
+    <ellipse class="cheek" cx="80" cy="62" rx="4" ry="2"/>
+    <rect class="hl" x="46" y="76" width="40" height="8" rx="2"/>
+    <path class="face o" d="M48 92h22"/>
   </g>
-  <g clip-path="url(#rbClipStep)">
-    <path class="blk" d="M120 100h160v110H120z"/>
-    <path class="blk-s" d="M150 100l-22 110h12l22-110zM182 100l-22 110h12l22-110zM214 100l-22 110h12l22-110zM246 100l-22 110h12l22-110z"/>
+  <g>
+    <path class="z z1" d="M102 24h12l-12 12h12"/>
+    <path class="z z2" d="M116 4h8l-8 8h8"/>
   </g>
-  <path class="ln" fill="none" d="M128 174c14-26 42-60 70-62 26-2 42 36 62 70 4 8-2 16-10 16H138c-12 0-16-12-10-24z"/>
-  <path class="ln" d="M250 170c8-6 20-6 26 1 4 5 1 11-6 11h-16z" fill="var(--accent-soft)"/>
-  <path class="fine" d="M262 166l3 15M269 167l2 14" opacity=".45"/>
-  <path class="ln" d="M252 184c9-4 22-3 27 4 3 5-1 10-7 10h-21z" fill="var(--mark)"/>
-  <path class="fine" d="M266 186v12M272 187v11" opacity=".5"/>
-  <g class="breathe">
-    <path class="ln" d="M150 160l40-26 6 6-40 26z" fill="var(--ill-paper)"/>
-    <path class="lid ln" d="M150 160l40-26-12-30-40 26z"/>
-    <rect class="hl" x="157" y="125" width="11" height="8" rx="2" transform="rotate(-33 162 129)"/>
-    <path d="M102 140c16 10 34 16 50 16" fill="none" stroke="var(--mark-ink)" stroke-width="13" stroke-linecap="round"/>
-    <path d="M102 140c16 10 34 16 50 16" fill="none" stroke="var(--mark)" stroke-width="8" stroke-linecap="round"/>
-    <circle class="skin ln" cx="155" cy="155" r="6"/>
-  </g>
-  <g class="z" style="color:var(--accent)">
-    <path class="z1" d="M112 44h9l-9 10h9"/>
-    <path class="z2" d="M127 29h7l-7 8h7"/>
-    <path class="z3" d="M140 17h5l-5 6h5"/>
-  </g>
-  </g>
-  <g class="cpop"><g transform="rotate(8 180 48)">
-      <path class="paper ln" d="M160 18h30l10 10v50h-40z"/>
-      <path class="fine" d="M190 18v10h10"/>
-      <path class="mred" d="M167 20v56"/>
-      <path class="rule" d="M172 34h22M172 41h22M172 48h22M172 55h16M172 62h22M172 69h12"/>
-      <rect class="hl" x="178" y="52" width="16" height="6" rx="1.5"/>
-    </g></g>
-  <g class="cpop"><circle class="ok ln" cx="206" cy="86" r="9" style="stroke-width:2"/><path d="M201.5 86l3 3 5.5-6" fill="none" stroke="var(--ill-paper)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <g class="cpop"><circle class="badge o" cx="92" cy="94" r="12"/><path class="tick" d="M86 94l4 4 8-8"/></g>
 </svg>
                 <span class="file-chip" data-s3-file><svg class="ic-sm"><use href="#i-doc"/></svg>makalah-etika-ai.docx</span>
               </div>
@@ -985,74 +928,24 @@ dialog::backdrop { background: var(--scrim); }
           <h2>Udah, tutup dulu 14 tab jurnalnya.</h2>
           <p>Ketik judulnya aja. MALAS nyusun draf, kamu yang baca dan ngecek.</p>
         </div>
-        <svg class="rb rb-big" viewBox="0 0 320 220" aria-hidden="true" focusable="false">
-  <defs><clipPath id="rbClipCta"><path d="M128 174c14-26 42-60 70-62 26-2 42 36 62 70 4 8-2 16-10 16H138c-12 0-16-12-10-24z"/></clipPath></defs>
-  <ellipse class="shadow" cx="164" cy="203" rx="146" ry="7"/>
-  <path class="bag ln" d="M46 199c-16-28-14-72 14-94 26-20 62-16 82 6 14 16 18 38 34 56 10 12 12 24 6 32z"/>
-  <path class="bag-d" d="M60 196c-10-22-10-52 8-72-4 26-2 50 8 72z"/>
+        <svg class="rb rb-big" viewBox="0 -2 128 132" aria-hidden="true" focusable="false">
   <g class="breathe">
-    <path class="hood-d ln" d="M50 96c0-20 16-34 36-32 18 2 28 16 26 32-1 9-6 15-12 18H62c-8-4-12-10-12-18z"/>
-    <path class="hood ln" d="M80 104c16-8 36-2 48 14l28 36c7 10 0 22-12 21l-42-4c-18-2-30-16-30-34 0-15 0-29 8-33z"/>
-    <path class="fine" d="M96 152c10 3 22 4 32 2" opacity=".55"/>
-    <path class="fine" d="M94 110l2 14M102 108l3 13"/>
-    <circle cx="96" cy="126" r="2" fill="var(--mark-ink)"/><circle cx="105" cy="123" r="2" fill="var(--mark-ink)"/>
-    <path class="hood ln" d="M60 112c-14-6-18-24-8-36l10 6c-5 8-2 16 6 20z"/>
-    <circle class="skin ln" cx="80" cy="86" r="20"/>
-    <path class="hair" d="M60 86c-3-16 8-29 24-29 13 0 22 8 22 18-6-3-13-3-19 1-9-5-18-1-27 10z"/>
-    <path class="ln" d="M60 86c-3-16 8-29 24-29 13 0 22 8 22 18" fill="none"/>
-    <path d="M62 80c2-17 15-28 30-26 11 2 18 9 20 18" fill="none" stroke="var(--mark-ink)" stroke-width="4.5" stroke-linecap="round"/>
-    <rect class="ln" x="55" y="77" width="11" height="17" rx="5.5" fill="var(--margin-red)"/>
-    <path class="fine" d="M72 90q3.5 3 7 0M87 90q3.5 3 7 0" style="stroke-width:2"/>
-    <path class="fine" d="M79 98q4 3.5 8 0" style="stroke-width:2"/>
-    <ellipse class="cheek" cx="70" cy="96" rx="3.6" ry="2.2"/>
-    <ellipse class="cheek" cx="96" cy="96" rx="3.6" ry="2.2"/>
+    <path class="sheet o" d="M34 14h46l16 16v62a10 10 0 0 1-10 10H34a10 10 0 0 1-10-10V24a10 10 0 0 1 10-10z"/>
+    <path class="face o" d="M80 14v10a6 6 0 0 0 6 6h10"/>
+    <path class="margin" d="M38 18v80"/>
+    <path class="face o" d="M52 50q5 6 10 0M70 50q5 6 10 0M60 62q6 5 12 0"/>
+    <ellipse class="cheek" cx="52" cy="62" rx="4" ry="2"/>
+    <ellipse class="cheek" cx="80" cy="62" rx="4" ry="2"/>
+    <rect class="hl" x="46" y="76" width="40" height="8" rx="2"/>
+    <path class="face o" d="M48 92h22"/>
   </g>
-  <g clip-path="url(#rbClipCta)">
-    <path class="blk" d="M120 100h160v110H120z"/>
-    <path class="blk-s" d="M150 100l-22 110h12l22-110zM182 100l-22 110h12l22-110zM214 100l-22 110h12l22-110zM246 100l-22 110h12l22-110z"/>
+  <g>
+    <path class="z z1" d="M102 24h12l-12 12h12"/>
+    <path class="z z2" d="M116 4h8l-8 8h8"/>
   </g>
-  <path class="ln" fill="none" d="M128 174c14-26 42-60 70-62 26-2 42 36 62 70 4 8-2 16-10 16H138c-12 0-16-12-10-24z"/>
-  <path class="ln" d="M250 170c8-6 20-6 26 1 4 5 1 11-6 11h-16z" fill="var(--accent-soft)"/>
-  <path class="fine" d="M262 166l3 15M269 167l2 14" opacity=".45"/>
-  <path class="ln" d="M252 184c9-4 22-3 27 4 3 5-1 10-7 10h-21z" fill="var(--mark)"/>
-  <path class="fine" d="M266 186v12M272 187v11" opacity=".5"/>
-  <g class="breathe">
-    <path class="ln" d="M150 160l40-26 6 6-40 26z" fill="var(--ill-paper)"/>
-    <path class="lid ln" d="M150 160l40-26-12-30-40 26z"/>
-    <rect class="hl" x="157" y="125" width="11" height="8" rx="2" transform="rotate(-33 162 129)"/>
-    <path d="M102 140c16 10 34 16 50 16" fill="none" stroke="var(--mark-ink)" stroke-width="13" stroke-linecap="round"/>
-    <path d="M102 140c16 10 34 16 50 16" fill="none" stroke="var(--mark)" stroke-width="8" stroke-linecap="round"/>
-    <circle class="skin ln" cx="155" cy="155" r="6"/>
-  </g>
-  <rect class="book1 ln" x="6" y="186" width="44" height="13" rx="2"/>
-  <rect class="book2 ln" x="11" y="174" width="36" height="12" rx="2"/>
-  <path class="fine" d="M12 192h32M16 180h26"/>
-  <path class="mug ln" d="M18 152h20v18c0 3-2 4-4 4H22c-2 0-4-1-4-4z"/>
-  <path class="ln" d="M38 156c7 0 7 10 0 10" fill="none"/>
-  <path class="steam" d="M24 146c-3-4 3-7 0-11M32 146c-3-4 3-7 0-11"/>
-  <path class="pot ln" d="M286 182h22l-3 17h-16z"/>
-  <path class="leaf ln" d="M297 182c-12-4-16-16-12-26 10 4 14 14 12 26z"/>
-  <path class="leaf ln" d="M297 182c4-14 12-22 20-20-1 10-8 18-20 20z"/>
-  <path class="leaf ln" d="M297 182c-2-12 0-24 6-30 4 10 2 22-6 30z"/>
-  <g class="z" style="color:var(--on-accent)">
-    <path class="z1" d="M112 44h9l-9 10h9"/>
-    <path class="z2" d="M127 29h7l-7 8h7"/>
-    <path class="z3" d="M140 17h5l-5 6h5"/>
-  </g>
-  <path class="bub ln" d="M160 44h92a8 8 0 0 1 8 8v24a8 8 0 0 1-8 8h-76l-12 12 2-12h-6a8 8 0 0 1-8-8V52a8 8 0 0 1 8-8z"/>
-  <path class="paper ln" d="M166 52h11l4 4v19h-15z" style="stroke-width:1.6"/>
-  <path class="mred" d="M169 53v21"/>
-  <path class="rule" d="M188 56h38M188 62h26"/>
-  <rect class="bar-t" x="188" y="69" width="62" height="7" rx="3.5"/>
-  <rect class="bar-f" x="188" y="69" width="62" height="7" rx="3.5"/>
-  <g class="pop"><g transform="rotate(8 288 40)">
-      <path class="paper ln" d="M268 10h30l10 10v50h-40z"/>
-      <path class="fine" d="M298 10v10h10"/>
-      <path class="mred" d="M275 12v56"/>
-      <path class="rule" d="M280 26h22M280 33h22M280 40h22M280 47h16M280 54h22M280 61h12"/>
-      <rect class="hl" x="286" y="44" width="16" height="6" rx="1.5"/>
-    </g></g>
-  <g class="pop-ok"><circle class="ok ln" cx="256" cy="84" r="9" style="stroke-width:2"/><path d="M251.5 84l3 3 5.5-6" fill="none" stroke="var(--ill-paper)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <rect class="track" x="24" y="116" width="72" height="8" rx="4"/>
+  <rect class="fillbar" x="24" y="116" width="72" height="8" rx="4"/>
+  <g class="pop"><circle class="badge o" cx="92" cy="94" r="12"/><path class="tick" d="M86 94l4 4 8-8"/></g>
 </svg>
         <div class="btn-row">
           <a class="btn lg" href="#daftar">Bikin akun gratis</a>
@@ -1604,7 +1497,37 @@ dialog::backdrop { background: var(--scrim); }
           <li><b>Hero “coba ketik judul”</b>: pratinjau outline Bab I–III dan dua sitasi bergaya stabilo dibuat dari judul yang diketik, murni di browser, berlabel “pratinjau tiruan”. Tanpa interaksi, kolom memutar contoh judul 6 kali lalu diam. Begitu kolom difokus, putaran berhenti.</li>
           <li><b>Tiga langkah</b>: tiap kartu punya mini-animasi (ketik judul, key terkunci, tombol ditekan lalu 7 tahap asli dari <code>steps.py</code> berjalan sampai berkas .docx muncul). Diputar sekali saat kartu terlihat, bisa diputar ulang lewat tombol.</li>
           <li><b>“Kamu lagi di mana?”</b>: chip opsional, mengubah blok “Tanpa MALAS / Pakai MALAS” inline dan menyorot langkah yang paling relevan (sorotan + label teks, bukan cuma warna).</li>
-          <li><b>Detail kecil</b>: stabilo “tergores” di judul hero dan sitasi, kertas sedikit miring saat disorot, dan ilustrasi “rebahan”: mahasiswa berhoodie tidur di bean bag dengan laptop di pangkuan, selimut garis, kaus kaki beda warna, teh di atas tumpukan buku. Versi besar di penutup (napas pelan, “zzz” 3 kali, progres mengisi lalu halaman makalah muncul, diputar sekali saat terlihat); versi kompak di langkah 3 ikut jalur antre → berjalan → selesai. Tanpa gerak, yang tampil keadaan akhir (mata terpejam, makalah jadi). Warna dari token; dua token khusus ilustrasi, <code>--ill-skin</code> dan <code>--ill-paper</code>, sengaja sama di kedua tema supaya tokohnya tidak berubah.</li>
+          <li><b>Detail kecil</b>: stabilo “tergores” di judul hero dan sitasi, kertas sedikit miring saat disorot, dan ilustrasi “lembar tidur”: selembar makalah bermuka (mata terpejam, senyum, pipi) dengan garis margin merah dan satu baris stabilo, “zz” di sudut. Hanya bentuk dasar, satu tebal garis (3), warna <code>--surface</code>, <code>--ink</code>, <code>--margin-red</code>, <code>--mark</code>, dan aksen untuk “zz”/progres; tanpa token baru. Versi besar di penutup (napas pelan, “zz” 3 kali, bar progres mengisi lalu lencana centang muncul, diputar sekali saat terlihat); versi kompak di langkah 3 ikut jalur antre → berjalan → selesai. Tanpa gerak, yang tampil keadaan akhir. Alternatif yang bisa ditukar ada di bawah.<div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px"><figure style="display:grid;gap:6px;justify-items:center;width:120px"><div style="width:96px"><svg class="rb rb-c done" viewBox="0 -2 128 112" aria-hidden="true" focusable="false">
+  <g class="breathe">
+    <path class="sheet o" d="M34 14h46l16 16v62a10 10 0 0 1-10 10H34a10 10 0 0 1-10-10V24a10 10 0 0 1 10-10z"/>
+    <path class="face o" d="M80 14v10a6 6 0 0 0 6 6h10"/>
+    <path class="margin" d="M38 18v80"/>
+    <path class="face o" d="M52 50q5 6 10 0M70 50q5 6 10 0M60 62q6 5 12 0"/>
+    <ellipse class="cheek" cx="52" cy="62" rx="4" ry="2"/>
+    <ellipse class="cheek" cx="80" cy="62" rx="4" ry="2"/>
+    <rect class="hl" x="46" y="76" width="40" height="8" rx="2"/>
+    <path class="face o" d="M48 92h22"/>
+  </g>
+  <g>
+    <path class="z z1" d="M102 24h12l-12 12h12"/>
+    <path class="z z2" d="M116 4h8l-8 8h8"/>
+  </g>
+  <g class="cpop"><circle class="badge o" cx="92" cy="94" r="12"/><path class="tick" d="M86 94l4 4 8-8"/></g>
+</svg></div><figcaption class="small muted">A · Lembar tidur (dipakai)</figcaption></figure><figure style="display:grid;gap:6px;justify-items:center;width:120px"><div style="width:96px"><svg class="rb rb-alt" viewBox="0 0 128 112" aria-hidden="true" focusable="false">
+  <rect class="sheet o" x="64" y="10" width="36" height="44" rx="6"/>
+  <path class="margin" d="M72 14v36"/>
+  <path class="o" style="fill:var(--accent-soft)" d="M14 82c0-26 22-42 50-42s50 16 50 42c0 12-10 18-22 18H36c-12 0-22-6-22-18z"/>
+  <path class="face o" d="M44 74q5 6 10 0M74 74q5 6 10 0M58 86q6 5 12 0"/>
+  <ellipse class="cheek" cx="42" cy="86" rx="4" ry="2"/><ellipse class="cheek" cx="86" cy="86" rx="4" ry="2"/>
+  <path class="z" d="M104 28h10l-10 10h10M116 12h8l-8 8h8"/>
+</svg></div><figcaption class="small muted">B · Bantal bulat</figcaption></figure><figure style="display:grid;gap:6px;justify-items:center;width:120px"><div style="width:96px"><svg class="rb rb-alt" viewBox="0 0 128 112" aria-hidden="true" focusable="false">
+  <rect class="o" style="fill:var(--accent)" x="2" y="58" width="12" height="18" rx="4"/>
+  <rect class="o" style="fill:var(--mark)" x="12" y="50" width="80" height="34" rx="10"/>
+  <rect class="o" style="fill:var(--accent-soft)" x="84" y="46" width="32" height="42" rx="10"/>
+  <path class="face o" d="M34 64q5 6 10 0M58 64q5 6 10 0M46 74q6 5 12 0"/>
+  <ellipse class="cheek" cx="30" cy="74" rx="4" ry="2"/><ellipse class="cheek" cx="72" cy="74" rx="4" ry="2"/>
+  <path class="z" d="M96 24h10l-10 10h10M108 8h8l-8 8h8"/>
+</svg></div><figcaption class="small muted">C · Stabilo tidur</figcaption></figure></div></li>
           <li>Tidak dipakai: “mesin progres” terpisah (sudah tercakup di langkah 3, menambah satu lagi bikin ramai).</li>
         </ul>
         <h3 style="font-size:var(--fs-lg);margin:16px 0 8px">Aturan “tidak memaksa”</h3>
