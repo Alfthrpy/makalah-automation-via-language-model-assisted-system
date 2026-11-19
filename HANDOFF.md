@@ -128,6 +128,17 @@ Pertanyaan terbuka untuk pemilik: (1) template tampil sebagai nama berkas atau l
   (c) ganti sitasi tiruan di pratinjau ("Pratama, 2023") dengan penanda netral "(Penulis, Tahun)"?; (d) chip "Jam 2 pagi, deadline jam 8"
   dipertahankan atau dihapus (bisa terbaca mendorong kerja mepet)?
 
+### Revisi v3 (ilustrasi rebahan digambar ulang)
+- Ilustrasi lama (kotak + lingkaran) diganti tokoh mahasiswa berhoodie kuning tidur di bean bag: laptop di pangkuan, selimut garis, kaus kaki beda warna,
+  headphone, teh di atas tumpukan buku, tanaman, gelembung progres, lalu halaman makalah (margin merah + stabilo + centang) saat selesai.
+  Dua versi dari satu tokoh: adegan besar (CTA penutup, ~340px) dan kompak (kartu langkah 3). Murni CSS: napas pelan, "zzz" 3x, uap teh;
+  `.calm`/jeda/reduced-motion = keadaan akhir statis. `aria-hidden`.
+- Dua token baru khusus ilustrasi: `--ill-skin`, `--ill-paper` (sama di terang/gelap; dari token yang ada tidak bisa dibuat warna kulit/kertas yang stabil).
+  Alternatif bila ditolak: kulit = campuran `--mark` + margin-red (lebih oranye).
+- Kekurangan yang diakui: rambut agak seperti helm; satu warna kulit, tokoh netral gender; versi kompak menyisakan ruang kosong di kanan sebelum kertas muncul;
+  belum dipakai untuk empty state dasbor (tokoh bisa dipakai ulang). Belum dicek: tampilan di "Bingkai ponsel"; animasi napas hanya dicek lewat kode.
+- Saya cek sendiri screenshot CTA terang/gelap desktop dan langkah 3 gelap: tampil benar, nol error konsol.
+
 LANGKAH: jangan mulai coding `apps/web` sebelum pemilik menyetujui/merevisi desain ini.
 
 ## Langkah berikutnya (mulai di sini)
