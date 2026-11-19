@@ -248,7 +248,7 @@ textarea.input { resize: vertical; line-height: 1.5; }
 .demo-switch .lbl { font-family: var(--font-mono); font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 500; }
 
 /* ---------- landing v2: suara santai, interaksi opsional ---------- */
-.l-hero { display: grid; grid-template-columns: 1fr minmax(0, 480px); gap: var(--sp-7); align-items: start; padding-block: var(--sp-7) var(--sp-8); }
+.l-hero { display: grid; grid-template-columns: 1fr minmax(0, 480px); gap: var(--sp-7); align-items: center; padding-block: var(--sp-7) var(--sp-8); }
 .l-hero h1 { font-size: var(--fs-3xl); font-weight: 800; letter-spacing: -.02em; }
 .l-hero .lead { font-size: var(--fs-lg); color: var(--muted); max-width: 36em; }
 .hero-copy { display: grid; gap: var(--sp-5); justify-items: start; min-width: 0; padding-top: var(--sp-4); }
@@ -371,9 +371,23 @@ textarea.input { resize: vertical; line-height: 1.5; }
 .foot-in { display: flex; flex-wrap: wrap; gap: var(--sp-3) var(--sp-5); justify-content: space-between; align-items: center; }
 .foot nav { display: flex; gap: var(--sp-4); flex-wrap: wrap; }
 .foot a { color: var(--muted); display: inline-flex; align-items: center; min-height: var(--tap); }
+.acro-full { color: var(--ink); }
+.acro-full b { background: var(--mark); color: var(--mark-ink); padding: 0 .12em; border-radius: 3px; }
+.acro { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--sp-3); }
+.acro-t { width: 100%; height: 100%; display: grid; gap: 6px; align-content: start; justify-items: start; text-align: left; padding: 16px; min-height: var(--tap); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); color: var(--ink); cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+.acro-l { width: 52px; height: 52px; border-radius: 12px; display: grid; place-items: center; background: var(--mark); color: var(--mark-ink); font-family: var(--font-display); font-size: 1.9rem; font-weight: 800; line-height: 1; }
+.acro-w { font-weight: 700; overflow-wrap: anywhere; }
+.acro-via { font-weight: 500; color: var(--muted); font-size: var(--fs-sm); }
+.acro-g { font-size: var(--fs-sm); color: var(--muted); }
+.acro-t:hover, .acro-t:focus-visible, .acro-t[aria-pressed="true"] { border-color: var(--ink); box-shadow: 0 0 0 3px var(--mark); }
+.acro-t:hover .acro-g, .acro-t:focus-visible .acro-g, .acro-t[aria-pressed="true"] .acro-g { color: var(--ink); }
+.acro.in .acro-l { animation: acro-in .45s cubic-bezier(.3, 1.4, .5, 1) both; animation-delay: calc(var(--i) * 90ms); }
+@keyframes acro-in { from { transform: scale(.6) rotate(-8deg); opacity: 0; } }
+.foot-brand b { font-family: var(--font-display); letter-spacing: .04em; color: var(--ink); }
 .landing.calm *, .landing.calm *::before, .landing.calm *::after { animation: none !important; transition: none !important; }
 @container app (max-width: 980px) {
   .l-hero, .priv { grid-template-columns: minmax(0, 1fr); }
+  .acro { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .l-steps { grid-template-columns: minmax(0, 1fr); }
   .situ-box { grid-template-columns: minmax(0, 1fr); }
 }
@@ -381,6 +395,9 @@ textarea.input { resize: vertical; line-height: 1.5; }
   .l-hero { padding-block: var(--sp-5) var(--sp-6); gap: var(--sp-5); }
   .hero-copy { padding-top: 0; }
   .honest, .vs { grid-template-columns: minmax(0, 1fr); }
+  .acro { grid-template-columns: minmax(0, 1fr); gap: var(--sp-2); }
+  .acro-t { grid-template-columns: 44px minmax(0, 1fr); column-gap: 12px; row-gap: 0; padding: 12px; }
+  .acro-l { width: 44px; height: 44px; font-size: 1.5rem; grid-row: span 2; }
   .cta-band { grid-template-columns: minmax(0, 1fr); padding: var(--sp-5); }
   .cta-band .rb-big { width: 168px; justify-self: center; grid-column: auto; grid-row: auto; }
   .cta-band .btn-row { grid-column: auto; }
@@ -755,23 +772,23 @@ dialog::backdrop { background: var(--scrim); }
     <div class="wrap">
       <section class="l-hero" aria-labelledby="hero-h">
         <div class="hero-copy">
-          <span class="eyebrow">Buat kamu yang tugasnya lagi numpuk</span>
-          <h1 id="hero-h">Males bikin makalah? Santai, biar <span class="h-mark">MALAS</span> yang bikinin drafnya.</h1>
-          <p class="lead">Cuma 3 langkah: ketik judul, tempel API key, tekan tombol. Selagi kamu rebahan, MALAS nyari referensi, nulis tiap sub-bab, ngecek sitasi, lalu ngerapiin semuanya jadi berkas .docx. Biasanya 10–30 menit, tergantung model yang kamu pilih.</p>
+          <span class="eyebrow">Buat tugas yang numpuk</span>
+          <h1 id="hero-h">Kamu mager, <span class="h-mark">MALAS</span> yang gerak.</h1>
+          <p class="lead">Ketik judul, tempel API key, rebahan. Drafnya jadi berkas .docx.</p>
           <div class="btn-row">
-            <a class="btn primary lg" href="#daftar">Coba sekarang, gratis <svg class="ic"><use href="#i-arrow"/></svg></a>
-            <a class="btn lg" href="#masuk">Udah punya akun? Masuk</a>
+            <a class="btn primary lg" href="#daftar">Coba gratis <svg class="ic"><use href="#i-arrow"/></svg></a>
+            <a class="btn lg" href="#masuk">Masuk</a>
           </div>
           <ul class="hero-facts" aria-label="Ringkasnya">
-            <li><svg class="ic-sm"><use href="#i-doc"/></svg>3 makalah per hari</li>
-            <li><svg class="ic-sm"><use href="#i-flask"/></svg>Mode uji tanpa key, gratis</li>
-            <li><svg class="ic-sm"><use href="#i-pen"/></svg>Hasilnya draf, tetap kamu cek</li>
+            <li><svg class="ic-sm"><use href="#i-clock"/></svg>±10–30 menit</li>
+            <li><svg class="ic-sm"><use href="#i-pen"/></svg>Hasilnya draf</li>
+            <li><svg class="ic-sm"><use href="#i-key"/></svg>Pakai key-mu</li>
           </ul>
         </div>
 
         <div class="try card" role="region" aria-labelledby="try-h">
           <div class="try-head">
-            <h2 class="try-title" id="try-h">Coba ketik judul makalahmu</h2>
+            <h2 class="try-title" id="try-h">Coba ketik judul</h2>
             <button type="button" class="btn ghost motion-btn" data-motion aria-pressed="false"><svg class="ic-sm"><use href="#i-pause"/></svg><span>Jeda animasi</span></button>
           </div>
           <div class="try-row">
@@ -779,7 +796,7 @@ dialog::backdrop { background: var(--scrim); }
             <input class="input" id="try-input" maxlength="120" autocomplete="off" spellcheck="false" value="Peran Kecerdasan Buatan dalam Pembelajaran Fiqih" aria-describedby="try-note">
           </div>
           <div class="pp" id="pp" aria-label="Pratinjau outline tiruan"></div>
-          <p class="small muted try-note" id="try-note"><svg class="ic-sm"><use href="#i-info"/></svg><span>Pratinjau tiruan, dibuat langsung di browsermu tanpa akun. Outline dan sitasi di sini cuma contoh; hasil asli ditulis AI sesuai topikmu dengan referensi dari arXiv, Semantic Scholar, dan CrossRef.</span></p>
+          <p class="small muted try-note" id="try-note"><svg class="ic-sm"><use href="#i-info"/></svg><span>Pratinjau tiruan, outline dan sitasinya cuma contoh. Hasil asli ditulis AI sesuai topikmu, dengan referensi sungguhan.</span></p>
         </div>
       </section>
     </div>
@@ -789,15 +806,15 @@ dialog::backdrop { background: var(--scrim); }
         <div class="head-row">
           <div class="section-head">
             <span class="eyebrow">Cara kerja</span>
-            <h2 id="ck-h">Cuma 3 langkah. Yang capek biar mesin.</h2>
-            <p>Kamu ngerjain langkah 1 dan 2. Langkah 3 isinya nunggu.</p>
+            <h2 id="ck-h">Tiga langkah, beres.</h2>
+            <p>Dua kamu yang kerjain, satu lagi nunggu.</p>
           </div>
           <button type="button" class="btn ghost motion-btn" data-motion aria-pressed="false"><svg class="ic-sm"><use href="#i-pause"/></svg><span>Jeda animasi</span></button>
         </div>
         <ol class="l-steps">
           <li class="l-step" id="step-1" data-step="1">
-            <div class="l-step-top"><span class="l-num" aria-hidden="true">1</span><h3><span class="sr-only">Langkah 1: </span>Ketik judul + data penyusun</h3><span class="tag mark hl-tag">Pas buat situasimu</span></div>
-            <p>Judul, mata kuliah, nama dan NIM, plus identitas kampus buat sampul. Kira-kira 5 menit.</p>
+            <div class="l-step-top"><span class="l-num" aria-hidden="true">1</span><h3><span class="sr-only">Langkah 1: </span>Ketik judul</h3><span class="tag mark hl-tag">Pas buat situasimu</span></div>
+            <p>Plus nama, NIM, dan data sampul.</p>
             <div class="scene" aria-hidden="true">
               <div class="mini-field"><span class="mini-lbl">Judul makalah</span><span class="mini-val"><span data-s1-title>Etika AI dalam Jurnalisme Daring</span><i class="caret"></i></span></div>
               <div class="mini-field" data-s1-pen><span class="mini-lbl">Penyusun</span><span class="mini-val mono">Rina M. · 2210511023</span></div>
@@ -805,8 +822,8 @@ dialog::backdrop { background: var(--scrim); }
             <button type="button" class="btn ghost replay" data-replay="1"><svg class="ic-sm"><use href="#i-refresh"/></svg>Putar ulang</button>
           </li>
           <li class="l-step" id="step-2" data-step="2">
-            <div class="l-step-top"><span class="l-num" aria-hidden="true">2</span><h3><span class="sr-only">Langkah 2: </span>Tempel API key-mu</h3><span class="tag mark hl-tag">Pas buat situasimu</span></div>
-            <p>Dari OpenRouter atau Kenari, biayanya ditagih penyedia ke key-mu. Belum punya? Coba Mode uji dulu: gratis, tanpa key, buat lihat hasil templatenya.</p>
+            <div class="l-step-top"><span class="l-num" aria-hidden="true">2</span><h3><span class="sr-only">Langkah 2: </span>Tempel API key</h3><span class="tag mark hl-tag">Pas buat situasimu</span></div>
+            <p>OpenRouter atau Kenari. Belum punya? Coba Mode uji.</p>
             <div class="scene" aria-hidden="true">
               <div class="mini-field"><span class="mini-lbl">API key Kenari</span><span class="mini-val mono"><span data-s2-key>kn-••••••••••••••</span><svg class="ic-sm" data-s2-lock><use href="#i-lock"/></svg></span></div>
               <span class="mini-note" data-s2-note><svg class="ic-sm"><use href="#i-check"/></svg>Dipakai selama job, lalu dibuang</span>
@@ -815,8 +832,8 @@ dialog::backdrop { background: var(--scrim); }
             <button type="button" class="btn ghost replay" data-replay="2"><svg class="ic-sm"><use href="#i-refresh"/></svg>Putar ulang</button>
           </li>
           <li class="l-step" id="step-3" data-step="3">
-            <div class="l-step-top"><span class="l-num" aria-hidden="true">3</span><h3><span class="sr-only">Langkah 3: </span>Tekan tombol, lalu rebahan</h3><span class="tag mark hl-tag">Pas buat situasimu</span></div>
-            <p>MALAS menjalankan 7 tahap di server. Tab boleh ditutup. Kalau udah beres, tinggal unduh .docx.</p>
+            <div class="l-step-top"><span class="l-num" aria-hidden="true">3</span><h3><span class="sr-only">Langkah 3: </span>Tekan, lalu rebahan</h3><span class="tag mark hl-tag">Pas buat situasimu</span></div>
+            <p>Tab boleh ditutup. Nanti tinggal unduh .docx.</p>
             <div class="scene" aria-hidden="true">
               <span class="mini-btn" data-s3-btn>Buat makalah</span>
               <div style="display:grid;gap:4px"><span class="mini-lbl num" data-s3-lbl>Selesai · 7/7 tahap</span><div class="bar"><i data-s3-bar style="width:100%"></i></div></div>
@@ -845,9 +862,26 @@ dialog::backdrop { background: var(--scrim); }
           </li>
         </ol>
         <div class="after-steps">
-          <a class="btn primary lg" href="#daftar">Mulai dari langkah 1</a>
-          <span class="small muted">Gratis. Akunnya buat nyimpen riwayat makalahmu.</span>
+          <a class="btn primary lg" href="#daftar">Coba gratis</a>
+          <span class="small muted">Akunnya buat nyimpen riwayat.</span>
         </div>
+      </div>
+    </section>
+
+    <section class="section" id="singkatan" aria-labelledby="acro-h">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Btw</span>
+          <h2 id="acro-h">MALAS itu singkatan.</h2>
+          <p class="acro-full"><b>M</b>akalah <b>A</b>utomation via <b>L</b>anguage-model <b>A</b>ssisted <b>S</b>ystem.</p>
+        </div>
+        <ul class="acro" id="acro" aria-label="Arti tiap huruf MALAS">
+          <li><button type="button" class="acro-t" aria-pressed="false" style="--i:0"><span class="acro-l" aria-hidden="true">M</span><span class="acro-w">Makalah</span><span class="acro-g">ya, ini memang soal makalah</span></button></li>
+          <li><button type="button" class="acro-t" aria-pressed="false" style="--i:1"><span class="acro-l" aria-hidden="true">A</span><span class="acro-w">Automation</span><span class="acro-g">yang repetitif biar mesin</span></button></li>
+          <li><button type="button" class="acro-t" aria-pressed="false" style="--i:2"><span class="acro-l" aria-hidden="true">L</span><span class="acro-w"><span class=acro-via>via</span> Language-model</span><span class="acro-g">AI yang nyusun drafnya</span></button></li>
+          <li><button type="button" class="acro-t" aria-pressed="false" style="--i:3"><span class="acro-l" aria-hidden="true">A</span><span class="acro-w">Assisted</span><span class="acro-g">dibantu, bukan digantiin</span></button></li>
+          <li><button type="button" class="acro-t" aria-pressed="false" style="--i:4"><span class="acro-l" aria-hidden="true">S</span><span class="acro-w">System</span><span class="acro-g">7 tahap, riset sampai .docx</span></button></li>
+        </ul>
       </div>
     </section>
 
@@ -855,22 +889,22 @@ dialog::backdrop { background: var(--scrim); }
       <div class="wrap">
         <div class="section-head">
           <span class="eyebrow">Kamu lagi di mana?</span>
-          <h2 id="situ-h">Pilih situasimu, kalau mau</h2>
-          <p>Nggak ada yang nilai kok. Ini cuma gambaran di mana MALAS paling kepakai.</p>
+          <h2 id="situ-h">Pilih situasimu.</h2>
+          <p>Opsional, cuma gambaran.</p>
         </div>
         <div class="situ-chips" role="group" aria-label="Situasi tugasmu" id="situ-chips">
-          <button type="button" data-situ="baru" aria-pressed="false"><svg class="ic-sm"><use href="#i-check"/></svg>Baru dikasih tugas</button>
-          <button type="button" data-situ="h3" aria-pressed="true"><svg class="ic-sm"><use href="#i-check"/></svg>H-3 deadline</button>
+          <button type="button" data-situ="baru" aria-pressed="false"><svg class="ic-sm"><use href="#i-check"/></svg>Baru dapet tugas</button>
+          <button type="button" data-situ="h3" aria-pressed="true"><svg class="ic-sm"><use href="#i-check"/></svg>H-3</button>
           <button type="button" data-situ="h1" aria-pressed="false"><svg class="ic-sm"><use href="#i-check"/></svg>H-1</button>
-          <button type="button" data-situ="jam2" aria-pressed="false"><svg class="ic-sm"><use href="#i-check"/></svg>Jam 2 pagi, deadline jam 8</button>
+          <button type="button" data-situ="jam2" aria-pressed="false"><svg class="ic-sm"><use href="#i-check"/></svg>Jam 2 pagi</button>
         </div>
         <div class="situ-box" id="situ-box" aria-live="polite">
           <div class="situ-time"><span class="eyebrow">Waktu tersisa</span><b id="situ-left">3 hari</b><div class="bar" aria-hidden="true"><i id="situ-bar" style="width:45%"></i></div></div>
           <div class="vs">
-            <div class="vs-col no"><span class="eyebrow"><svg class="ic-sm"><use href="#i-x"/></svg>Tanpa MALAS</span><p id="situ-no">Buka 14 tab jurnal, baca abstraknya doang, terus malah scroll HP.</p></div>
-            <div class="vs-col yes"><span class="eyebrow"><svg class="ic-sm"><use href="#i-check"/></svg>Pakai MALAS</span><p id="situ-yes">MALAS yang nyari referensi dan nyusun draf. Tiga harimu dipakai buat baca, ngecek sitasi, dan nambahin pendapatmu.</p></div>
+            <div class="vs-col no"><span class="eyebrow"><svg class="ic-sm"><use href="#i-x"/></svg>Tanpa MALAS</span><p id="situ-no">Buka 14 tab, baca abstrak doang.</p></div>
+            <div class="vs-col yes"><span class="eyebrow"><svg class="ic-sm"><use href="#i-check"/></svg>Pakai MALAS</span><p id="situ-yes">Draf jadi, sisa waktumu buat baca dan cek.</p></div>
           </div>
-          <p class="situ-foot" id="situ-foot">Paling kebantu di <a href="#beranda" data-jump="step-3">langkah 3</a>. Nyari dan nulis biar mesin, mikir tetap kamu.</p>
+          <p class="situ-foot" id="situ-foot">Paling kebantu di <a href="#beranda" data-jump="step-3">langkah 3</a>. Mesin nyari, kamu mikir.</p>
         </div>
       </div>
     </section>
@@ -879,14 +913,13 @@ dialog::backdrop { background: var(--scrim); }
       <div class="wrap">
         <div class="section-head">
           <span class="eyebrow">Biar adil</span>
-          <h2 id="jujur-h">Yang perlu kamu tahu sebelum pakai</h2>
-          <p>Bukan ceramah, cuma biar nggak ada yang kaget belakangan.</p>
+          <h2 id="jujur-h">Yang perlu kamu tahu</h2>
         </div>
         <ul class="honest">
-          <li><span class="ico y"><svg class="ic"><use href="#i-pen"/></svg></span><div><b>Hasilnya draf, bukan makalah final</b><p>Baca semuanya, cek faktanya, dan tambahin pemikiranmu sendiri. Model bahasa bisa salah dengan sangat pede.</p></div></li>
-          <li><span class="ico y"><svg class="ic"><use href="#i-quote"/></svg></span><div><b>Sitasi tetap kamu cocokkan</b><p>MALAS mencocokkan sitasi dengan daftar pustaka, tapi buka juga sumber aslinya sebelum dikumpulin.</p></div></li>
-          <li><span class="ico y"><svg class="ic"><use href="#i-book"/></svg></span><div><b>Aturan kampus soal AI, kamu yang pegang</b><p>Tiap dosen dan kampus beda aturan. Cek dulu boleh atau nggak. Kalau diminta mencantumkan penggunaan AI, cantumkan.</p></div></li>
-          <li><span class="ico y"><svg class="ic"><use href="#i-clock"/></svg></span><div><b>10–30 menit dan biaya dari key-mu</b><p>Bukan sulap: lamanya tergantung model dan antrean. Biaya model ditagih penyedia sesuai tarifnya. Kuota 3 makalah per hari; Mode uji gratis dan nggak makan kuota.</p></div></li>
+          <li><span class="ico y"><svg class="ic"><use href="#i-pen"/></svg></span><div><b>Hasilnya draf</b><p>Baca, cek faktanya, tambahin pikiranmu. AI bisa salah dengan pede.</p></div></li>
+          <li><span class="ico y"><svg class="ic"><use href="#i-quote"/></svg></span><div><b>Cek sitasinya</b><p>Cocokkan ke sumber aslinya sebelum dikumpulin.</p></div></li>
+          <li><span class="ico y"><svg class="ic"><use href="#i-book"/></svg></span><div><b>Aturan kampus, kamu pegang</b><p>Cek boleh atau nggak. Kalau diminta mencantumkan AI, cantumkan.</p></div></li>
+          <li><span class="ico y"><svg class="ic"><use href="#i-clock"/></svg></span><div><b>10–30 menit, bukan sulap</b><p>Tergantung model. Biaya dari key-mu, kuota 3 makalah/hari, Mode uji gratis.</p></div></li>
         </ul>
       </div>
     </section>
@@ -896,28 +929,28 @@ dialog::backdrop { background: var(--scrim); }
         <div class="section-head" style="margin:0">
           <span class="eyebrow">API key</span>
           <h2 id="pv-h">Key-mu tetap punyamu</h2>
-          <p>MALAS cuma minjem key-mu selama makalahmu dibikin. Mau disimpan atau nggak, kamu yang milih.</p>
+          <p>Dipinjam selama job, lalu dibuang.</p>
         </div>
         <ul class="priv-list">
-          <li><span class="ico"><svg class="ic"><use href="#i-key"/></svg></span><div><b>Default-nya nggak disimpan</b><p>Key ada di memori server selama job jalan, lalu dibuang. Nggak masuk log, nggak ditulis ke berkas.</p></div></li>
-          <li><span class="ico"><svg class="ic"><use href="#i-lock"/></svg></span><div><b>Mau disimpan? Boleh, terenkripsi</b><p>Gunanya biar job yang keputus bisa lanjut sendiri. Kamu yang centang, bukan kami.</p></div></li>
-          <li><span class="ico"><svg class="ic"><use href="#i-eye"/></svg></span><div><b>Nggak bakal ditampilin lagi</b><p>Bahkan ke kamu. Yang kelihatan cuma nama penyedia dan tanggal simpannya.</p></div></li>
-          <li><span class="ico"><svg class="ic"><use href="#i-trash"/></svg></span><div><b>Hapus kapan aja</b><p>Dari halaman Pengaturan. Tips: pakai key khusus dengan batas kredit kecil.</p></div></li>
+          <li><span class="ico"><svg class="ic"><use href="#i-key"/></svg></span><div><b>Default: nggak disimpan</b><p>Cuma di memori selama job. Nggak masuk log.</p></div></li>
+          <li><span class="ico"><svg class="ic"><use href="#i-lock"/></svg></span><div><b>Simpan? Opsional, terenkripsi</b><p>Biar job yang keputus bisa lanjut sendiri.</p></div></li>
+          <li><span class="ico"><svg class="ic"><use href="#i-eye"/></svg></span><div><b>Nggak ditampilin lagi</b><p>Yang kelihatan cuma penyedia dan tanggal simpan.</p></div></li>
+          <li><span class="ico"><svg class="ic"><use href="#i-trash"/></svg></span><div><b>Hapus kapan aja</b><p>Dari Pengaturan. Pakai key dengan limit kecil.</p></div></li>
         </ul>
       </div>
     </section>
 
     <section class="section" id="faq" aria-labelledby="faq-h">
       <div class="wrap">
-        <div class="section-head"><span class="eyebrow">Tanya jawab</span><h2 id="faq-h">Yang biasanya ditanyain</h2></div>
+        <div class="section-head"><span class="eyebrow">Tanya jawab</span><h2 id="faq-h">Yang sering ditanya</h2></div>
         <div class="faq">
-          <details><summary>Ini boleh dipakai buat tugas kuliah?<svg class="ic"><use href="#i-chev"/></svg></summary><p>Tergantung aturan dosen dan kampusmu. Ada yang melarang, ada yang membolehkan dengan syarat, misalnya wajib disebutkan. Cek dulu ya. Yang kamu kumpulkan tetap tanggung jawabmu; MALAS bikin draf, bukan jaminan nilai.</p></details>
-          <details><summary>Hasilnya bisa langsung dikumpulin?<svg class="ic"><use href="#i-chev"/></svg></summary><p>Jangan. Baca dulu, cek faktanya, cocokkan tiap sitasi ke sumber aslinya, dan tambahin pemikiranmu sendiri. Buka di Word, tekan F9 di daftar isi biar nomor halamannya beres.</p></details>
-          <details><summary>Kok gratis?<svg class="ic"><use href="#i-chev"/></svg></summary><p>MALAS nggak jual kredit. Kamu pakai API key sendiri dari OpenRouter atau Kenari, jadi biaya model ditagih penyedia sesuai tarifnya. Kenari punya model berakhiran <code>:free</code> yang nggak berbayar. Pemakaian MALAS dibatasi 3 makalah per hari biar server kebagian rata.</p></details>
-          <details><summary>API key-ku aman?<svg class="ic"><use href="#i-chev"/></svg></summary><p>Bawaannya key cuma ada di memori selama makalahmu dibuat, lalu dibuang. Kalau kamu pilih simpan, key dienkripsi di server dan nggak pernah ditampilkan lagi. Hapus kapan aja dari Pengaturan. Biar makin tenang, pakai key khusus dengan batas kredit kecil.</p></details>
-          <details><summary>Beneran cuma beberapa menit?<svg class="ic"><use href="#i-chev"/></svg></summary><p>Biasanya 10–30 menit, tergantung model, jumlah sub-bab, dan antrean. Tab boleh ditutup; progres dan hasilnya tersimpan di riwayat.</p></details>
-          <details><summary>Mode uji itu apa?<svg class="ic"><use href="#i-chev"/></svg></summary><p>Jalanin seluruh alur tanpa memanggil model bahasa: tanpa key, tanpa biaya, nggak makan kuota. Isinya teks contoh, cocok buat lihat hasil template dulu.</p></details>
-          <details><summary>Kalau prosesnya putus di tengah jalan?<svg class="ic"><use href="#i-chev"/></svg></summary><p>Sub-bab yang udah jadi disimpan. Kamu bisa lanjut dari titik terakhir tanpa ngulang, dan melanjutkan nggak makan kuota.</p></details>
+          <details><summary>Boleh buat tugas kuliah?<svg class="ic"><use href="#i-chev"/></svg></summary><p>Tergantung aturan dosen dan kampusmu. Yang dikumpulin tetap tanggung jawabmu.</p></details>
+          <details><summary>Bisa langsung dikumpulin?<svg class="ic"><use href="#i-chev"/></svg></summary><p>Jangan. Baca, cek fakta, dan cocokkan sitasinya dulu.</p></details>
+          <details><summary>Kok gratis?<svg class="ic"><use href="#i-chev"/></svg></summary><p>Kamu pakai API key sendiri, jadi biaya model dari penyedia. MALAS-nya gratis, 3 makalah per hari.</p></details>
+          <details><summary>Key-ku aman?<svg class="ic"><use href="#i-chev"/></svg></summary><p>Default-nya cuma di memori, lalu dibuang. Kalau disimpan, dienkripsi dan bisa dihapus kapan aja.</p></details>
+          <details><summary>Berapa lama?<svg class="ic"><use href="#i-chev"/></svg></summary><p>Biasanya 10–30 menit, tergantung model. Tab boleh ditutup.</p></details>
+          <details><summary>Mode uji itu apa?<svg class="ic"><use href="#i-chev"/></svg></summary><p>Alur lengkap tanpa AI: gratis, tanpa key, isinya teks contoh.</p></details>
+          <details><summary>Kalau putus di tengah?<svg class="ic"><use href="#i-chev"/></svg></summary><p>Lanjut dari titik terakhir, tanpa makan kuota.</p></details>
         </div>
       </div>
     </section>
@@ -925,8 +958,8 @@ dialog::backdrop { background: var(--scrim); }
     <section class="wrap" style="padding-block: var(--sp-6)">
       <div class="cta-band">
         <div class="txt">
-          <h2>Udah, tutup dulu 14 tab jurnalnya.</h2>
-          <p>Ketik judulnya aja. MALAS nyusun draf, kamu yang baca dan ngecek.</p>
+          <h2>Tutup 14 tab jurnalnya.</h2>
+          <p>Ketik judul aja dulu.</p>
         </div>
         <svg class="rb rb-big" viewBox="0 -2 128 132" aria-hidden="true" focusable="false">
   <g class="breathe">
@@ -948,7 +981,7 @@ dialog::backdrop { background: var(--scrim); }
   <g class="pop"><circle class="badge o" cx="92" cy="94" r="12"/><path class="tick" d="M86 94l4 4 8-8"/></g>
 </svg>
         <div class="btn-row">
-          <a class="btn lg" href="#daftar">Bikin akun gratis</a>
+          <a class="btn lg" href="#daftar">Coba gratis</a>
           <a class="btn lg alt" href="#masuk">Masuk</a>
         </div>
       </div>
@@ -956,7 +989,7 @@ dialog::backdrop { background: var(--scrim); }
 
     <footer class="foot">
       <div class="wrap foot-in">
-        <span>© 2026 MALAS · dibikin buat yang lagi mager, bukan buat gantiin belajarmu.</span>
+        <span class="foot-brand">© 2026 <b>MALAS</b> · <span class="muted">Makalah Automation via Language-model Assisted System</span></span>
         <nav aria-label="Tautan hukum">
           <a href="#beranda" data-placeholder="Ketentuan Layanan">Ketentuan Layanan</a>
           <a href="#beranda" data-placeholder="Kebijakan Privasi">Kebijakan Privasi</a>
@@ -1475,13 +1508,14 @@ dialog::backdrop { background: var(--scrim); }
 
       <section aria-labelledby="nL">
         <h2 id="nL">Landing v2: suara, interaksi, kejujuran</h2>
-        <p style="margin-bottom:12px">Headline final: <b>“Males bikin makalah? Santai, biar MALAS yang bikinin drafnya.”</b> Kata “drafnya” sengaja dipertahankan supaya janji produknya jujur. Alternatif: “Tugas makalah numpuk? Ketik judulnya, drafnya biar MALAS yang nyusun.” dan “Mager nulis? Kasih judulnya, MALAS yang nyusun drafnya.”</p>
+        <p style="margin-bottom:12px">Headline final: <b>“Kamu mager, MALAS yang gerak.”</b> Plesetan dari “mager” (malas gerak): kamu yang malas, MALAS yang bergerak. Sub-judul satu kalimat; info jujur (10–30 menit, draf, key sendiri) pindah ke chip, “Yang perlu kamu tahu”, dan FAQ.</p>
+        <p style="margin-bottom:12px">Kandidat lain: “Judul masuk, draf keluar.” · “Males nulis? Biar MALAS.” · “Rebahan dulu, drafnya nyusul.” · “Ketik judul, terus rebahan.” · “Tugas numpuk? MALAS-in aja.” · “Mager boleh, draf tetap jadi.” · “Kamu rebahan, draf jalan.”</p>
         <h3 style="font-size:var(--fs-lg);margin:16px 0 8px">Suara dan nada: teman sekelas yang paham rasa mager</h3>
         <div class="tbl-wrap">
           <table>
             <thead><tr><th>Pakai</th><th>Jangan</th><th>Kenapa</th></tr></thead>
             <tbody>
-              <tr><td>“Males bikin makalah? Santai.”</td><td>“Solusi penulisan akademik berbasis AI generatif.”</td><td>Bahasa orang ngobrol, bukan brosur.</td></tr>
+              <tr><td>“Kamu mager, MALAS yang gerak.”</td><td>“Solusi penulisan akademik berbasis AI generatif.”</td><td>Bahasa orang ngobrol, bukan brosur.</td></tr>
               <tr><td>“kamu”, “key-mu”, “kami”</td><td>“Anda”, “pengguna yang terhormat”</td><td>Akrab tanpa sok kenal.</td></tr>
               <tr><td>“Biasanya 10–30 menit, tergantung model.”</td><td>“Makalah jadi dalam hitungan detik!”</td><td>Angka nyata, bukan janji.</td></tr>
               <tr><td>“Hasilnya draf, tetap kamu cek.”</td><td>“Siap kumpul, dijamin nilai A.”</td><td>Tidak menjanjikan nilai.</td></tr>
@@ -1540,16 +1574,27 @@ dialog::backdrop { background: var(--scrim); }
         </ul>
         <h3 style="font-size:var(--fs-lg);margin:16px 0 8px">Teks yang wajib tetap ada</h3>
         <ul class="b">
-          <li>“Biasanya 10–30 menit, tergantung model” (hero dan FAQ).</li>
-          <li>“Hasilnya draf, tetap kamu cek” dan “Hasilnya bisa langsung dikumpulin? Jangan.”</li>
-          <li>“Sitasi tetap kamu cocokkan” dengan sumber aslinya.</li>
-          <li>“Aturan kampus soal AI, kamu yang pegang” dan FAQ “Ini boleh dipakai buat tugas kuliah?”.</li>
+          <li>“±10–30 menit” (chip hero), “10–30 menit, bukan sulap” (Yang perlu kamu tahu), dan FAQ “Berapa lama?”.</li>
+          <li>Chip “Hasilnya draf”, kartu “Hasilnya draf”, dan FAQ “Bisa langsung dikumpulin? Jangan.”</li>
+          <li>“Cek sitasinya”: cocokkan ke sumber aslinya.</li>
+          <li>“Aturan kampus, kamu pegang” dan FAQ “Boleh buat tugas kuliah?”.</li>
           <li>Biaya dari key sendiri sesuai tarif penyedia, Mode uji gratis, kuota 3 makalah per hari.</li>
           <li>Label “pratinjau tiruan” pada demo hero.</li>
           <li>Empat poin privasi key: default tidak disimpan, simpan itu pilihan dan terenkripsi, tidak ditampilkan lagi, bisa dihapus.</li>
         </ul>
         <h3 style="font-size:var(--fs-lg);margin:16px 0 8px">Rekomendasi: nada santai di dalam aplikasi?</h3>
         <p>Saran saya: pakai <b>“kamu”</b> di seluruh aplikasi supaya tidak ada lompatan dari landing (sekarang aplikasi masih “Anda”), tetapi <b>tanpa candaan</b> di alur penting: error, privasi key, hapus, kuota habis, dan sesi berakhir tetap lugas. Nada santai boleh di empty state, sapaan dasbor, dan toast sukses. Alasannya: saat ada masalah, pengguna butuh kejelasan, bukan lelucon. Keputusan ada di pemilik.</p>
+      </section>
+
+      <section aria-labelledby="nM">
+        <h2 id="nM">Merek</h2>
+        <ul class="b">
+          <li><b>Akronim resmi</b>: MALAS = <b>M</b>akalah <b>A</b>utomation via <b>L</b>anguage-model <b>A</b>ssisted <b>S</b>ystem. Sekaligus plesetan “malas”.</li>
+          <li><b>Penulisan</b>: selalu “MALAS” huruf besar semua, termasuk di kalimat (“MALAS yang gerak”). Kepanjangan resmi selalu bahasa Inggris persis seperti di atas, dengan “via” huruf kecil dan “Language-model” bertanda hubung.</li>
+          <li><b>Gloss Indonesia</b> (“ya, ini memang soal makalah”, “dibantu, bukan digantiin”, dst.) hanya untuk nuansa di landing, bukan terjemahan resmi.</li>
+          <li><b>Di mana kepanjangan muncul</b>: strip “MALAS itu singkatan.” di landing (setelah tiga langkah) dan satu baris di footer landing. Tidak di logo atau navbar.</li>
+          <li><b>Strip singkatan</b>: lima kartu huruf stabilo, kata dan gloss selalu terlihat. Hover, fokus keyboard, atau tap menyorot satu kartu (cincin stabilo); animasi masuk sekali saat terlihat, mati di <code>.calm</code>/reduced-motion.</li>
+        </ul>
       </section>
 
       <section aria-labelledby="n8">
@@ -2451,10 +2496,10 @@ $$('[data-motion]').forEach((b) => b.addEventListener('click', () => setMotion(!
 
 /* pemilih situasi */
 const SITU = {
-  baru: { left: '±2 minggu', pct: 95, no: 'Bilang “nanti aja”, terus baru inget pas H-3.', yes: 'Ketik judulnya sekarang. Setengah jam lagi kamu udah pegang draf, dan masih punya banyak waktu buat baca dan merevisi.', step: 1, foot: 'Lima menit ngisi data, sisanya waktumu buat mikir.' },
-  h3: { left: '3 hari', pct: 45, no: 'Buka 14 tab jurnal, baca abstraknya doang, terus malah scroll HP.', yes: 'MALAS yang nyari referensi dan nyusun draf. Tiga harimu dipakai buat baca, ngecek sitasi, dan nambahin pendapatmu.', step: 3, foot: 'Nyari dan nulis biar mesin, mikir tetap kamu.' },
-  h1: { left: '1 hari', pct: 18, no: 'Begadang nulis daftar pustaka manual, format APA-nya berantakan.', yes: 'Draf lengkap dengan daftar pustaka APA jadi dalam 10–30 menit. Malamnya buat ngecek isi, jangan di-skip.', step: 3, foot: 'Pakai waktu tunggunya buat siap-siap baca.' },
-  jam2: { left: '6 jam', pct: 6, no: 'Kopi ketiga. Kursor kedip-kedip di halaman kosong.', yes: 'Masih keburu bikin draf. Tapi jujur aja: sisain minimal satu jam buat baca dan benerin. Draf yang nggak dicek itu risikomu sendiri.', step: 2, foot: 'Belum punya API key? Bikin dulu di OpenRouter atau Kenari, cuma beberapa menit.' },
+  baru: { left: '±2 minggu', pct: 95, no: 'Bilang “nanti aja”.', yes: 'Ketik judul sekarang, revisinya santai.', step: 1, foot: 'Lima menit, beres.' },
+  h3: { left: '3 hari', pct: 45, no: 'Buka 14 tab, baca abstrak doang.', yes: 'Draf jadi, sisa waktumu buat baca dan cek.', step: 3, foot: 'Mesin nyari, kamu mikir.' },
+  h1: { left: '1 hari', pct: 18, no: 'Begadang nulis daftar pustaka manual.', yes: 'Draf + daftar pustaka APA dalam 10–30 menit. Malamnya buat ngecek.', step: 3, foot: 'Waktu tunggunya buat siap-siap baca.' },
+  jam2: { left: '6 jam', pct: 6, no: 'Kopi ketiga, halaman masih kosong.', yes: 'Masih keburu draf. Sisain sejam buat ngecek, ya.', step: 2, foot: 'Siapin API key dulu.' },
 };
 function setSitu(k, user) {
   const s = SITU[k];
@@ -2474,6 +2519,16 @@ document.addEventListener('click', (e) => {
   document.getElementById(a.dataset.jump).scrollIntoView({ behavior: LND.motion ? 'smooth' : 'auto', block: 'center' });
 });
 
+$('#acro').addEventListener('click', (e) => {
+  const b = e.target.closest('.acro-t'); if (!b) return;
+  const on = b.getAttribute('aria-pressed') !== 'true';
+  $$('#acro .acro-t').forEach((x) => x.setAttribute('aria-pressed', 'false'));
+  b.setAttribute('aria-pressed', String(on));
+});
+const acroIO = 'IntersectionObserver' in window ? new IntersectionObserver((ents) => {
+  ents.forEach((e) => { if (!e.isIntersecting) return; acroIO.unobserve(e.target); if (LND.motion) e.target.classList.add('in'); });
+}, { threshold: 0.5 }) : null;
+
 function initLanding() {
   renderPreview(TRY_SAMPLES[0], false);
   setSitu('h3', false);
@@ -2481,6 +2536,7 @@ function initLanding() {
   setMotion(!RM.matches, true);
   if (stepIO) $$('.l-step').forEach((c) => stepIO.observe(c));
   if (ctaIO) ctaIO.observe($('.cta-band .rb-big'));
+  if (acroIO) acroIO.observe($('#acro'));
   if (LND.motion) LND.demo = setTimeout(runDemo, 1500);
 }
 

@@ -139,6 +139,23 @@ Pertanyaan terbuka untuk pemilik: (1) template tampil sebagai nama berkas atau l
 - Kekurangan yang diketahui: di mode gelap "kertas" = `--surface` (navy), bukan putih; detail kecil (pipi, baris teks) nyaris hilang di 64px;
   lencana centang dan chip .docx di langkah 3 sama-sama menandakan "selesai" (bisa hapus salah satu). Belum dicek: mode "Bingkai ponsel".
 
+### Revisi v5 (hook dipadatkan + branding kepanjangan MALAS)
+- MALAS = **M**akalah **A**utomation via **L**anguage-model **A**ssisted **S**ystem (akronim resmi; juga plesetan "malas"). Aturan tulis: "MALAS" selalu kapital;
+  kepanjangan resmi berbahasa Inggris dengan "via" kecil dan "Language-model" bertanda hubung; gloss Indonesia hanya untuk nuansa di landing. Ada di Catatan desain > "Merek".
+- Headline hero: **"Kamu mager, MALAS yang gerak."** (plesetan "mager" = malas gerak). Kandidat lain di Catatan desain: "Judul masuk, draf keluar." / "Males nulis? Biar MALAS." /
+  "Rebahan dulu, drafnya nyusul." / "Ketik judul, terus rebahan." / "Tugas numpuk? MALAS-in aja." / "Mager boleh, draf tetap jadi." / "Kamu rebahan, draf jalan."
+- Teks dipangkas: sub-judul "Ketik judul, tempel API key, rebahan. Drafnya jadi berkas .docx."; chip hero "±10-30 menit / Hasilnya draf / Pakai key-mu"; judul section pendek
+  ("Tiga langkah, beres.", "Pilih situasimu.", "Yang perlu kamu tahu", "Yang sering ditanya"); CTA "Coba gratis" / "Masuk"; penutup "Tutup 14 tab jurnalnya.".
+  Kejujuran tetap ada (draf, cek sitasi, aturan kampus, 10-30 menit, biaya dari key sendiri, kuota 3/hari, Mode uji) tetapi dipindah ke "Biar adil" dan FAQ.
+- Strip "MALAS itu singkatan." tepat setelah 3 langkah: kalimat lengkap (huruf awal berstabilo) + 5 kartu (huruf, kata, gloss) selalu terbaca tanpa interaksi;
+  hover/fokus/tap menyorot satu kartu (`aria-pressed`); animasi masuk sekali, mati di `.calm`. Footer memuat kepanjangan satu baris.
+- Verifikasi (saya, Playwright, setelah perubahan terakhir): 0 error konsol/pageerror, 0 overflow di semua layar x terang/gelap x 1280/390; saya lihat landing penuh
+  terang desktop dan gelap ponsel.
+- Kekurangan yang diketahui: kartu langkah 1-2 punya ruang kosong di bawah (kartu 3 lebih tinggi); "3 makalah per hari" dan "Mode uji gratis" tidak lagi jadi chip hero
+  (ada di "Biar adil" dan FAQ); gloss "AI yang nyusun drafnya" menyederhanakan; kolom FAQ hanya memakai separuh kiri lebar di desktop.
+- Pertanyaan terbuka: CTA "Coba gratis" atau lebih berkarakter ("Gaskeun")?; kepanjangan perlu muncul juga di halaman Masuk/Daftar atau "Tentang"?;
+  "Mode uji gratis" kembali jadi chip hero?
+
 LANGKAH: jangan mulai coding `apps/web` sebelum pemilik menyetujui/merevisi desain ini.
 
 ## Langkah berikutnya (mulai di sini)
