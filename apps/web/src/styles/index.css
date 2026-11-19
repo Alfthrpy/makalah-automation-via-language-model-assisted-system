@@ -1,0 +1,35 @@
+/* Tailwind hanya untuk utilitas; preflight sengaja TIDAK dimuat karena base.css
+   (dari prototipe) sudah memegang reset. Utilitas memetakan ke token prototipe. */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-mark: var(--mark);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-bad: var(--bad);
+  --font-display: var(--font-display);
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-mono);
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+}
+
+@import "./tokens.css";
+@import "./base.css";
+@import "./shell.css";
+@import "./components.css";
+@import "./landing.css";
+@import "./screens.css";
+@import "./responsive.css";
+@import "./extra.css";
