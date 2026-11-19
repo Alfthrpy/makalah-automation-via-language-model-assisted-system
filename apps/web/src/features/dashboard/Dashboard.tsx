@@ -22,7 +22,7 @@ function ActiveBanner({ job }: { job: JobSummary }) {
   const C = 125.6;
   return (
     <section className="active-banner" aria-label={D.activeLabel}>
-      <svg className="ring" viewBox="0 0 48 48" aria-hidden="true">
+      <svg className="gauge" viewBox="0 0 48 48" aria-hidden="true">
         <circle cx="24" cy="24" r="20" fill="none" stroke="var(--surface-2)" strokeWidth="5" />
         <circle cx="24" cy="24" r="20" fill="none" stroke="var(--accent)" strokeWidth="5" strokeLinecap="round" strokeDasharray={`${((pct / 100) * C).toFixed(1)} ${C}`} transform="rotate(-90 24 24)" />
         <text x="24" y="28" textAnchor="middle" fontSize="11" fontWeight="700" fill="var(--ink)" fontFamily="var(--font-body)">{pct}%</text>

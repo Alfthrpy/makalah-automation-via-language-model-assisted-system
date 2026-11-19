@@ -5,6 +5,10 @@
   "scripts": {
     "dev:api": "uv run malas-web",
     "test:py": "uv run pytest -q",
-    "lint:py": "uv run ruff check ."
+    "lint:py": "uv run ruff check .",
+    "dev:web": "pnpm --filter web dev",
+    "build:web": "pnpm --filter web build",
+    "test:web": "pnpm --filter web test",
+    "typecheck:web": "pnpm --filter web typecheck"
   }
 }

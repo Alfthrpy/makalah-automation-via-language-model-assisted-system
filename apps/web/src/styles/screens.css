@@ -16,7 +16,7 @@
 .dash-grid { display: grid; grid-template-columns: 1fr 320px; gap: var(--sp-5); align-items: start; }
 .stack { display: grid; gap: var(--sp-4); align-content: start; min-width: 0; }
 .active-banner { display: grid; grid-template-columns: auto 1fr auto; gap: var(--sp-4); align-items: center; background: var(--surface); border: 1.5px solid var(--accent); border-radius: var(--r-lg); padding: var(--sp-4) var(--sp-5); }
-.active-banner .ring { width: 48px; height: 48px; }
+.active-banner .gauge { width: 48px; height: 48px; }
 .active-banner .t { min-width: 0; display: grid; gap: 2px; }
 .active-banner .t b { overflow-wrap: anywhere; }
 .mini-progress { height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; margin-top: 6px; }

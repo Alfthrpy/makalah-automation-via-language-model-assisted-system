@@ -98,8 +98,9 @@ function AccountMenu() {
   if (!u) return null;
   return (
     <div className="rel" ref={wrap}>
-      <button ref={btn} type="button" className="avatar-btn" aria-haspopup="menu" aria-expanded={open} aria-label={`${t.nav.accountMenu} ${u.name}`} onClick={() => setOpen((o) => !o)}>
+      <button ref={btn} type="button" className="avatar-btn" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
         <span className="avatar" aria-hidden="true">{u.initials}</span>
+        <span className="sr-only">{t.nav.accountMenu} {u.name}</span>
       </button>
       {open && (
         <div className="menu" role="menu">

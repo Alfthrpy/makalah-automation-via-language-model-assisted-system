@@ -10,6 +10,10 @@ import { AuthProvider } from "./lib/auth";
 import { makeQueryClient } from "./lib/queries";
 import { ThemeProvider } from "./lib/theme";
 import { AppRoutes } from "./routes";
+import { Banner, Button } from "./components/ui/primitives";
+import { Icon } from "./components/icons";
+import { ApiError } from "./lib/api";
+import { useConfig } from "./lib/queries";
 
 /** 401 di mana saja: dialog "Sesi kamu berakhir". Formulir tetap di perangkat (tanpa API key). */
 function SessionGuard() {
@@ -24,6 +28,20 @@ function SessionGuard() {
   );
 }
 
+/** Backend gratis bisa "tidur": /api/config gagal (jaringan/5xx) -> banner global dengan tombol muat ulang. */
+function ServerGate() {
+  const cfg = useConfig();
+  const e = cfg.error;
+  const down = cfg.isError && e instanceof ApiError && (e.status === 0 || e.status >= 500);
+  if (!down) return null;
+  return (
+    <div className="wrap" style={{ paddingTop: "var(--sp-4)" }}>
+      <Banner kind="bad" title={t.states.serverDownTitle}
+        actions={<Button onClick={() => void cfg.refetch()}><Icon name="refresh" />{t.states.reload}</Button>}>{t.states.serverDownText}</Banner>
+    </div>
+  );
+}
+
 export default function App() {
   const qc = useMemo(makeQueryClient, []);
   return (
@@ -35,7 +53,7 @@ export default function App() {
               <AuthProvider>
                 <IconSprite />
                 <a className="skip" href="#main">{t.common.skip}</a>
-                <div id="app"><AppRoutes /></div>
+                <div id="app"><ServerGate /><AppRoutes /></div>
                 <SessionGuard />
               </AuthProvider>
             </ConfirmProvider>

@@ -75,8 +75,8 @@ dengan data dir milik `postgres` (mis. `/var/tmp/pgdata-malas`, port 54329, `-A 
     atau submit gagal; job lanjutan, auto-resume, dan Mode uji tidak dihitung. `MALAS_DAILY_QUOTA`, `MALAS_QUOTA_TZ`.
   - BELUM dites dengan Clerk asli (tidak ada akun). Risiko: format `azp`/`iss` instance nyata, dan cookie `__session` di
     belakang proxy Netlify (domain/SameSite). Verifikasi saat Fase 5.
-- [ ] **Fase 4: Frontend React** (DESAIN SELESAI & disetujui; implementasi belum dimulai) (`apps/web`), port semua fitur `app.js` + UI simpan/hapus key tersimpan; `packages/api-types` dari OpenAPI
-  (sekarang `openapi_url=None`, perlu dinyalakan untuk generasi tipe saat build); hapus `static/`.
+- [x] **Fase 4: Frontend React** (`apps/web`), M0-M5 selesai dan diverifikasi di sandbox; M6 sebagian (lihat "Status Fase 4" di bawah).
+  Sisa: `packages/api-types` dari OpenAPI (B4), hapus UI statis backend (B5), uji Clerk asli.
 - [ ] **Fase 5: Deploy + CI**: Dockerfile HF Space (port 7860, `PORT`), `netlify.toml`, GitHub Actions (pytest SQLite+Postgres service,
   ruff terbatas pada kode baru, typecheck + build web), `S3Storage` untuk R2, update DEPLOY.md. Ingat: HF Space bisa tidur; disk ephemeral.
 - [ ] **Fase 6 (opsional)**: ToS/Privasi, email (Resend), Sentry, admin, pembayaran.
@@ -158,11 +158,27 @@ Pertanyaan terbuka untuk pemilik: (1) template tampil sebagai nama berkas atau l
 
 STATUS DESAIN: pemilik menyetujui arah ("sip") setelah v5. Implementasi: ikuti `docs/design/HANDOFF-frontend.md` (spesifikasi lengkap, kontrak API, tugas backend B1-B6, rencana tonggak M0-M6, default untuk pertanyaan terbuka).
 
+## Status Fase 4 (frontend `apps/web`)
+Dikerjakan dari `docs/design/malas-ui.html` dengan default keputusan terbuka di `docs/design/HANDOFF-frontend.md` bagian 9 (nada "kamu", CTA "Coba gratis", sitasi tiruan "(Penulis, Tahun)").
+**Stack:** Vite 8 + React 19 + TS strict + react-router 8 (path) + TanStack Query + zod 4 + `@clerk/clerk-react`; font self-host (`@fontsource`); Vitest + Testing Library; e2e Playwright (skrip biasa, bukan `@playwright/test`).
+**Gaya:** CSS prototipe dipindah apa adanya ke `src/styles/*` (tokens, base, shell, components, landing, screens, responsive), termasuk container query pada `#app`.
+Tailwind v4 terpasang dengan `@theme inline` yang memetakan token CSS variables, TAPI utilitasnya diberi prefix `tw:` dan preflight tidak dimuat: kelas prototipe (`.ring`, `.block`, ...) bentrok dengan utilitas Tailwind tanpa prefix (kasus nyata: gauge dasbor tampil berkotak). Kode saat ini tidak memakai utilitas `tw:*`.
+**Teks UI:** semua di `src/copy/id.ts`. **API:** `src/lib/{api,queries,types,validation}.ts`; tipe ditulis manual dari kontrak (B4 belum).
+**Auth:** `src/lib/auth.tsx`: `VITE_AUTH_MODE=dev` (tanpa Clerk; "Masuk" hanya menandai di localStorage, backend memakai cookie anonim) atau `clerk` (`VITE_CLERK_PUBLISHABLE_KEY`; token lewat `getToken()` di header Bearer; `appearance` diturunkan dari tema aktif).
+**Keamanan web:** API key hanya di state komponen; dikosongkan setelah kirim, saat `pagehide`, dan saat unmount; draf formulir (`malas.draft.v1`) TANPA key (ada tes + e2e yang memeriksa localStorage/sessionStorage). 401 di mana pun -> dialog "Sesi kamu berakhir".
+**Struktur:** `src/features/{landing,auth,dashboard,create,job,settings,states}`, `src/components/{ui,shell,icons,Mascot,QuotaCard}`.
+**Backend B1-B3 selesai** (tes di `apps/api/tests/test_web.py`): `GET /api/jobs` memuat `mata_kuliah`, `progress {done,total}` (tahap, hanya job aktif), `current_step`, `current_detail`, `queue_position`; `GET /api/jobs/:id` memuat `queue_position`; tiap tahap mencatat `started_at`/`finished_at`.
+Catatan performa B1: ringkasan riwayat kini ikut memuat kolom JSON `data` (termasuk `log`) untuk 30 baris; bila terasa berat di Neon, pindahkan `mata_kuliah`/progres ke kolom nyata.
+**Verifikasi (sandbox):** `pnpm --filter web test` (24 tes unit), `pnpm --filter web typecheck`, `pnpm --filter web build` bersih. E2E (`apps/web/e2e/flow.cjs`) terhadap backend sungguhan (`uv run malas-web`, mode anonim, Mode uji):
+landing -> masuk -> dasbor -> buat -> job selesai -> unduh .docx valid ("PK") -> riwayat -> pengaturan -> 404, di 1280 terang dan 390 gelap, 0 error konsol, 0 overflow horizontal.
+`apps/web/e2e/states.cjs` (API dicegat): job antre/berjalan/gagal/terhenti/dibatalkan, dialog Lanjutkan, tombol kirim nonaktif + alasan, validasi (fokus ke isian pertama), 429 antrean penuh, 401, server 5xx, hapus key; plus audit axe-core WCAG 2.1 A/AA di semua layar app: 0 pelanggaran.
+Jalankan e2e: `uv run malas-web` + `pnpm --filter web dev`, lalu `NODE_PATH=$(npm root -g) node apps/web/e2e/flow.cjs` (dan `states.cjs`).
+**Belum teruji / diketahui:** (1) Clerk asli (`<SignIn/>`, `<SignUp/>`, `getToken`, `openUserProfile`; hanya lolos typecheck/build), (2) Neon dan Netlify/HF asli, (3) pembaca layar sungguhan dan kontras dengan alat ukur selain axe, (4) animasi landing hanya dilihat dalam mode reduced-motion di tangkapan layar (perilaku animasi dan tombol jeda belum dicek otomatis), (5) tangkapan layar app tidak dibandingkan piksel-ke-piksel dengan prototipe (landing dibandingkan visual dan nyaris identik),
+(6) Ketentuan Layanan/Kebijakan Privasi masih halaman placeholder (`/ketentuan`, `/privasi`), (7) tidak ada layar `_design`/catatan (dokumentasi tetap di `docs/design`), (8) polish landing yang tercatat di desain (kedip `color` saat stabilo di mode gelap) belum ditangani.
+**Belum dikerjakan:** B4 (response model Pydantic + ekspor OpenAPI -> `packages/api-types`), B5 (hapus `apps/api/.../static/` + rute `/`), B6 (label template ramah), bundle size/code-splitting lanjutan (layar sudah `lazy`), tes komponen dengan MSW (tes saat ini: fungsi murni + e2e).
+
 ## Langkah berikutnya (mulai di sini)
-**Fase 4: bangun `apps/web` dari desain.** Baca `docs/design/HANDOFF-frontend.md` (satu-satunya dokumen yang perlu untuk memulai) dan buka `docs/design/malas-ui.html` di browser.
-Ringkas: Vite + React + TS + Tailwind (token CSS variables dari prototipe) + Clerk + TanStack Query + zod; tonggak M0 (scaffold) -> M1 landing+merek -> M2 auth+shell -> M3 dasbor+detail job ->
-M4 buat makalah -> M5 pengaturan+state khusus -> M6 hardening/e2e. Tugas backend kecil B1-B4 (ringkasan riwayat lebih kaya, posisi antrean, durasi per tahap, response model + ekspor OpenAPI)
-sebaiknya masuk sebelum M3. Hapus UI statis backend (B5) setelah web berjalan.
+**Tutup Fase 4:** uji dengan akun Clerk dev (isi `VITE_AUTH_MODE=clerk` + `VITE_CLERK_PUBLISHABLE_KEY`, backend `CLERK_ISSUER`), kerjakan B4 (OpenAPI -> `packages/api-types`) dan B5 (hapus UI statis backend + sesuaikan tes), tes komponen MSW bila perlu.
 
 Yang dibutuhkan dari pemilik (via env/secret, JANGAN di chat): Publishable key Clerk (+ akun dev) untuk uji login nyata; connection string Neon bila ingin verifikasi ke Neon asli.
 Tanpa itu, kerjakan dengan `AuthProvider` mode `dev` + MSW + backend lokal (mode anonim).
