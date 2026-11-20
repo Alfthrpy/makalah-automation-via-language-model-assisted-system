@@ -74,6 +74,7 @@ def main() -> int:
           f"abstrak {pct(tot['abs'], tot['refs'])} | PDF-OA {pct(tot['oa'], tot['refs'])}"
           + (f" | full-text {pct(tot['ft'], tot['refs'])}" if a.fulltext else "")
           + f" | total HTTP {client.calls} (cache {client.cache_hits})")
+    print("DIAGNOSTIK (hasil mentah per provider / galat HTTP):", dict(sorted(client.stats.items())))
     if a.json:
         Path(a.json).write_text(json.dumps(dump, ensure_ascii=False, indent=2, default=list), encoding="utf-8")
     return 0

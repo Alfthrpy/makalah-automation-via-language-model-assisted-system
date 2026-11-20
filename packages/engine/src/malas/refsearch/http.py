@@ -3,6 +3,7 @@ circuit breaker per host, dan cache disk (sqlite3 stdlib). Tidak pernah melempar
 bila gagal, mengembalikan None.
 """
 import hashlib
+from collections import Counter
 import json
 import random
 import sqlite3
@@ -52,6 +53,7 @@ class HttpClient:
         self._host_lock: Dict[str, threading.Lock] = {}
         self._next_ok: Dict[str, float] = {}
         self._fails: Dict[str, int] = {}
+        self.stats: Counter = Counter()  # diagnostik: '<provider>:raw', 'err:<host>:<status>'
         self.calls = 0  # request jaringan sungguhan (bukan cache), untuk pelaporan
         self.cache_hits = 0
         self._db = None
@@ -126,6 +128,8 @@ class HttpClient:
             except Exception:
                 r = None
             code = getattr(r, "status_code", 0)
+            if not (r is not None and 200 <= code < 300):
+                self.stats[f"err:{host}:{code or 'exc'}"] += 1
             if r is not None and 200 <= code < 300:
                 self._fails[host] = 0
                 self._cache_put(key, r.text)

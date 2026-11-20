@@ -1,4 +1,4 @@
-# (v2: probe tahan galat + waktu respons)
+# (v3: + diagnostik per provider)
 # Uji NYATA pencarian referensi (malas.refsearch) di runner ber-internet. Tanpa LLM, tanpa secret wajib.
 # Sementara: dipakai untuk membuktikan pendekatan baru; boleh dihapus setelah selesai.
 name: refsearch-probe

@@ -41,6 +41,7 @@ def _gather(http: HttpClient, sq: SectionQuery, provider_names: List[str], year_
             except Exception as e:
                 log.warning("provider %s gagal: %s", name, e.__class__.__name__)
                 found = []
+            http.stats[f"{name}:raw"] += len(found)
             for rank, c in enumerate(found):
                 c.ranks = [rank]
                 out.append(c)
@@ -128,4 +129,5 @@ def search_references(
             report["by_source"][s] += 1
     report["by_source"] = dict(report["by_source"])
     report["http_calls"], report["cache_hits"] = http.calls, http.cache_hits
+    report["diagnostik"] = dict(sorted(http.stats.items()))
     return refs, report
