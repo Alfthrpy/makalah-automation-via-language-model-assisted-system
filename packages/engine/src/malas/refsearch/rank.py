@@ -30,7 +30,7 @@ def _merge(into: Candidate, other: Candidate) -> None:
     """Gabungkan duplikat: simpan data terlengkap."""
     if len(other.abstract or "") > len(into.abstract or ""):
         into.abstract = other.abstract
-    for f in ("doi", "url", "venue", "language", "oa_pdf_url", "year"):
+    for f in ("doi", "url", "venue", "language", "oa_pdf_url", "year", "volume", "issue", "pages"):
         if not getattr(into, f) and getattr(other, f):
             setattr(into, f, getattr(other, f))
     if len(other.authors) > len(into.authors):

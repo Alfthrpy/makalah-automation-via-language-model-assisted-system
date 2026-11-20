@@ -134,6 +134,7 @@ def search_references(
             title=c.title, authors=[n for n in (normalize_author(x) for x in c.authors[:6]) if n], year=int(c.year or 0), link=c.url or (f"https://doi.org/{c.doi}" if c.doi else None),
             excerpt=(c.abstract[:900] if c.abstract else None), doi=c.doi, source="+".join(sorted(c.sources)),
             source_id=c.source_id, oa_pdf_url=c.oa_pdf_url, venue=c.venue, sections=list(c.sections),
+            volume=c.volume, issue=c.issue, pages=c.pages,
         ))
         for s in c.sources:
             report["by_source"][s] += 1

@@ -36,6 +36,9 @@ class Candidate:
     url: Optional[str] = None
     abstract: Optional[str] = None
     venue: Optional[str] = None
+    volume: Optional[str] = None  # metadata bibliografis untuk APA 7 (opsional; tidak semua sumber memberi)
+    issue: Optional[str] = None
+    pages: Optional[str] = None  # "36–52" (en dash) atau satu halaman
     language: Optional[str] = None
     cited_by: int = 0
     kind: str = "article"  # article | book | encyclopedia
