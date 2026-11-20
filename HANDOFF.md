@@ -191,7 +191,7 @@ Catatan: tes `test_ringkasan_riwayat_memuat_progres_dan_posisi_antrean` pernah f
 Semua kode dan konfigurasi selesai. Yang tersisa HANYA yang butuh akun/kredensial milik pemilik; kerjakan berurutan mengikuti `DEPLOY.md` dan verifikasi tiap langkah:
 1. Push ke GitHub dan lihat CI hijau (pertama kali dijalankan; perbaiki bila ada beda lingkungan). Perlu `main`/PR agar workflow berjalan.
 2. Neon (DATABASE_URL pooled + direct) -> uji migrasi + latensi cold-start + PgBouncer.
-3. Clerk dev instance -> uji `<SignIn/>`, format `iss`/`azp`, `getToken`, `openUserProfile`.
+3. Clerk: instance dev `moral-camel-3719` (publishable key publik; Frontend API `https://moral-camel-3719.clerk.accounts.dev`). SUDAH diuji dari sandbox: JWKS asli dimuat oleh `Authenticator` (1 kunci RS256, kid cocok; token kid-asli-tanda-tangan-palsu ditolak `InvalidSignatureError`, kid asing `PyJWKClientError`), `<SignIn/>` render di web mode Clerk dengan CSP dari `netlify.toml` (0 pelanggaran setelah menambah `font-src data:` dan `script-src https://cdn.protect.clerk.com`), teks sudah Indonesia (`@clerk/localizations` idID). BELUM: login sungguhan (butuh akun uji), `getToken` + `azp` pada token nyata, `openUserProfile`, avatar `img.clerk.com`/captcha (host itu tidak terjangkau dari sandbox), panggilan lanjutan skrip Clerk Protect. Isi `CLERK_ISSUER` HARUS sama dengan Frontend API URL di dashboard.
 4. HF Space (secret `HF_TOKEN`, variable `HF_SPACE`) -> jalankan workflow deploy; cek `/healthz`.
 5. Netlify: ganti `GANTI-SPACE.hf.space` di `netlify.toml`, isi `VITE_CLERK_PUBLISHABLE_KEY`; cek Console (pelanggaran CSP Clerk), header `Authorization`/`Host` lewat proxy.
 6. (Opsional) R2.

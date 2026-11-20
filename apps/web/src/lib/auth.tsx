@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { idID } from "@clerk/localizations";
 import { ClerkProvider, useAuth as useClerkAuth, useClerk, useUser } from "@clerk/clerk-react";
 import { setTokenGetter } from "./api";
 import { initials } from "./format";
@@ -68,7 +69,7 @@ function ClerkRoot({ children }: { children: ReactNode }) {
   return (
     <ClerkProvider publishableKey={CLERK_KEY} afterSignOutUrl="/" signInUrl="/masuk" signUpUrl="/daftar"
       routerPush={(to) => navigate(to)} routerReplace={(to) => navigate(to, { replace: true })}
-      signInFallbackRedirectUrl="/dasbor" signUpFallbackRedirectUrl="/dasbor" appearance={clerkAppearance(resolved)}>
+      signInFallbackRedirectUrl="/dasbor" signUpFallbackRedirectUrl="/dasbor" appearance={clerkAppearance(resolved)} localization={idID}>
       <ClerkBridge>{children}</ClerkBridge>
     </ClerkProvider>
   );

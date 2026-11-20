@@ -12,8 +12,7 @@ Browser ──> Netlify (apps/web, statis)
 ```
 
 > **Status uji (jujur):** image Docker, bundel Space, dan seluruh tes berjalan di sandbox pengembangan. Yang BELUM pernah dicoba
-> dengan layanan asli (tidak ada akun/kredensial di sandbox): Neon (latensi cold-start, PgBouncer), Clerk (format `iss`/`azp`
-> instance nyata, CSP), R2 (hanya diuji dengan klien S3 palsu), Netlify, dan HF Space. Ikuti bagian **Verifikasi** di tiap langkah.
+> dengan layanan asli (tidak ada akun/kredensial di sandbox): Neon (latensi cold-start, PgBouncer), Clerk (login sungguhan, `azp` pada token nyata; JWKS dan CSP halaman /masuk sudah dicek dengan instance dev), R2 (hanya diuji dengan klien S3 palsu), Netlify, dan HF Space. Ikuti bagian **Verifikasi** di tiap langkah.
 > Batas free tier semua layanan berubah-ubah: cek halaman harga masing-masing sebelum mengandalkannya.
 
 ## 0. Yang sudah ada di repo
