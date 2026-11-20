@@ -32,7 +32,7 @@ from lxml import etree
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "src"))
-from malas.template_check import DAFTAR_NUM_ID, V3_TEMPLATE_NAME  # noqa: E402
+from malas.template_check import DAFTAR_NUM_ID, V3_TEMPLATE_NAME
 
 TEMPLATES = HERE.parent / "src" / "malas" / "templates"
 W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
@@ -245,7 +245,7 @@ def build_document(xml: bytes, bab3_num_id: int) -> bytes:
     out += s[i_pb_dp:]  # page-break, DAFTAR PUSTAKA, loop referensi, sectPr akhir
 
     src = xml.decode("utf-8")
-    m = re.search(r"<w:body>.*</w:body>", src, re.S)
+    m = re.search(r"<w:body>.*</w:body>", src, re.DOTALL)
     if not m:
         raise BuildError("<w:body> tidak ditemukan.")
     new = src[:m.start()] + "<w:body>" + _drop_orphan_bookmarks("".join(out)) + "</w:body>" + src[m.end():]
@@ -260,7 +260,7 @@ def build_numbering(xml: bytes) -> tuple[bytes, int]:
         raise BuildError("numbering.xml sumber sudah memuat numId daftar v3.")
     abs_ids = [int(x) for x in re.findall(r'<w:abstractNum [^>]*w:abstractNumId="(\d+)"', src)]
     num_ids = [int(x) for x in re.findall(r'<w:num w:numId="(\d+)"', src)]
-    m27 = re.search(r'<w:abstractNum [^>]*w:abstractNumId="27".*?</w:abstractNum>', src, re.S)
+    m27 = re.search(r'<w:abstractNum [^>]*w:abstractNumId="27".*?</w:abstractNum>', src, re.DOTALL)
     if not m27 or "1.%1" not in m27.group(0):
         raise BuildError("abstractNum 27 (judul '1.%1') tidak ditemukan.")
     m5 = re.search(r'<w:num w:numId="4"[^>]*><w:abstractNumId w:val="(\d+)"/>', src)

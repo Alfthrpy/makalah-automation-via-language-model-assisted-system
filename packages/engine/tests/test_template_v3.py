@@ -7,16 +7,28 @@ from pathlib import Path
 import pytest
 from docx import Document
 from lxml import etree
-from PIL import Image
-
 from malas import docx_converter, paths
 from malas.crews.models.TaskOutput import (
-    Bab, ContentList, ContentTable, ContentText, Makalah, Penyusun, ReferenceItem, SubBab,
+    Bab,
+    ContentList,
+    ContentTable,
+    ContentText,
+    Makalah,
+    Penyusun,
+    ReferenceItem,
+    SubBab,
 )
 from malas.docx_converter import DocxConverter, infer_kind, normalize_for_template
 from malas.template_check import (
-    DAFTAR_NUM_ID, MODE_GENERIC, MODE_INDEXED, RULE_ID, V3_TEMPLATE_NAME, check_template, detect_template_mode,
+    DAFTAR_NUM_ID,
+    MODE_GENERIC,
+    MODE_INDEXED,
+    RULE_ID,
+    V3_TEMPLATE_NAME,
+    check_template,
+    detect_template_mode,
 )
+from PIL import Image
 
 V3 = paths.TEMPLATES_DIR / V3_TEMPLATE_NAME
 OLD = paths.TEMPLATES_DIR / "template makalah.docx"
@@ -119,7 +131,7 @@ def test_daftar_bernomor_mulai_ulang_per_sub_bab(tmp_path):
     numbering = _part(out, "word/numbering.xml").decode()
     abstract_rm = re.search(rf'<w:num w:numId="{DAFTAR_NUM_ID}"[^>]*><w:abstractNumId w:val="(\d+)"', numbering)[1]
     for i in ids:
-        m = re.search(rf'<w:num w:numId="{i}"[^>]*>(.*?)</w:num>', numbering, re.S)
+        m = re.search(rf'<w:num w:numId="{i}"[^>]*>(.*?)</w:num>', numbering, re.DOTALL)
         assert m and f'<w:abstractNumId w:val="{abstract_rm}"/>' in m[1] and '<w:startOverride w:val="1"/>' in m[1]
     # Bab II tidak ditebak jadi daftar walau judulnya diawali "Tujuan"
     i22 = teks.index("Isi narasi 2.2.")

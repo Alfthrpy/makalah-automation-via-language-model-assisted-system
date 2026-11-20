@@ -6,7 +6,6 @@ menerima ringkasan ekstraktif yang lebih pendek (±300-700 token) tetapi mencaku
 struktur, rumusan masalah, "ledger" (kalimat pertama + angka yang sudah dipakai) dan, untuk Kesimpulan, ringkasan Bab II.
 """
 import re
-from typing import Dict, List
 
 from malas.citations import content_text
 from malas.crews.models.TaskOutput import ContentList, ContentText, Makalah, SubBab
@@ -17,11 +16,11 @@ DIGEST_CHARS = 1600  # ±400 token
 _SENT = re.compile(r"(?<=[.!?])\s+(?=[A-ZÀ-Ý\"“(])")
 _FACT = re.compile(
     r"F\(\d+,\s*\d+\)\s*=\s*[\d,.]+|\bp\s*[=<]\s*0[,.]\d+|η²?\s*=\s*[\d,.]+|\bn\s*=\s*\d+|"
-    r"\b\d+(?:[,.]\d+)?\s*%|\b\d+\s+(?:siswa|mahasiswa|responden|peserta|guru)\b", re.I)
+    r"\b\d+(?:[,.]\d+)?\s*%|\b\d+\s+(?:siswa|mahasiswa|responden|peserta|guru)\b", re.IGNORECASE)
 _MARKER = re.compile(r"^\s*(?:[-*•]|\d+[.)]|[a-zA-Z][.)])\s+")
 
 
-def sentences(text: str) -> List[str]:
+def sentences(text: str) -> list[str]:
     return [s.strip() for s in _SENT.split(" ".join(text.split())) if s.strip()]
 
 
@@ -29,8 +28,8 @@ def _clip(s: str, n: int) -> str:
     return s if len(s) <= n else s[: n - 1].rstrip() + "…"
 
 
-def facts_of(text: str) -> List[str]:
-    seen: List[str] = []
+def facts_of(text: str) -> list[str]:
+    seen: list[str] = []
     for m in _FACT.finditer(text):
         f = " ".join(m.group(0).split())
         if f.lower() not in (x.lower() for x in seen):
@@ -38,9 +37,9 @@ def facts_of(text: str) -> List[str]:
     return seen
 
 
-def rq_items(sub: SubBab) -> List[str]:
+def rq_items(sub: SubBab) -> list[str]:
     """Butir rumusan masalah dari sub-bab 'Rumusan Masalah' (list, atau teks bermarker)."""
-    items: List[str] = []
+    items: list[str] = []
     for c in sub.content:
         if isinstance(c, ContentList):
             items += [i.strip() for i in c.items if i.strip()]
@@ -55,7 +54,7 @@ def _is_rm(judul: str) -> bool:
     return "rumusan masalah" in judul.lower()
 
 
-def research_questions(state: Makalah) -> List[str]:
+def research_questions(state: Makalah) -> list[str]:
     """RM final: dari sub-bab yang sudah ditulis; bila belum, dari blueprint (kerangka)."""
     for bab in state.bab.values():
         for sb in bab.subbab:
@@ -66,7 +65,7 @@ def research_questions(state: Makalah) -> List[str]:
     return list(state.blueprint.research_questions[:5]) if state.blueprint else []
 
 
-def _ledger(done: List[SubBab]) -> List[str]:
+def _ledger(done: list[SubBab]) -> list[str]:
     if not done:
         return []
     per = max(90, LEDGER_CHARS // len(done))
@@ -81,7 +80,7 @@ def _ledger(done: List[SubBab]) -> List[str]:
     return lines
 
 
-def _digest(bab2: List[SubBab]) -> List[str]:
+def _digest(bab2: list[SubBab]) -> list[str]:
     if not bab2:
         return []
     per = max(160, DIGEST_CHARS // len(bab2))
@@ -135,7 +134,7 @@ def scope_text(state: Makalah) -> str:
         "tidak ditentukan; ikuti populasi pada bukti referensi dan JANGAN menyebut populasi/subjek yang tidak ada di bukti")
 
 
-def one_line_refs(refs: List[Dict]) -> List[Dict]:
+def one_line_refs(refs: list[dict]) -> list[dict]:
     """Referensi cadangan (sub-bab tanpa referensi sendiri): 1 baris per sumber, tanpa kutipan full-text."""
     out = []
     for r in refs:

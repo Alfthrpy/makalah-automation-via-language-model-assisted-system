@@ -1,7 +1,13 @@
 from malas.citations import content_text
 from malas.crews.models.TaskOutput import Bab, ContentList, ContentText, Makalah, SubBab
 from malas.enhance.context import (
-    build_context, facts_of, one_line_refs, render_context, research_questions, scope_text, sentences,
+    build_context,
+    facts_of,
+    one_line_refs,
+    render_context,
+    research_questions,
+    scope_text,
+    sentences,
 )
 
 STAT = "Hasilnya F(1,67) = 8,52 dengan p = 0,005 pada 70 siswa. Peningkatan terbesar terjadi pada dimensi pencapaian."

@@ -9,7 +9,6 @@ from __future__ import annotations
 import re
 import zipfile
 from pathlib import Path
-from typing import List, Optional
 
 from lxml import etree
 
@@ -36,7 +35,7 @@ _GENERIC_III = re.compile(r"\bfor\s+sub\s+in\s+bab\.III\.subbab\s")
 _NAMES_LOOP = re.compile(r"\bfor\s+\w+\s+in\s+penyusun\b")
 
 
-def _read(path: str | Path, part: str) -> Optional[bytes]:
+def _read(path: str | Path, part: str) -> bytes | None:
     with zipfile.ZipFile(path) as z:
         try:
             return z.read(part)
@@ -88,7 +87,7 @@ def _page_break_before(paras: list, idx: int) -> bool:
     return False
 
 
-def check_template(path: str | Path) -> List[Finding]:
+def check_template(path: str | Path) -> list[Finding]:
     """Periksa cacat template yang diketahui (RC-09). Daftar kosong = tidak ada temuan dari aturan ini."""
     try:
         doc_xml = _read(path, "word/document.xml")
@@ -99,7 +98,7 @@ def check_template(path: str | Path) -> List[Finding]:
     if root is None:
         return [_finding("blocker", "Template tidak memuat word/document.xml.")]
 
-    out: List[Finding] = []
+    out: list[Finding] = []
     body = root.find("w:body", NS)
     paras = body.xpath(".//w:p", namespaces=NS) if body is not None else []
     texts = [_para_text(p) for p in paras]
