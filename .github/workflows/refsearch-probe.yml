@@ -1,3 +1,4 @@
+# (v2: probe tahan galat + waktu respons)
 # Uji NYATA pencarian referensi (malas.refsearch) di runner ber-internet. Tanpa LLM, tanpa secret wajib.
 # Sementara: dipakai untuk membuktikan pendekatan baru; boleh dihapus setelah selesai.
 name: refsearch-probe
@@ -26,6 +27,7 @@ jobs:
           python-version: "3.12"
       - run: pip install pydantic requests python-dotenv pypdf trafilatura pyyaml
       - name: Status tiap API (tanpa key)
+        shell: bash {0}  # tanpa -e: satu API gagal tidak menghentikan sisanya
         run: |
           for u in \
             "https://api.openalex.org/works?search=machine+learning&per-page=1&select=id,title" \
@@ -35,8 +37,8 @@ jobs:
             "https://doaj.org/api/search/articles/pendidikan?pageSize=1" \
             "https://id.wikipedia.org/w/api.php?action=query&format=json&list=search&srsearch=majapahit&srlimit=1" \
             "https://openlibrary.org/search.json?q=majapahit&limit=1&fields=key,title"; do
-            code=$(curl -s -o /tmp/r.txt -w "%{http_code}" -A "malas-refsearch-probe/0.1" -m 20 "$u")
-            echo "== $code  $u"; head -c 300 /tmp/r.txt; echo
+            out=$(curl -s -o /tmp/r.txt -w "%{http_code} %{time_total}s" -A "malas-refsearch-probe/0.1" -m 40 "$u" || true)
+            echo "== ${out:-timeout/err}  $u"; head -c 200 /tmp/r.txt 2>/dev/null; echo; rm -f /tmp/r.txt
           done
       - name: Uji refsearch (8 topik, full-text)
         run: python -m malas.refsearch --fulltext --no-cache --json hasil.json
