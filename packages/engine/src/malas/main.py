@@ -369,16 +369,16 @@ class MalasFlow(Flow[Makalah]):
         """Cek sitasi in-text vs daftar pustaka; perbaiki sub-bab bermasalah (1x), buang pustaka tak terpakai."""
         with self._stage("sitasi"):
             report = check_citations(self.state)
-            awal = len(report.invalid)
-            print(f"\n🔎 Sitasi ditemukan: {report.total_citations}; sub-bab dengan sitasi tidak sah: {awal}")
+            awal = len(report.problems)  # tidak sah + mencurigakan (tak terurai), per sub-bab
+            print(f"\n🔎 Sitasi ditemukan: {report.total_citations}; sub-bab dengan sitasi bermasalah: {awal}")
 
-            if report.invalid:
+            if report.problems:
                 refs = [
                     {"sitasi": citation_label(r), "title": r.title, "authors": r.authors, "year": r.year}
                     for r in self.state.daftar_pustaka
                 ]
                 subbab_by_title = {sb.judul: sb for bab in self.state.bab.values() for sb in bab.subbab}
-                for judul, tidak_valid in report.invalid.items():
+                for judul, tidak_valid in report.problems.items():
                     print(f"🛠️  Memperbaiki sitasi di {judul}: {tidak_valid}")
                     self._emit("sitasi", "info", f"memperbaiki sitasi di {judul}")
                     perbaikan = run_citation_fix({
@@ -392,21 +392,25 @@ class MalasFlow(Flow[Makalah]):
                         subbab_by_title[judul].content = perbaikan.content
 
                 report = check_citations(self.state)
-                for judul, tidak_valid in report.invalid.items():
-                    print(f"⚠️  Masih ada sitasi tidak sah di {judul}: {tidak_valid} (periksa manual)")
+                for judul, tidak_valid in report.problems.items():
+                    print(f"⚠️  Masih ada sitasi bermasalah di {judul}: {tidak_valid} (periksa manual)")
 
             dibuang = prune_unused_references(self.state, report)
             if dibuang:
-                print(f"🧹 {dibuang} referensi tidak dikutip dibuang dari daftar pustaka.")
+                print(f"🧹 {dibuang} referensi tidak dikutip dibuang dari daftar pustaka: {report.pruned_titles}")
+            elif report.suspect:
+                print("⚠️  Ada sitasi yang tidak bisa diurai; daftar pustaka TIDAK dipangkas agar sumbernya tidak hilang.")
             self.stats.update(
                 citations_total=report.total_citations,
                 citations_invalid_before=awal,
                 citations_invalid_after=len(report.invalid),
+                citations_suspect=sum(len(v) for v in report.suspect.values()),
                 refs_final=len(self.state.daftar_pustaka),
                 refs_pruned=dibuang,
+                refs_pruned_titles=list(report.pruned_titles),
             )
             self._emit("sitasi", "info",
-                       f"{report.total_citations} sitasi · {len(report.invalid)} sub-bab masih bermasalah · "
+                       f"{report.total_citations} sitasi · {len(report.problems)} sub-bab masih bermasalah · "
                        f"{dibuang} referensi tak terpakai dibuang")
 
     @listen(verify_citations)

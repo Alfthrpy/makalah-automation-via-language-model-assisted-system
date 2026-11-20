@@ -115,8 +115,9 @@ class Crossref:
                 continue
             doi = normalize_doi(it.get("DOI"))
             parts = ((it.get("issued") or {}).get("date-parts") or [[None]])[0]
-            authors = [" ".join(x for x in (a.get("given"), a.get("family")) if x) or (a.get("name") or "")
-                       for a in it.get("author", [])][:8]
+            authors = [(f'{a["family"]}, {a["given"]}' if a.get("family") and a.get("given")
+                        else (a.get("family") or a.get("given") or a.get("name") or ""))
+                       for a in it.get("author", [])][:8]  # "Family, Given": informasi keluarga tidak hilang (names.py)
             out.append(Candidate(
                 source=self.name, source_id=doi or "", title=clean_text(titles[0]) or "",
                 authors=[a for a in authors if a], year=_year(parts[0] if parts else None), doi=doi,

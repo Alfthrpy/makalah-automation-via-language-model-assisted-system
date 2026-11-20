@@ -8,6 +8,7 @@ from typing import Callable, Dict, List, Optional, Tuple
 
 from malas.config import is_mock
 from malas.crews.models.TaskOutput import ReferenceItem
+from malas.names import normalize_author
 from malas.refsearch.http import HttpClient
 from malas.refsearch.models import Candidate, SectionQuery
 from malas.refsearch.providers import FALLBACK_PROVIDERS, PROVIDERS, providers_for
@@ -130,7 +131,7 @@ def search_references(
     for key in order:
         c = chosen[key]
         refs.append(ReferenceItem(
-            title=c.title, authors=c.authors[:6], year=int(c.year or 0), link=c.url or (f"https://doi.org/{c.doi}" if c.doi else None),
+            title=c.title, authors=[n for n in (normalize_author(x) for x in c.authors[:6]) if n], year=int(c.year or 0), link=c.url or (f"https://doi.org/{c.doi}" if c.doi else None),
             excerpt=(c.abstract[:900] if c.abstract else None), doi=c.doi, source="+".join(sorted(c.sources)),
             source_id=c.source_id, oa_pdf_url=c.oa_pdf_url, venue=c.venue, sections=list(c.sections),
         ))

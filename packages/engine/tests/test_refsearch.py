@@ -131,7 +131,7 @@ def test_crossref_parse():
         "abstract": "<jats:p>Abstract Kajian hukum pidana.</jats:p>", "is-referenced-by-count": 3, "language": "id"},
         {"DOI": "10.1001/no-title", "title": []}]}}
     out = Crossref().search(client([("crossref", Resp(200, body))]), "hukum pidana", "id", 5, 2015)
-    assert len(out) == 1 and out[0].title == "Hukum Pidana Baru di Indonesia" and out[0].authors == ["Budi Santoso"]
+    assert len(out) == 1 and out[0].title == "Hukum Pidana Baru di Indonesia" and out[0].authors == ["Santoso, Budi"]  # "Family, Given": keluarga tak hilang
     assert out[0].abstract == "Kajian hukum pidana." and out[0].year == 2023 and out[0].url == "https://doi.org/10.5555/xy"
 
 
