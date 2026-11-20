@@ -1,0 +1,10 @@
+{
+ "wav_samples": 1473600,
+ "aac_samples": 1474560,
+ "length_diff_ms": 20.0,
+ "wav_clipped_samples": 0,
+ "aac_clipped_samples": 0,
+ "wav_peak": 0.8629040718078613,
+ "aac_peak": 0.8710914254188538,
+ "aac_vs_wav_offset_ms": 0.0
+}

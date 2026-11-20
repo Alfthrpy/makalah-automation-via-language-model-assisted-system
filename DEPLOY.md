@@ -15,6 +15,8 @@ Browser ──> Netlify (apps/web, statis)
 > dengan layanan asli (tidak ada akun/kredensial di sandbox): Neon (latensi cold-start, PgBouncer), Clerk (login sungguhan, `azp` pada token nyata; JWKS dan CSP halaman /masuk sudah dicek dengan instance dev), R2 (hanya diuji dengan klien S3 palsu), Netlify, dan HF Space. Ikuti bagian **Verifikasi** di tiap langkah.
 > Batas free tier semua layanan berubah-ubah: cek halaman harga masing-masing sebelum mengandalkannya.
 
+> Daftar tugas menuju peluncuran publik dan cara deploy ulang: **`docs/LAUNCH-CHECKLIST.md`**. Skrip deploy: `deploy/netlify/deploy.py` (web) dan `deploy/hf-space/push.py` (backend).
+
 ## 0. Yang sudah ada di repo
 
 | Berkas | Fungsi |

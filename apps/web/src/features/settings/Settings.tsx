@@ -10,7 +10,7 @@ import { useAuthState } from "../../lib/auth";
 import { dateTimeLabel } from "../../lib/format";
 import { useConfig, useDeleteKey, useKeys } from "../../lib/queries";
 import { useNavigate } from "react-router";
-import { useClerk } from "@clerk/clerk-react";
+import { useClerk } from "@clerk/react";
 
 const S = t.settings;
 

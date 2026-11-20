@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /dasbor
+Disallow: /buat
+Disallow: /job/
+Disallow: /pengaturan
+Sitemap: https://malas-app.netlify.app/sitemap.xml

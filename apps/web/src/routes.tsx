@@ -33,8 +33,8 @@ export function AppRoutes() {
           <Route path="/" element={<Landing />} />
           <Route path="/masuk/*" element={<AuthPage mode="masuk" />} />
           <Route path="/daftar/*" element={<AuthPage mode="daftar" />} />
-          <Route path="/ketentuan" element={<Legal title="Ketentuan Layanan" />} />
-          <Route path="/privasi" element={<Legal title="Kebijakan Privasi" />} />
+          <Route path="/ketentuan" element={<Legal doc="terms" />} />
+          <Route path="/privasi" element={<Legal doc="privacy" />} />
         </Route>
         <Route element={<RequireAuth />}>
           <Route element={<AppLayout />}>
