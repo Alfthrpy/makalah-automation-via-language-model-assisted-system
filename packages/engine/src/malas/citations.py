@@ -98,6 +98,12 @@ def _surname_display(author: str) -> str:
 
 def _ref_keys(ref: ReferenceItem) -> Set[tuple]:
     keys = {(_surname(a), ref.year) for a in ref.authors if a.strip()}
+    for a in ref.authors:
+        if a.strip() and is_institution(a):
+            # in-text "(Kementerian Pendidikan dan Kebudayaan, 2023)" dipotong di "dan" oleh extract_citations
+            seg = re.split(r"\s+(?:dan|&|and)\s+|\s+(?:et al\.|dkk\.)", a.strip())[0].split()
+            if seg:
+                keys.add((_norm(seg[-1]), ref.year))
     if not ref.authors:  # sumber tanpa penulis: sitasi memakai judul
         keys.add((_norm(ref.title.split(":")[0].split()[0] if ref.title.split() else ""), ref.year))
     return keys

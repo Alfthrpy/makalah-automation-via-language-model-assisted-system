@@ -105,7 +105,7 @@ def format_apa7(ref):
         last_name = parts[-1]
         # Membuat inisial dari nama depan/tengah; "JA" (inisial kapital dari sumber) -> "J. A."
         initials = " ".join(
-            f"{ch}." for p in parts[:-1] for ch in (p if p.isupper() and len(p) <= 3 else p[0])
+            f"{ch}." for p in parts[:-1] for ch in (p if p.isalpha() and p.isupper() and len(p) <= 3 else p[0])
         )
         formatted_authors.append(f"{last_name}, {initials}")
 

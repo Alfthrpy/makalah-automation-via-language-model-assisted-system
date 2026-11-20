@@ -18,7 +18,7 @@ _BAD_TITLE = re.compile(r"^(?:table of contents|front matter|back matter|cover|e
 def norm_title(t: str) -> str:
     t = unicodedata.normalize("NFKD", t or "")
     t = "".join(c for c in t if not unicodedata.combining(c))
-    return re.sub(r"[^a-z0-9]", "", t.lower())
+    return re.sub(r"[\W_]+", "", t.casefold())  # huruf non-Latin (Arab, dll) tetap terhitung
 
 
 def ckey(c: Candidate) -> str:
@@ -55,17 +55,22 @@ def dedupe(cands: Iterable[Candidate], pool: Optional[Dict[str, Candidate]] = No
         if not nt:
             continue
         hit = pool.get(f"doi:{c.doi}") if c.doi else None
+        def _beda_doi(h: Candidate) -> bool:
+            return bool(h.doi and c.doi and h.doi != c.doi)  # DOI berbeda = paper berbeda, apa pun judulnya
+
+        def _tahun_ok(h: Candidate) -> bool:
+            return not h.year or not c.year or abs(h.year - c.year) <= 1
+
         if hit is None:
-            for k in (f"t:{nt}",):
-                h = pool.get(k)
-                if h and (not h.year or not c.year or abs(h.year - c.year) <= 1):
-                    hit = h
-                    break
+            h = pool.get(f"t:{nt}")
+            if h and _tahun_ok(h) and not _beda_doi(h):
+                hit = h
         if hit is None and len(nt) > 25:  # kemiripan hanya untuk judul cukup panjang (hindari salah gabung)
             for h in {id(v): v for v in pool.values()}.values():
                 nh = norm_title(h.title)
                 same_nums = re.findall(r"\d+", nh) == re.findall(r"\d+", nt)  # "Bagian 1" != "Bagian 2"
-                if same_nums and abs(len(nh) - len(nt)) < 8 and difflib.SequenceMatcher(None, nh, nt).ratio() > 0.93:
+                if (same_nums and _tahun_ok(h) and not _beda_doi(h) and abs(len(nh) - len(nt)) < 8
+                        and difflib.SequenceMatcher(None, nh, nt).ratio() > 0.93):
                     hit = h
                     break
         if hit is not None:

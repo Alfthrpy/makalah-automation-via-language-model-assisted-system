@@ -17,7 +17,8 @@ _ID_HINT = re.compile(r"\b(dan|yang|di|untuk|pada|dalam|terhadap|dengan|oleh|seb
 
 
 def strip_number(section: str) -> str:
-    return re.sub(r"^\s*(?:bab\s+)?[\dIVX]+(?:\.\d+)*[.)]?\s*", "", section, flags=re.I).strip()
+    # angka ("2.1") atau romawi BERTANDA BACA ("II." / "IV)"); jangan memotong kata biasa ("Implementasi")
+    return re.sub(r"^\s*(?i:bab\s+)?(?:\d+(?:\.\d+)*[.)]?|[IVX]+[.)])\s*", "", section).strip()
 
 
 def heuristic_plan(judul: str, sections: List[str]) -> List[SectionQuery]:

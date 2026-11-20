@@ -7,9 +7,13 @@ Alur:  link referensi -> URL PDF open-access -> teks (cache di disk) -> potongan
 """
 import hashlib
 import io
+import ipaddress
 import math
 import os
 import re
+import socket
+import time
+from urllib.parse import quote, urljoin, urlparse
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
@@ -56,7 +60,7 @@ def resolve_pdf_url(
     if not doi and "doi.org/" in link:
         doi = link.split("doi.org/", 1)[1]
     if doi and email:
-        data = get_json(f"https://api.unpaywall.org/v2/{doi}?email={email}") or {}
+        data = get_json(f"https://api.unpaywall.org/v2/{quote(doi, safe='/')}?email={quote(email)}") or {}
         pdf = (data.get("best_oa_location") or {}).get("url_for_pdf")
         if pdf:
             return "pdf", pdf
@@ -88,8 +92,60 @@ def find_meta_pdf(page_html: str) -> Optional[str]:
     return re.sub(r"/article/view/(\d+)/(\d+)", r"/article/download/\1/\2", m.group(1).strip())
 
 
-def _default_get(url: str, **kw) -> requests.Response:
-    return requests.get(url, headers=_UA, timeout=20, **kw)
+MAX_REDIRECTS = 5
+READ_DEADLINE = 40.0  # detik total untuk membaca satu body (timeout requests hanya per-baca)
+
+
+class _Resp:
+    """Respons minimal yang kompatibel dengan pemakaian di modul ini (ok, content, text, json)."""
+
+    def __init__(self, status: int = 0, content: bytes = b"", encoding: str = "utf-8"):
+        self.status_code, self.content, self._enc = status, content, encoding or "utf-8"
+
+    @property
+    def ok(self) -> bool:
+        return 200 <= self.status_code < 400
+
+    @property
+    def text(self) -> str:
+        return self.content.decode(self._enc, "replace")
+
+    def json(self):
+        import json
+
+        return json.loads(self.text)
+
+
+def _public_host(host: str) -> bool:
+    """True bila SEMUA alamat host publik (bukan loopback/privat/link-local/metadata). Gagal resolve = False."""
+    try:
+        infos = socket.getaddrinfo(host, None)
+        return bool(infos) and all(ipaddress.ip_address(i[4][0]).is_global for i in infos)
+    except (OSError, ValueError):
+        return False
+
+
+def _default_get(url: str, **kw) -> "_Resp":
+    """GET aman untuk URL dari pihak ketiga: hanya http(s), host publik di tiap redirect, batas ukuran & waktu."""
+    for _ in range(MAX_REDIRECTS + 1):
+        p = urlparse(url)
+        if p.scheme not in ("http", "https") or not p.hostname or not _public_host(p.hostname):
+            return _Resp()
+        r = requests.get(url, headers=_UA, timeout=20, stream=True, allow_redirects=False, **kw)
+        try:
+            loc = r.headers.get("Location")
+            if r.status_code in (301, 302, 303, 307, 308) and loc:
+                url = urljoin(url, loc)
+                continue
+            buf, start = bytearray(), time.monotonic()
+            for chunk in r.iter_content(65536):
+                buf += chunk
+                if len(buf) > MAX_PDF_BYTES or time.monotonic() - start > READ_DEADLINE:
+                    return _Resp()  # terlalu besar / terlalu lambat: anggap gagal
+            return _Resp(r.status_code, bytes(buf), r.encoding or "utf-8")
+        finally:
+            r.close()
+    return _Resp()
 
 
 # --------------------------------------------------------------------------- ekstraksi teks

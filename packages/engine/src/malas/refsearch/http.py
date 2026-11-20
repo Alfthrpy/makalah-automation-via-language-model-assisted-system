@@ -33,6 +33,14 @@ _SECRET_PARAMS = {"api_key", "mailto", "email"}  # tidak ikut kunci cache
 MAX_BODY = 2_000_000
 
 
+def _is_json(text: str) -> bool:
+    try:
+        json.loads(text)
+        return True
+    except ValueError:
+        return False
+
+
 class HttpClient:
     def __init__(
         self,
@@ -67,6 +75,10 @@ class HttpClient:
                 self._db.commit()
             except (OSError, sqlite3.Error):
                 self._db = None
+
+    def bump(self, key: str, n: int = 1) -> None:
+        with self._lock:
+            self.stats[key] += n
 
     # ------------------------------------------------------------------ cache
     def _key(self, url: str, params: Optional[dict]) -> str:
@@ -113,7 +125,8 @@ class HttpClient:
         return self._fails.get(host, 0) >= self._breaker_after
 
     # ------------------------------------------------------------------ inti
-    def get_text(self, url: str, params: Optional[dict] = None, headers: Optional[dict] = None) -> Optional[str]:
+    def get_text(self, url: str, params: Optional[dict] = None, headers: Optional[dict] = None,
+                 validate: Optional[Callable[[str], bool]] = None) -> Optional[str]:
         host = urlparse(url).netloc
         key = self._key(url, params)
         cached = self._cache_get(key)
@@ -126,7 +139,8 @@ class HttpClient:
         hdrs.update(headers or {})
         for attempt in range(self.retries):
             self._throttle(host)
-            self.calls += 1
+            with self._lock:
+                self.calls += 1
             try:
                 r = self.session.get(url, params=params, headers=hdrs,
                                      timeout=(self.timeout[0], READ_TIMEOUT.get(host, self.timeout[1])))
@@ -134,10 +148,11 @@ class HttpClient:
                 r = None
             code = getattr(r, "status_code", 0)
             if not (r is not None and 200 <= code < 300):
-                self.stats[f"err:{host}:{code or 'exc'}"] += 1
+                self.bump(f"err:{host}:{code or 'exc'}")
             if r is not None and 200 <= code < 300:
                 self._fails[host] = 0
-                self._cache_put(key, r.text)
+                if validate is None or validate(r.text):  # halaman maintenance / body rusak tidak di-cache 14 hari
+                    self._cache_put(key, r.text)
                 return r.text
             if r is not None and code in (400, 401, 403, 404, 422):
                 if code in (401, 403):  # key salah / diblokir: percuma diulang
@@ -157,7 +172,7 @@ class HttpClient:
         return None
 
     def get_json(self, url: str, params: Optional[dict] = None, headers: Optional[dict] = None) -> Optional[dict]:
-        text = self.get_text(url, params, headers)
+        text = self.get_text(url, params, headers, validate=_is_json)
         if text is None:
             return None
         try:

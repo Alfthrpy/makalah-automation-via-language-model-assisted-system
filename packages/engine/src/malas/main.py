@@ -161,6 +161,10 @@ class MalasFlow(Flow[Makalah]):
                 print("♻️ Melanjutkan dari checkpoint.")
                 self._emit("outline", "info",
                            f"memakai hasil sebelumnya ({m['done']}/{m['total']} sub-bab sudah ditulis)")
+                if refsearch.enabled() and not self.state.daftar_pustaka and m["done"] == 0:
+                    self.state.daftar_pustaka = self._search_refs()  # pencarian sebelumnya kosong; ulangi tanpa mengulang outline
+                    self.stats["refs_found"] = len(self.state.daftar_pustaka)
+                    self._save_checkpoint()
                 return
             use_refsearch = refsearch.enabled()
             if use_refsearch:
@@ -243,6 +247,8 @@ class MalasFlow(Flow[Makalah]):
         self.stats["refsearch_http_calls"] = report.get("http_calls", 0)
         for s in report.get("sections_without_refs", []):
             print(f"⚠️  Tidak ada referensi ditemukan untuk: {s}")
+        if not refs:
+            self._emit("outline", "info", "tidak ada referensi ditemukan; sub-bab ditulis tanpa sitasi")
         return refs
 
     def _references_for(self, subbab_judul: str) -> list[dict]:
@@ -301,7 +307,7 @@ class MalasFlow(Flow[Makalah]):
     def fetch_fulltexts(self):
         """Unduh full-text referensi open-access (tanpa LLM). Gagal = lanjut hanya dengan abstrak."""
         self.fulltext = FullTextStore()
-        if os.getenv("MALAS_FULLTEXT", "1") == "0":
+        if os.getenv("MALAS_FULLTEXT", "1") == "0" or (is_mock() and refsearch.enabled()):  # mock: tanpa jaringan
             print("⏭️  Full-text referensi dimatikan (MALAS_FULLTEXT=0).")
             self._emit("fulltext", "skipped", "dimatikan (MALAS_FULLTEXT=0)")
             return

@@ -3,7 +3,7 @@ import logging
 import os
 import time
 from collections import Counter
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, wait
 from typing import Callable, Dict, List, Optional, Tuple
 
 from malas.config import is_mock
@@ -42,7 +42,7 @@ def _gather(http: HttpClient, sq: SectionQuery, provider_names: List[str], year_
             except Exception as e:
                 log.warning("provider %s gagal: %s", name, e.__class__.__name__)
                 found = []
-            http.stats[f"{name}:raw"] += len(found)
+            http.bump(f"{name}:raw", len(found))
             for rank, c in enumerate(found):
                 c.ranks = [rank]
                 out.append(c)
@@ -56,7 +56,7 @@ def _search_section(http: HttpClient, sq: SectionQuery, judul: str, year_min: in
 
     def absorb(cands: List[Candidate], yr: int, overlap: Optional[int] = None) -> None:
         nonlocal good
-        merged = dedupe(good + [c for c in cands if is_valid(c, yr)])
+        merged = dedupe(good + [c for c in cands if is_valid(c, yr) and (c.url or c.doi)])  # tanpa tautan = tak bisa dikutip
         good = score(merged, sq, min_overlap=overlap)
 
     absorb(_gather(http, sq, names, year_min), year_min)
@@ -83,22 +83,27 @@ def search_references(
     max_reuse: int = 2,
     workers: int = 4,
     rerank: Optional[Callable[[str], str]] = None,
+    deadline: Optional[float] = None,
 ) -> Tuple[List[ReferenceItem], Dict]:
     """Kembalikan (referensi, laporan). Tidak pernah raise: kasus terburuk -> ([], laporan kosong)."""
     year_min = year_min or default_year_min()
     report: Dict = {"per_section": {}, "by_source": Counter(), "sections_without_refs": []}
+    deadline = deadline if deadline is not None else float(_env_int("MALAS_REFSEARCH_TIMEOUT", 150))
+    pool = ThreadPoolExecutor(max_workers=workers)
     try:
-        with ThreadPoolExecutor(max_workers=workers) as pool:
-            futs = [pool.submit(_search_section, http, sq, judul, year_min, k,
-                                ["fixture"] if is_mock() else providers_for(sq.bidang, sq.indo)) for sq in plan]
-            ranked: List[List[Candidate]] = []
-            for f in futs:
-                try:
-                    ranked.append(f.result(timeout=120))
-                except Exception:
-                    ranked.append([])
+        futs = [pool.submit(_search_section, http, sq, judul, year_min, k,
+                            ["fixture"] if is_mock() else providers_for(sq.bidang, sq.indo)) for sq in plan]
+        done, _ = wait(futs, timeout=deadline)  # tenggat GLOBAL: yang belum selesai ditinggalkan, sisanya tetap dipakai
+        ranked: List[List[Candidate]] = []
+        for f in futs:
+            try:
+                ranked.append(f.result() if f in done else [])
+            except Exception:
+                ranked.append([])
     except Exception:
         return [], report
+    finally:
+        pool.shutdown(wait=False, cancel_futures=True)
 
     used: Counter = Counter()
     chosen: Dict[str, Candidate] = {}

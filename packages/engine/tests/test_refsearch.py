@@ -141,7 +141,7 @@ def test_europepmc_parse_nama_dibalik():
         "authorString": "Smith JA, Lee K.", "pubYear": "2021", "journalTitle": "Phys Ther", "abstractText": "<h4>Background</h4>text",
         "citedByCount": 7, "fullTextUrlList": {"fullTextUrl": [{"documentStyle": "pdf", "availability": "Free", "url": "https://e.org/x.pdf"}]}}]}}
     out = EuropePMC().search(client([("europepmc", Resp(200, body))]), "stroke", "en", 5, 2015)
-    assert out[0].authors == ["JA Smith", "K Lee"] or out[0].authors[0].split()[-1] == "Smith"
+    assert out[0].authors == ["JA Smith", "K Lee"]
     assert out[0].oa_pdf_url == "https://e.org/x.pdf" and out[0].year == 2021
 
 
@@ -455,3 +455,140 @@ def test_search_references_dengan_rerank_memakai_pilihan_llm_tanpa_mengarang():
                                 rerank=lambda p: (prompts.append(p), '{"ids": ["c5", "c6"]}')[1])
     assert len(prompts) == 1 and "2.1 Landasan Teori" in prompts[0]
     assert len(refs) == 2 and all(r.doi and r.doi.startswith("10.1001/t") for r in refs)  # DOI dari API, bukan LLM
+
+
+# --------------------------------------------------------------------------- perbaikan hasil review
+def test_inisial_bertitik_tidak_diekspansi():
+    from malas.docx_converter import format_apa7
+    assert format_apa7({"authors": ["John A. Smith"], "year": 2020, "title": "t", "link": "u"}).startswith("Smith, J. A. (2020)")
+    assert format_apa7({"authors": ["John A Smith"], "year": 2020, "title": "t", "link": "u"}).startswith("Smith, J. A. (2020)")
+    assert format_apa7({"authors": ["JA Smith"], "year": 2020, "title": "t", "link": "u"}).startswith("Smith, J. A. (2020)")
+
+
+def test_lembaga_dengan_dan_cocok_di_pemeriksa_sitasi():
+    from malas.citations import check_citations
+    from malas.crews.models.TaskOutput import Bab, ContentText, Makalah, SubBab
+    for nama in ("Kementerian Pendidikan dan Kebudayaan", "Badan Pengawas Obat dan Makanan"):
+        ref = ReferenceItem(title="Laporan tahunan", authors=[nama], year=2023, link="https://x.go.id/a")
+        mk = Makalah(daftar_pustaka=[ref], bab={"II": Bab(judul="B", subbab=[SubBab(judul="2.1 X", content=[
+            ContentText(isi=f"Data naik ({nama}, 2023) dan menurut {nama} (2023) lagi.")])])})
+        rep = check_citations(mk)
+        assert rep.ok and rep.total_citations == 2, nama
+
+
+def test_dedupe_doi_berbeda_tidak_digabung():
+    a = cand("Pendidikan karakter di sekolah dasar", doi="10.1001/aaa")
+    b = cand("Pendidikan karakter di sekolah dasar", doi="10.1001/bbb", abstract="abstrak lain")
+    assert len(dedupe([a, b])) == 2
+    c = cand("Pendidikan karakter di sekolah dasar", doi=None, year=2022)
+    assert len(dedupe([cand("Pendidikan karakter di sekolah dasar", doi="10.1001/aaa"), c])) == 1  # tanpa DOI: boleh digabung
+    # cabang kemiripan juga memeriksa tahun
+    x = cand("Pengaruh budaya populer korea terhadap perilaku remaja kota", year=2010)
+    y = cand("Pengaruh budaya populer korea terhadap perilaku remaja kota.", year=2024)
+    assert len(dedupe([x, y])) == 2
+
+
+def test_judul_non_latin_tidak_dibuang():
+    from malas.refsearch.rank import norm_title
+    assert norm_title("مناهج التفسير المعاصر") != ""
+    assert len(dedupe([cand("مناهج التفسير المعاصر في القرآن")])) == 1
+
+
+def test_checkpoint_outline_tidak_bergantung_pada_daftar_pustaka():
+    from malas.checkpoint import meta_of
+    from malas.crews.models.TaskOutput import Bab, Makalah, SubBab
+    mk = Makalah(bab={"I": Bab(judul="P", subbab=[SubBab(judul="1.1 A")])})  # referensi kosong
+    assert meta_of(mk)["outline"] is True
+    assert meta_of(Makalah())["outline"] is False
+
+
+def test_tenggat_global_membuang_sub_bab_lambat_tapi_menjaga_yang_cepat(monkeypatch):
+    import time as _t
+    from malas.refsearch import orchestrator
+    asli = orchestrator._search_section
+
+    def pilih(http, sq, judul, year_min, k, names):
+        if "lambat" in sq.section:
+            _t.sleep(2.0)
+        return asli(http, sq, judul, year_min, k, names)
+
+    monkeypatch.setattr(orchestrator, "_search_section", pilih)
+    c = client([("openalex.org", Resp(200, _oa_page(6))), ("crossref.org", Resp(200, {"message": {"items": []}}))])
+    plan = heuristic_plan("Sistem Rekomendasi Kolaboratif", ["2.1 cepat", "2.2 lambat"])
+    t0 = _t.time()
+    refs, rep = search_references(plan, "Sistem Rekomendasi Kolaboratif", c, k=2, year_min=2015, deadline=0.7)
+    assert _t.time() - t0 < 1.8  # tidak menunggu sub-bab lambat
+    assert rep["per_section"]["2.1 cepat"] == 2 and rep["per_section"]["2.2 lambat"] == 0
+
+
+def test_cache_tidak_menyimpan_body_bukan_json(tmp_path):
+    c = client([("x.org", [Resp(200, "<html>maintenance</html>"), Resp(200, {"ok": 1})])], cache_dir=tmp_path)
+    assert c.get_json("https://x.org/a", {"q": 1}) is None
+    assert c.get_json("https://x.org/a", {"q": 1}) == {"ok": 1}  # tidak ter-cache; request kedua jalan
+    assert c.calls == 2
+
+
+def test_strip_number_tidak_memotong_kata_biasa():
+    from malas.refsearch.plan import strip_number
+    assert strip_number("Implementasi Kebijakan") == "Implementasi Kebijakan"
+    assert strip_number("2.1 Landasan Teori") == "Landasan Teori"
+    assert strip_number("IV. Penutup") == "Penutup" and strip_number("Bab 2 Pembahasan") == "Pembahasan"
+
+
+def test_kandidat_tanpa_tautan_tidak_dipilih():
+    from malas.refsearch.orchestrator import _search_section
+    page = {"results": [{"id": "W1", "doi": None, "title": "Sistem rekomendasi kolaboratif tanpa tautan", "publication_year": 2023,
+                         "type": "article", "primary_location": {}, "abstract_inverted_index": {"sistem": [0], "rekomendasi": [1], "kolaboratif": [2]}}]}
+    c = client([("openalex.org", Resp(200, page)), ("crossref.org", Resp(200, {"message": {"items": []}}))])
+    assert _search_section(c, SectionQuery("2.1 X", q_id="sistem rekomendasi kolaboratif"), "J", 2015, 2, ["openalex"]) == []
+
+
+# --------------------------------------------------------------------------- unduhan full-text aman
+class _FakeStream:
+    def __init__(self, status=200, body=b"", headers=None, chunks=None):
+        self.status_code, self.headers, self.encoding = status, headers or {}, "utf-8"
+        self._chunks = chunks if chunks is not None else [body]
+        self.closed = False
+
+    def iter_content(self, n):
+        yield from self._chunks
+
+    def close(self):
+        self.closed = True
+
+
+def test_default_get_tolak_host_internal_dan_redirect_ke_internal(monkeypatch):
+    import malas.fulltext as ft
+    publik = {"ok.example": "93.184.216.34", "evil.example": "10.0.0.5", "meta.example": "169.254.169.254"}
+    monkeypatch.setattr(ft.socket, "getaddrinfo", lambda h, p: [(2, 1, 6, "", (publik[h], 0))] if h in publik else (_ for _ in ()).throw(OSError()))
+    dipanggil = []
+
+    def fake_get(url, **kw):
+        dipanggil.append(url)
+        if "ok.example/redir" in url:
+            return _FakeStream(302, headers={"Location": "http://meta.example/latest"})
+        return _FakeStream(200, b"isi")
+
+    monkeypatch.setattr(ft.requests, "get", fake_get)
+    assert ft._default_get("http://evil.example/x").ok is False and dipanggil == []  # host privat: tidak ada request
+    assert ft._default_get("http://tidak-ada.example/x").ok is False  # gagal resolve = tolak
+    assert ft._default_get("file:///etc/passwd").ok is False
+    assert ft._default_get("http://ok.example/redir").ok is False  # redirect ke host metadata ditolak
+    assert dipanggil == ["http://ok.example/redir"]
+    r = ft._default_get("http://ok.example/file")
+    assert r.ok and r.content == b"isi" and r.text == "isi"
+
+
+def test_default_get_batasi_ukuran(monkeypatch):
+    import malas.fulltext as ft
+    monkeypatch.setattr(ft.socket, "getaddrinfo", lambda h, p: [(2, 1, 6, "", ("93.184.216.34", 0))])
+    monkeypatch.setattr(ft, "MAX_PDF_BYTES", 100)
+    monkeypatch.setattr(ft.requests, "get", lambda url, **kw: _FakeStream(200, chunks=[b"x" * 60, b"x" * 60]))
+    assert ft._default_get("http://ok.example/besar").ok is False
+
+
+def test_doi_di_url_unpaywall_di_encode():
+    from malas.fulltext import resolve_pdf_url
+    urls = []
+    resolve_pdf_url("https://doi.org/x", lambda u: urls.append(u), doi="10.1002/(sici)1097#a?b", email="a@b.c")
+    assert urls and "#" not in urls[0].split("?email=")[0] and "%23" in urls[0] and "%3F" in urls[0]
