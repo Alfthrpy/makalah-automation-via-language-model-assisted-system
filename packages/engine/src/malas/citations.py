@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Set
 
 from malas.crews.models.TaskOutput import (
-    ContentItem, ContentList, ContentText, Makalah, ReferenceItem,
+    ContentItem, ContentList, ContentTable, ContentText, Makalah, ReferenceItem,
 )
 from malas.names import family_of, is_institution  # noqa: F401  (is_institution diekspor ulang untuk docx_converter)
 
@@ -121,6 +121,12 @@ def content_text(contents: List[ContentItem]) -> str:
             if item.title_items:
                 parts.append(item.title_items)
             parts.extend(f"- {li}" for li in item.items)
+        elif isinstance(item, ContentTable):
+            if item.caption:
+                parts.append(item.caption)
+            if item.header:
+                parts.append(" | ".join(item.header))
+            parts.extend(" | ".join(row) for row in item.rows)
     return "\n".join(parts)
 
 

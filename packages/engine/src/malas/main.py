@@ -98,13 +98,31 @@ class MalasFlow(Flow[Makalah]):
     @contextmanager
     def _stage(self, step: str):
         self._emit(step, "running")
+        self._cur_stage = step
         try:
             yield
         except Exception as e:
             # Detail di UI cukup nama jenis error; pesan ramah dibuat web/jobs.py, traceback ada di konsol server.
             self._emit(step, "error", e.__class__.__name__)
             raise
+        finally:
+            self._cur_stage = ""
         self._emit(step, "done")
+
+    def _tally(self, calls: int, prompt: int, completion: int, total: int, stage: str = "") -> None:
+        """Tambahkan pemakaian ke total DAN ke rincian per tahap (stats['usage_by_stage']) untuk benchmark biaya."""
+        self._ensure_counters()
+        self.usage["calls"] += calls
+        self.usage["prompt"] += prompt
+        self.usage["completion"] += completion
+        self.usage["total"] += total
+        key = stage or getattr(self, "_cur_stage", "") or "lain"
+        row = self.stats.setdefault("usage_by_stage", {}).setdefault(
+            key, {"calls": 0, "prompt": 0, "completion": 0, "total": 0})
+        row["calls"] += calls
+        row["prompt"] += prompt
+        row["completion"] += completion
+        row["total"] += total
 
     def _ensure_counters(self) -> None:
         if not hasattr(self, "usage"):
@@ -126,10 +144,8 @@ class MalasFlow(Flow[Makalah]):
         u = getattr(crew_output, "token_usage", None)
         if u is None:
             return
-        self.usage["calls"] += int(getattr(u, "successful_requests", 0) or 0)
-        self.usage["prompt"] += int(getattr(u, "prompt_tokens", 0) or 0)
-        self.usage["completion"] += int(getattr(u, "completion_tokens", 0) or 0)
-        self.usage["total"] += int(getattr(u, "total_tokens", 0) or 0)
+        self._tally(int(getattr(u, "successful_requests", 0) or 0), int(getattr(u, "prompt_tokens", 0) or 0),
+                    int(getattr(u, "completion_tokens", 0) or 0), int(getattr(u, "total_tokens", 0) or 0))
 
     # --- tahap ---------------------------------------------------------------------
     @start()
@@ -229,10 +245,8 @@ class MalasFlow(Flow[Makalah]):
         def call(prompt: str) -> str:
             self._ensure_counters()
             out = str(get_llm("planner").call(prompt))
-            self.usage["calls"] += 1  # taksiran kasar (4 karakter ~ 1 token): panggilan langsung tidak melaporkan usage
-            self.usage["prompt"] += len(prompt) // 4
-            self.usage["completion"] += len(out) // 4
-            self.usage["total"] += (len(prompt) + len(out)) // 4
+            # taksiran kasar (4 karakter ~ 1 token): panggilan langsung tidak melaporkan usage
+            self._tally(1, len(prompt) // 4, len(out) // 4, (len(prompt) + len(out)) // 4)
             return out
 
         if is_mock():

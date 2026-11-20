@@ -1,6 +1,8 @@
 from typing import List, Dict, Union, Literal, Optional
 from pydantic import BaseModel, Field
 
+from malas.enhance.models import Blueprint, EvidenceCard, Finding
+
 # Model untuk struktur outline sederhana (seperti yang kita gunakan sebelumnya)
 class SimpleSubbab(BaseModel):
     sections: List[str] = []
@@ -44,8 +46,15 @@ class ContentList(BaseModel):
     title_items: Optional[str] = None
     items: List[str] = Field(description="List of items.")
 
+class ContentTable(BaseModel):
+    """Tabel (mis. sintesis studi). Dirakit KODE dari kartu bukti, bukan ditulis LLM penulis."""
+    type: Literal["table"] = 'table'
+    caption: str = ""
+    header: List[str] = Field(default_factory=list)
+    rows: List[List[str]] = Field(default_factory=list)
+
 # Union type untuk konten
-ContentItem = Union[ContentText, ContentList]
+ContentItem = Union[ContentText, ContentList, ContentTable]
 
 class KataPengantar(BaseModel):
     isi: str = Field(description="Teks kata pengantar lengkap; paragraf dipisah baris baru.")
@@ -59,6 +68,8 @@ class Penyusun(BaseModel):
 class SubBab(BaseModel):
     judul: str
     content: List[ContentItem] = Field(default_factory=list, description="List of content items.")
+    # narasi = paragraf; daftar = butir bernomor (Rumusan Masalah/Tujuan/Manfaat/Saran). Kosong = tebak dari judul.
+    kind: Literal["narasi", "daftar"] = "narasi"
 
 class Bab(BaseModel):
     judul: str = ''
@@ -75,6 +86,14 @@ class Makalah(BaseModel):
     jurusan: str =  "Nama Jurusan"
     kota: str = "Kota"
     tahun: str = "2024"
+    # lingkup (opsional; diisi pengguna atau diinferensi): mencegah subjek melenceng (siswa vs mahasiswa)
+    jenis_makalah: str = "kajian_pustaka"
+    subjek: str = ""
+    jenjang: str = ""
     kata_pengantar: str = "Kata Pengantar"
     bab: Dict[str, Bab] = Field(default_factory=dict)
     daftar_pustaka: List[ReferenceItem] = [] # Sebaiknya gunakan ReferenceItem agar lebih terstruktur
+    # Enhancing Engine (semua opsional agar checkpoint lama tetap valid)
+    blueprint: Optional[Blueprint] = None
+    evidence: Dict[str, EvidenceCard] = Field(default_factory=dict)  # kunci = ref_key
+    quality: List[Finding] = Field(default_factory=list)

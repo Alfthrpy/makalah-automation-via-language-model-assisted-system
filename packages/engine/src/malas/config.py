@@ -111,3 +111,21 @@ def describe() -> dict:
         "mock_default": _flag("MALAS_MOCK"),
         "fulltext": os.getenv("MALAS_FULLTEXT", "1") != "0",
     }
+
+
+# --- Enhancing Engine (docs/enhancing-engine.md §6.5) -------------------------------------
+ENHANCE_TIERS = ("off", "lite", "standard", "deep")
+
+
+def enhance_tier() -> str:
+    """MALAS_ENHANCE=off|lite|standard|deep (default lite: lint deterministik + konteks penulis, tanpa LLM baru)."""
+    v = os.getenv("MALAS_ENHANCE", "lite").strip().lower()
+    return v if v in ENHANCE_TIERS else "lite"
+
+
+def enhance_budget() -> int:
+    """Batas token tahap LLM enhancing (MALAS_ENHANCE_MAX_TOKENS, default 40000)."""
+    try:
+        return max(0, int(os.getenv("MALAS_ENHANCE_MAX_TOKENS", "40000")))
+    except ValueError:
+        return 40000
