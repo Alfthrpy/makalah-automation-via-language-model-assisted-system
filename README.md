@@ -44,6 +44,9 @@ GEMINI_API_KEY="isi_api_key_anda"
 # MALAS_REFSEARCH=1                         # (eksperimental) cari referensi via API deterministik, bukan agen LLM; lihat docs/refsearch.md
 # MALAS_CONTACT_EMAIL=anda@mail.com         # untuk MALAS_REFSEARCH (Crossref/Unpaywall); MALAS_OPENALEX_API_KEY untuk OpenAlex
 # MALAS_FULLTEXT=0                          # matikan pengambilan full-text referensi
+# MALAS_ENHANCE=lite                        # off | lite | standard | deep: tingkat pemeriksaan & perbaikan mutu (di web dipilih per makalah; lihat docs/enhancing-engine.md)
+# MALAS_ENHANCE_MAX=deep                    # batas atas tingkat yang boleh dipilih pengguna web (mis. lite untuk melarang tingkat yang memakai token lebih banyak)
+# MALAS_ENHANCE_MAX_TOKENS=40000            # anggaran token (taksiran) untuk tahap LLM enhancing per makalah
 # MALAS_FULLTEXT_CHARS=3000                 # batas kutipan full-text per sub-bab (~750 token)
 ```
 

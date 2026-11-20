@@ -64,9 +64,11 @@ def default_runner(job: dict, progress: Callable[[str, str, str], None], output_
 
     config.set_mock_override(True if job["mock"] else None)
     config.set_runtime(runtime)
+    request = dict(job["request"])
+    config.set_enhance_override(config.clamp_enhance(request.pop("enhance", "lite")))  # bukan field Makalah
     try:
         flow = MalasFlow()
-        flow.input_data = dict(job["request"])
+        flow.input_data = request
         flow.template_path = job["template_path"]
         flow.output_path = str(output_path)
         flow.progress = progress
@@ -79,6 +81,7 @@ def default_runner(job: dict, progress: Callable[[str, str, str], None], output_
     finally:
         config.set_runtime(None)
         config.set_mock_override(None)
+        config.set_enhance_override(None)
 
 
 class JobManager:

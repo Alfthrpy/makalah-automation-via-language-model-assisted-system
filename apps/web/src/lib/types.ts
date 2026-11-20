@@ -41,6 +41,8 @@ export interface PaperRequest {
   /** Lingkup opsional (backend sudah menerima; kolom di formulir menyusul). */
   subjek?: string;
   jenjang?: string;
+  /** Tingkat pemeriksaan & perbaikan mutu (default server: "lite"). */
+  enhance?: "off" | "lite" | "standard" | "deep";
 }
 
 /** Badan POST /api/jobs (hanya yang dipakai web). */

@@ -117,8 +117,31 @@ def describe() -> dict:
 ENHANCE_TIERS = ("off", "lite", "standard", "deep")
 
 
+_enhance_override: Optional[str] = None
+
+
+def set_enhance_override(value: Optional[str]) -> None:
+    """Tier untuk SATU job (web memilih per job; satu job pada satu waktu). None = kembali ke env MALAS_ENHANCE."""
+    global _enhance_override
+    _enhance_override = value if value in ENHANCE_TIERS else None
+
+
+def enhance_max() -> str:
+    """Batas atas tier yang boleh dipilih pengguna (operator: MALAS_ENHANCE_MAX, default deep)."""
+    v = os.getenv("MALAS_ENHANCE_MAX", "deep").strip().lower()
+    return v if v in ENHANCE_TIERS else "deep"
+
+
+def clamp_enhance(value: str) -> str:
+    """Tier hasil pilihan pengguna, dipotong ke batas operator."""
+    cap = ENHANCE_TIERS.index(enhance_max())
+    return ENHANCE_TIERS[min(ENHANCE_TIERS.index(value) if value in ENHANCE_TIERS else 1, cap)]
+
+
 def enhance_tier() -> str:
-    """MALAS_ENHANCE=off|lite|standard|deep (default lite: lint deterministik + konteks penulis, tanpa LLM baru)."""
+    """Tier aktif: override per job, lalu MALAS_ENHANCE=off|lite|standard|deep (default lite: lint + konteks, tanpa LLM baru)."""
+    if _enhance_override is not None:
+        return _enhance_override
     v = os.getenv("MALAS_ENHANCE", "lite").strip().lower()
     return v if v in ENHANCE_TIERS else "lite"
 

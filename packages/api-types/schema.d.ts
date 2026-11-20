@@ -169,6 +169,11 @@ export interface components {
             daily_quota?: number | null;
             /** Default Template */
             default_template: string;
+            /**
+             * Enhance Max
+             * @default deep
+             */
+            enhance_max: string;
             /** Fulltext */
             fulltext: boolean;
             /** Hosted */
@@ -276,6 +281,12 @@ export interface components {
              * @default
              */
             dosen_pengampu: string;
+            /**
+             * Enhance
+             * @default lite
+             * @enum {string}
+             */
+            enhance: "off" | "lite" | "standard" | "deep";
             /**
              * Fakultas
              * @default
@@ -530,6 +541,11 @@ export interface components {
         PaperRequest: {
             /** Dosen Pengampu */
             dosen_pengampu: string;
+            /**
+             * Enhance
+             * @default lite
+             */
+            enhance: string;
             /** Fakultas */
             fakultas: string;
             /**

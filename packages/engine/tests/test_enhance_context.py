@@ -84,3 +84,21 @@ def test_scope_text_default_melarang_populasi_liar_dan_memakai_isian_pengguna():
 def test_one_line_refs_tanpa_kutipan():
     out = one_line_refs([{"sitasi": "(A, 2024)", "title": "T", "year": 2024, "excerpt": "Kalimat satu. Kalimat dua.", "kutipan": ["x" * 500]}])
     assert out == [{"sitasi": "(A, 2024)", "title": "T", "year": 2024, "excerpt": "Kalimat satu."}]
+
+
+def test_tier_override_per_job_dan_batas_operator(monkeypatch):
+    from malas import config
+    monkeypatch.delenv("MALAS_ENHANCE", raising=False)
+    monkeypatch.delenv("MALAS_ENHANCE_MAX", raising=False)
+    assert config.enhance_tier() == "lite"
+    config.set_enhance_override("deep")
+    try:
+        assert config.enhance_tier() == "deep"
+    finally:
+        config.set_enhance_override(None)
+    assert config.enhance_tier() == "lite"
+    config.set_enhance_override("ngawur")  # tidak sah -> abaikan
+    assert config.enhance_tier() == "lite"
+    monkeypatch.setenv("MALAS_ENHANCE_MAX", "standard")
+    assert config.clamp_enhance("deep") == "standard" and config.clamp_enhance("off") == "off"
+    assert config.clamp_enhance("ngawur") == "lite"

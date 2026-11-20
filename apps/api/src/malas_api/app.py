@@ -96,6 +96,8 @@ class JobRequest(BaseModel):
     subjek: Str(120) = ""
     jenjang: Str(60) = ""
     jenis_makalah: Literal["kajian_pustaka", "penelitian"] = "kajian_pustaka"
+    # Tingkat pemeriksaan & perbaikan mutu (lihat docs/enhancing-engine.md §6.5); dipotong ke MALAS_ENHANCE_MAX operator.
+    enhance: Literal["off", "lite", "standard", "deep"] = "lite"
     template: Optional[str] = None
     mock: bool = False
     # BYOK: key hanya dipakai untuk job ini. SecretStr agar tidak tercetak/ter-dump tanpa sengaja.
@@ -281,6 +283,7 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
             "key_storage": mgr.key_storage_enabled,
             "retention_hours": mgr.retention_hours,
             "year": datetime.now().year,
+            "enhance_max": config.enhance_max(),
         }
 
     @app.post("/api/jobs", status_code=202, response_model=JobOut)
@@ -342,6 +345,7 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
 
         data = req.model_dump(exclude={"template", "mock", "provider", "api_key", "model_planner", "model_writer", "resume_from",
                                           "save_key", "use_saved_key", "use_logo"})
+        data["enhance"] = config.clamp_enhance(data.get("enhance", "lite"))
         if resume_job:  # data makalah harus sama dengan job asal agar checkpoint (outline/referensi) tetap cocok
             data = resume_job["request"]
         try:

@@ -108,6 +108,7 @@ class PaperRequest(_Out):
     subjek: str = ""
     jenjang: str = ""
     jenis_makalah: str = "kajian_pustaka"
+    enhance: str = "lite"
 
 
 class JobOut(_Out):
@@ -175,6 +176,7 @@ class ConfigOut(_Out):
     active_job: str | None = None
     auth: AuthInfo
     daily_quota: int | None = None
+    enhance_max: str = "deep"
     key_storage: bool
     retention_hours: float | None = None
     year: int

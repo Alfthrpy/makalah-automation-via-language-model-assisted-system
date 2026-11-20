@@ -58,6 +58,11 @@
             "title": "Default Template",
             "type": "string"
           },
+          "enhance_max": {
+            "default": "deep",
+            "title": "Enhance Max",
+            "type": "string"
+          },
           "fulltext": {
             "title": "Fulltext",
             "type": "boolean"
@@ -448,6 +453,17 @@
             "maxLength": 120,
             "minLength": 0,
             "title": "Dosen Pengampu",
+            "type": "string"
+          },
+          "enhance": {
+            "default": "lite",
+            "enum": [
+              "off",
+              "lite",
+              "standard",
+              "deep"
+            ],
+            "title": "Enhance",
             "type": "string"
           },
           "fakultas": {
@@ -1104,6 +1120,11 @@
         "properties": {
           "dosen_pengampu": {
             "title": "Dosen Pengampu",
+            "type": "string"
+          },
+          "enhance": {
+            "default": "lite",
+            "title": "Enhance",
             "type": "string"
           },
           "fakultas": {

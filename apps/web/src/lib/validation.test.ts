@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { buildBody, issuesToErrors, validatePaper, type PaperForm } from "./validation";
+import { asTier, buildBody, issuesToErrors, validatePaper, type PaperForm } from "./validation";
 import type { ProviderInfo } from "./types";
 
 const kenari: ProviderInfo = { id: "kenari", label: "Kenari", enabled: true, key_url: "", models: [], default_planner: null, default_writer: null, needs_model: true };
 const orouter: ProviderInfo = { id: "openrouter", label: "OpenRouter", enabled: true, key_url: "", models: [], default_planner: "a/b", default_writer: "c/d", needs_model: false };
 
 const ok = (): PaperForm => ({
-  judul: "Judul Valid", mata_kuliah: "MK", dosen_pengampu: "", subjek: "", jenjang: "", penyusun: [{ rid: "r1", nama: "Rina", nim: "" }],
+  judul: "Judul Valid", mata_kuliah: "MK", dosen_pengampu: "", subjek: "", jenjang: "", enhance: "lite", penyusun: [{ rid: "r1", nama: "Rina", nim: "" }],
   universitas: "", fakultas: "", jurusan: "", kota: "", kelas: "", tahun: "2026", template: "template makalah.docx", mock: false,
   provider: "openrouter", keySource: "new", api_key: "sk-or-v1-abcdefgh", save_key: false, model_planner: "", model_writer: "",
 });
@@ -70,5 +70,15 @@ describe("lingkup opsional (subjek/jenjang)", () => {
     const kosong = buildBody(ok(), ctx);
     expect(kosong.subjek).toBeUndefined();
     expect(kosong.jenjang).toBeUndefined();
+  });
+});
+
+describe("tingkat pemeriksaan (enhance)", () => {
+  it("selalu ikut ke badan, dan nilai asing jatuh ke lite", () => {
+    const ctx = { provider: undefined, hasSavedKey: false };
+    expect(buildBody({ ...ok(), enhance: "deep" }, ctx).enhance).toBe("deep");
+    expect(buildBody(ok(), ctx).enhance).toBe("lite");
+    expect(asTier("ngawur")).toBe("lite");
+    expect(asTier("standard")).toBe("standard");
   });
 });

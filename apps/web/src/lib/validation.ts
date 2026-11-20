@@ -9,12 +9,17 @@ export const MODEL_RE = /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,99}$/;
 export const YEAR_RE = /^(19|20)\d{2}$/;
 export const MAX_PENYUSUN = 10;
 
+export const ENHANCE_TIERS = ["off", "lite", "standard", "deep"] as const;
+export type EnhanceTier = (typeof ENHANCE_TIERS)[number];
+export const asTier = (v: unknown, fb: EnhanceTier = "lite"): EnhanceTier => (ENHANCE_TIERS as readonly unknown[]).includes(v) ? (v as EnhanceTier) : fb;
+
 export interface PenyusunRow { rid: string; nama: string; nim: string }
 
 export interface PaperForm {
   judul: string; mata_kuliah: string; dosen_pengampu: string;
   /** Lingkup opsional: mencegah subjek melenceng (mis. bukti siswa MTs tetapi kesimpulan menyebut mahasiswa). */
   subjek: string; jenjang: string;
+  enhance: EnhanceTier;
   penyusun: PenyusunRow[];
   universitas: string; fakultas: string; jurusan: string; kota: string; kelas: string; tahun: string;
   template: string; mock: boolean;
@@ -76,7 +81,7 @@ export function buildBody(f: PaperForm, ctx: ValidateCtx): CreateJobBody {
     judul: f.judul.trim(),
     mata_kuliah: f.mata_kuliah.trim(),
     dosen_pengampu: opt(f.dosen_pengampu),
-    subjek: opt(f.subjek), jenjang: opt(f.jenjang),
+    subjek: opt(f.subjek), jenjang: opt(f.jenjang), enhance: f.enhance,
     penyusun: f.penyusun.filter((p) => p.nama.trim()).map((p) => ({ nama: p.nama.trim(), ...(p.nim.trim() ? { nim: p.nim.trim() } : {}) })),
     universitas: opt(f.universitas), fakultas: opt(f.fakultas), jurusan: opt(f.jurusan),
     kota: opt(f.kota), kelas: opt(f.kelas), tahun: f.tahun.trim(),
