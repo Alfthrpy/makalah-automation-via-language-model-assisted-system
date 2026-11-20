@@ -1,4 +1,5 @@
 import { Icon } from "../../components/icons";
+import { LogoManager } from "../../components/LogoManager";
 import { QuotaCard } from "../../components/QuotaCard";
 import { ThemeToggle } from "../../components/shell";
 import { useConfirm } from "../../components/ui/Dialog";
@@ -88,6 +89,11 @@ export default function Settings() {
             <h2 className="card-title" id="keys-h">{S.keys}</h2>
             <p className="small muted">{S.keysText}</p>
             <Keys />
+          </section>
+          <section className="card" aria-labelledby="logo-h" style={{ display: "grid", gap: "var(--sp-3)" }}>
+            <h2 className="card-title" id="logo-h">{t.logo.label}</h2>
+            <p className="small muted">{t.logo.hint}</p>
+            <LogoManager id="settings-logo" />
           </section>
           <section className="card" aria-labelledby="look-h" style={{ display: "grid", gap: "var(--sp-3)" }}>
             <h2 className="card-title" id="look-h">{S.look}</h2>

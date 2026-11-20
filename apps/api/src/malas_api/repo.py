@@ -15,10 +15,10 @@ from typing import Callable, List, Optional, Tuple
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.exc import IntegrityError
 
-from malas_api.db import Database, Job, JobCheckpoint, Usage, User, UserApiKey, utcnow
+from malas_api.db import Database, Job, JobCheckpoint, Usage, User, UserApiKey, UserLogo, utcnow
 
 ACTIVE = ("queued", "running")
-DATA_KEYS = ("request", "models", "steps", "log", "usage", "stats", "auto_resumed", "quota_day")
+DATA_KEYS = ("request", "models", "steps", "log", "usage", "stats", "auto_resumed", "quota_day", "use_logo")
 COLUMN_KEYS = ("status", "started_at", "finished_at", "title", "mock", "byok", "key_source", "provider",
                "resume_from", "template", "template_path", "has_file", "error", "error_step", "resume")
 TIME_KEYS = ("created_at", "started_at", "finished_at")
@@ -248,6 +248,34 @@ class Repo:
             return False
         with self.db.session.begin() as s:
             return s.execute(delete(UserApiKey).where(UserApiKey.user_id == uid, UserApiKey.provider == provider)).rowcount > 0
+
+    # ------------------------------------------------------------------ logo kampus/sekolah
+    def put_logo(self, owner: str, png: bytes) -> None:
+        uid = self.ensure_user(owner)
+        with self.db.session.begin() as s:
+            row = s.get(UserLogo, uid)
+            if row:
+                row.content, row.size, row.updated_at = png, len(png), utcnow()
+            else:
+                s.add(UserLogo(user_id=uid, content=png, size=len(png)))
+
+    def get_logo(self, owner: str) -> Optional[bytes]:
+        with self.db.session() as s:
+            c = s.scalar(select(UserLogo.content).join(User, User.id == UserLogo.user_id).where(User.external_id == owner))
+            return bytes(c) if c is not None else None
+
+    def logo_info(self, owner: str) -> Optional[dict]:
+        with self.db.session() as s:
+            r = s.execute(select(UserLogo.size, UserLogo.updated_at).join(User, User.id == UserLogo.user_id)
+                          .where(User.external_id == owner)).first()
+            return {"size": r.size, "updated_at": _iso(r.updated_at)} if r else None
+
+    def delete_logo(self, owner: str) -> bool:
+        uid = self.user_id(owner)
+        if not uid:
+            return False
+        with self.db.session.begin() as s:
+            return s.execute(delete(UserLogo).where(UserLogo.user_id == uid)).rowcount > 0
 
     # ------------------------------------------------------------------ kuota harian
     def quota_used(self, owner: str, day: str) -> int:

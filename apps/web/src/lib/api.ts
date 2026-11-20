@@ -77,3 +77,12 @@ export async function downloadJobFile(id: string, fallbackName: string): Promise
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
 }
+
+/** Logo kampus/sekolah (satu per akun). Unggahan mentah PNG; pratinjau diambil lewat fetch + header (bukan <img src>). */
+export async function putLogo(png: Blob): Promise<{ size: number; updated_at?: string | null }> {
+  const res = await request("/api/logo", { method: "PUT", headers: { "Content-Type": "image/png" }, body: png });
+  return res.json();
+}
+export async function fetchLogo(): Promise<Blob> {
+  return (await request("/api/logo")).blob();
+}

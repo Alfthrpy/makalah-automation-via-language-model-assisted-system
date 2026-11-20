@@ -51,6 +51,7 @@ export interface CreateJobBody extends PaperRequest {
   resume_from?: string;
   save_key?: boolean;
   use_saved_key?: boolean;
+  use_logo?: boolean;
 }
 
 export const ACTIVE_STATUSES: JobStatus[] = ["queued", "running"];

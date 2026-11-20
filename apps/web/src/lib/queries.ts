@@ -1,5 +1,6 @@
 import { QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ApiError, api, apiDelete, apiPost } from "./api";
+import { useEffect } from "react";
+import { ApiError, api, apiDelete, apiPost, fetchLogo, putLogo } from "./api";
 import { isActive, type AppConfig, type CreateJobBody, type Job, type JobSummary, type KeysOut, type Me } from "./types";
 
 export const qk = {
@@ -8,6 +9,7 @@ export const qk = {
   jobs: ["jobs"] as const,
   job: (id: string) => ["job", id] as const,
   keys: ["keys"] as const,
+  logo: (v: string | null | undefined) => ["logo", v ?? ""] as const,
 };
 
 export function makeQueryClient() {
@@ -92,4 +94,25 @@ export function useDeleteKey() {
     mutationFn: (provider: string) => apiDelete<{ result: string }>(`/api/keys/${encodeURIComponent(provider)}`),
     onSuccess: () => { void qc.invalidateQueries({ queryKey: qk.keys }); },
   });
+}
+
+/** Pratinjau logo tersimpan sebagai object URL (dibebaskan saat tak dipakai). `version` = updated_at agar ikut berganti. */
+export function useLogoPreview(version: string | null | undefined, enabled: boolean) {
+  const q = useQuery({
+    queryKey: qk.logo(version), enabled, staleTime: Infinity, gcTime: 0,
+    queryFn: async () => URL.createObjectURL(await fetchLogo()),
+  });
+  const url = q.data;
+  useEffect(() => () => { if (url) URL.revokeObjectURL(url); }, [url]);
+  return q;
+}
+
+export function useUploadLogo() {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: putLogo, onSuccess: () => qc.invalidateQueries({ queryKey: qk.me }) });
+}
+
+export function useDeleteLogo() {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: () => apiDelete<{ result: string }>("/api/logo"), onSuccess: () => qc.invalidateQueries({ queryKey: qk.me }) });
 }

@@ -178,6 +178,27 @@ export const id = {
     footer: { copy: "© 2026", terms: "Ketentuan Layanan", privacy: "Kebijakan Privasi", legal: "Tautan hukum" },
   },
 
+  /* ---------------- logo kampus/sekolah ---------------- */
+  logo: {
+    label: "Logo kampus/sekolah",
+    hint: "Opsional. Dipasang di sampul makalah. Tanpa logo, sampul memakai penanda netral \"LOGO\" yang bisa kamu ganti di Word.",
+    privacy: "Disimpan di akunmu sampai kamu menghapusnya dan tidak dikirim ke penyedia model bahasa. Pakai hanya logo yang memang boleh kamu pakai.",
+    alt: "Pratinjau logo kampus atau sekolah yang tersimpan",
+    none: "Belum ada logo tersimpan.",
+    upload: "Unggah logo",
+    replace: "Ganti logo",
+    remove: "Hapus logo",
+    uploading: "Memproses…",
+    uploaded: "Logo tersimpan.",
+    removed: "Logo dihapus.",
+    use: "Pakai logo ini di sampul",
+    useHint: "Logo tersimpan akan dipasang di sampul makalah ini.",
+    deleteTitle: "Hapus logo tersimpan?",
+    deleteBody: "Logo akan dihapus dari akunmu. Makalah yang sudah jadi tidak berubah.",
+    typeError: "Pilih gambar PNG atau JPEG.",
+    fileLabel: "Pilih berkas logo",
+  },
+
   /* ---------------- auth ---------------- */
   auth: {
     loginTitle: "Masuk ke MALAS",

@@ -8,6 +8,7 @@ import { ApiError } from "../../lib/api";
 import { dateTimeLabel, resetCountdown } from "../../lib/format";
 import { useConfig, useCreateJob, useJobs, useKeys, useMe } from "../../lib/queries";
 import { isActive } from "../../lib/types";
+import { LogoManager } from "../../components/LogoManager";
 import { MAX_PENYUSUN, buildBody, emptyPenyusun, issuesToErrors, validatePaper, type FieldError, type PaperForm } from "../../lib/validation";
 import { clearDraft, defaultForm, isBlank, loadDraft, newRid, providerNeedsModel, sampleForm, saveDraft, takeRefill } from "./formState";
 
@@ -39,6 +40,7 @@ export default function Create() {
   const [errors, setErrors] = useState<FieldError[]>([]);
   const [server, setServer] = useState<ServerBanner>(null);
   const [showKey, setShowKey] = useState(false);
+  const [useLogo, setUseLogo] = useState(true); // dipakai bila akun punya logo tersimpan
   const init = useRef(false);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -76,7 +78,8 @@ export default function Create() {
   const needModel = providerNeedsModel(prov, form.provider);
   const savedKey = keys.data?.keys.find((k) => k.provider === form.provider);
   const keySource = savedKey ? form.keySource : "new";
-  const ctx = { provider: prov, hasSavedKey: !!savedKey && keySource === "saved" };
+  const hasLogo = !!me.data?.logo;
+  const ctx = { provider: prov, hasSavedKey: !!savedKey && keySource === "saved", useLogo: hasLogo && useLogo };
   const quota = me.data?.quota;
   const active = jobs.data?.find((j) => isActive(j.status));
   const rem = quota?.remaining ?? null;
@@ -262,6 +265,12 @@ export default function Create() {
                 <Field id="fakultas" label={f.fakultas}>{(a) => <Input maxLength={150} value={form.fakultas} onChange={(e) => set("fakultas", e.target.value)} {...a} />}</Field>
                 <Field id="jurusan" label={f.jurusan}>{(a) => <Input maxLength={150} value={form.jurusan} onChange={(e) => set("jurusan", e.target.value)} {...a} />}</Field>
               </div>
+              <fieldset className="logo-field" style={{ border: 0, padding: 0, margin: 0, display: "grid", gap: 8 }}>
+                <legend className="lbl" style={{ marginBottom: 4 }}>{t.logo.label}</legend>
+                <p className="small muted" style={{ margin: 0 }}>{t.logo.hint}</p>
+                <LogoManager id="create-logo" />
+                {hasLogo && <CheckCard id="use_logo" checked={useLogo} onChange={setUseLogo} title={t.logo.use} hint={t.logo.useHint} />}
+              </fieldset>
               <div className="grid3">
                 <Field id="kota" label={f.kota}>{(a) => <Input maxLength={80} value={form.kota} onChange={(e) => set("kota", e.target.value)} {...a} />}</Field>
                 <Field id="kelas" label={f.kelas}>{(a) => <Input maxLength={30} value={form.kelas} onChange={(e) => set("kelas", e.target.value)} {...a} />}</Field>

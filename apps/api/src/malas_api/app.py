@@ -28,6 +28,7 @@ from pydantic_core import PydanticCustomError
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from malas import config, paths
+from malas.logo import LogoError, normalize_logo
 from malas.docx_converter import xml_safe
 from malas.providers import PROVIDERS, get_provider, public_info
 from malas.steps import STEPS
@@ -35,7 +36,7 @@ from malas_api.auth import Authenticator, AuthError, authenticator_from_env, tok
 from malas_api.crypto import cipher_from_env
 from malas_api.db import database_url_from_env, migrate_url_from_env
 from malas_api.jobs import ID_RE, JobManager
-from malas_api.schemas import ConfigOut, JobOut, JobSummary, KeysOut, MeOut, ResultOut
+from malas_api.schemas import ConfigOut, JobOut, JobSummary, KeysOut, LogoOut, MeOut, ResultOut
 from malas_api.storage import storage_from_env
 
 TEMPLATE_DIR = paths.TEMPLATES_DIR
@@ -46,6 +47,8 @@ SID_RE = re.compile(r"^[A-Za-z0-9_\-]{30,80}$")
 KEY_RE = re.compile(r"^[\x21-\x7e]{8,300}$")  # ASCII tercetak, tanpa spasi/kontrol
 MODEL_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/\-]{0,99}$")
 MAX_BODY = 100_000
+MAX_LOGO_UPLOAD = 300_000  # sama dengan malas.logo.MAX_INPUT_BYTES
+DEFAULT_RETENTION_HOURS = 48.0  # riwayat/berkas dihapus N jam setelah selesai (mode hosting); ubah di teks hukum juga
 PUBLIC_API = {"/api/config"}  # boleh diakses tanpa login (UI perlu tahu mode auth)
 
 Str = lambda mx, mn=0: Annotated[str, StringConstraints(strip_whitespace=True, min_length=mn, max_length=mx)]  # noqa: E731
@@ -53,6 +56,15 @@ Str = lambda mx, mn=0: Annotated[str, StringConstraints(strip_whitespace=True, m
 
 def _flag(name: str) -> bool:
     return os.getenv(name, "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def retention_from_env(hosted: bool, env=os.environ) -> Optional[float]:
+    """Jam penyimpanan riwayat setelah job selesai. MALAS_WEB_RETENTION_HOURS menimpa; mode hosting default 48 jam;
+    lokal tanpa batas. Angka ini juga tertulis di Ketentuan/Privasi (web) dan ditampilkan lewat /api/config."""
+    raw = (env.get("MALAS_WEB_RETENTION_HOURS") or "").strip()
+    if raw:
+        return float(raw)
+    return DEFAULT_RETENTION_HOURS if hosted else None
 
 
 def list_templates() -> List[str]:
@@ -91,6 +103,7 @@ class JobRequest(BaseModel):
     # Opsi 3b: simpan key terenkripsi di server (butuh MALAS_SECRET_KEY) agar job terputus bisa lanjut otomatis.
     save_key: bool = False  # api_key dikirim DAN disimpan
     use_saved_key: bool = False  # api_key kosong; pakai key tersimpan untuk `provider`
+    use_logo: bool = False  # pakai logo kampus/sekolah tersimpan (PUT /api/logo) di sampul
 
     @field_validator("resume_from", mode="before")
     @classmethod
@@ -164,10 +177,9 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
     if _flag("MALAS_AUTH_REQUIRED") and auth is None:
         raise RuntimeError("MALAS_AUTH_REQUIRED=1 tetapi CLERK_ISSUER/CLERK_JWKS_URL belum diisi.")
     if manager is None:
-        retention = os.getenv("MALAS_WEB_RETENTION_HOURS")
         manager = JobManager(
             Path(os.getenv("MALAS_OUTPUT_DIR", "output")),
-            retention_hours=float(retention) if retention else (6.0 if hosted else None),
+            retention_hours=retention_from_env(hosted),
             quiet=hosted,
             database_url=database_url_from_env(),
             migrate_url=migrate_url_from_env(),
@@ -263,6 +275,7 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
             "auth": {"mode": "clerk" if auth else "anonymous", "required": auth is not None},
             "daily_quota": daily_quota or None,
             "key_storage": mgr.key_storage_enabled,
+            "retention_hours": mgr.retention_hours,
             "year": datetime.now().year,
         }
 
@@ -279,6 +292,9 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
         name = req.template or (DEFAULT_TEMPLATE_NAME if DEFAULT_TEMPLATE_NAME in templates else (templates[0] if templates else ""))
         if name not in templates:  # cegah path traversal: hanya nama dari daftar
             raise HTTPException(422, detail=[{"loc": ["body", "template"], "type": "value_error", "msg": "Template tidak tersedia"}])
+
+        if req.use_logo and not mgr.logo_info(owner):  # (ringan; satu baris tabel)
+            raise HTTPException(422, detail=[{"loc": ["body", "use_logo"], "type": "missing", "msg": "Belum ada logo tersimpan"}])
 
         runtime = None
         key_source = provider_id = models = None
@@ -321,13 +337,14 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
                 raise HTTPException(429, f"Kuota harian ({daily_quota} makalah) habis. Coba lagi besok.")
 
         data = req.model_dump(exclude={"template", "mock", "provider", "api_key", "model_planner", "model_writer", "resume_from",
-                                          "save_key", "use_saved_key"})
+                                          "save_key", "use_saved_key", "use_logo"})
         if resume_job:  # data makalah harus sama dengan job asal agar checkpoint (outline/referensi) tetap cocok
             data = resume_job["request"]
         try:
             job = mgr.submit(data, req.mock, str(TEMPLATE_DIR / name), name, owner=owner, runtime=runtime,
                              resume_from=resume_job["id"] if resume_job else None,
-                             key_source=key_source, provider=provider_id, models=models, quota_day=consumed_day)
+                             key_source=key_source, provider=provider_id, models=models, quota_day=consumed_day,
+                             use_logo=req.use_logo)
         except Exception as e:
             if consumed_day:
                 mgr.refund_quota(owner, consumed_day)  # job tidak terbentuk: kuota dikembalikan
@@ -374,12 +391,47 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
     def me(request: Request) -> dict:
         owner = request.state.owner
         used = mgr.quota_used(owner, quota_day()) if daily_quota else 0
+        logo = mgr.logo_info(owner)
         return {
+            "logo": {"size": logo["size"], "updated_at": logo["updated_at"]} if logo else None,
             "id": owner if auth else None,  # id Clerk (bukan rahasia); anonim: tidak ditampilkan
             "mode": "clerk" if auth else "anonymous",
             "quota": ({"limit": daily_quota, "used": used, "remaining": max(daily_quota - used, 0),
                        "resets_at": quota_resets_at()} if daily_quota else None),
         }
+
+    # ---- logo kampus/sekolah (satu per pengguna). Unggahan mentah (image/png|jpeg) divalidasi dan dikodekan ulang oleh
+    # malas.logo; yang tersimpan hanya PNG bersih. Tidak pernah dikirim ke penyedia LLM.
+    @app.put("/api/logo", response_model=LogoOut)
+    async def put_logo(request: Request) -> dict:
+        declared = request.headers.get("content-length")
+        if declared and declared.isdigit() and int(declared) > MAX_LOGO_UPLOAD:
+            raise HTTPException(413, "Ukuran logo maksimal 300 KB.")
+        buf = bytearray()
+        async for chunk in request.stream():
+            buf += chunk
+            if len(buf) > MAX_LOGO_UPLOAD:
+                raise HTTPException(413, "Ukuran logo maksimal 300 KB.")
+        try:
+            png = await run_in_threadpool(normalize_logo, bytes(buf))
+        except LogoError as e:
+            raise HTTPException(422, str(e)) from e
+        await run_in_threadpool(mgr.save_logo, request.state.owner, png)
+        info = mgr.logo_info(request.state.owner)
+        return {"size": info["size"], "updated_at": info["updated_at"]}
+
+    @app.get("/api/logo", response_class=Response, responses={200: {"content": {"image/png": {}}}, 404: {"description": "Belum ada logo"}})
+    def get_logo(request: Request) -> Response:
+        png = mgr.get_logo(request.state.owner)
+        if png is None:
+            raise HTTPException(404, "Belum ada logo tersimpan")
+        return Response(png, media_type="image/png", headers={"Cache-Control": "no-store"})
+
+    @app.delete("/api/logo", response_model=ResultOut)
+    def delete_logo(request: Request) -> dict:
+        if not mgr.delete_logo(request.state.owner):
+            raise HTTPException(404, "Belum ada logo tersimpan")
+        return {"result": "deleted"}
 
     # ---- API key tersimpan (opsi 3b): hanya daftar penyedia; nilai key TIDAK PERNAH dikembalikan
     @app.get("/api/keys", response_model=KeysOut)

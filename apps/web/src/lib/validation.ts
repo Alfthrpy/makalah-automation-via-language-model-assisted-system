@@ -29,7 +29,7 @@ export const emptyPenyusun = (rid: string): PenyusunRow => ({ rid, nama: "", nim
 const judulS = z.string().trim().min(3).max(200);
 const mkS = z.string().trim().min(2).max(120);
 
-export interface ValidateCtx { provider: ProviderInfo | undefined; hasSavedKey: boolean }
+export interface ValidateCtx { provider: ProviderInfo | undefined; hasSavedKey: boolean; useLogo?: boolean }
 
 export function validatePaper(f: PaperForm, ctx: ValidateCtx): FieldError[] {
   const errs: FieldError[] = [];
@@ -80,6 +80,7 @@ export function buildBody(f: PaperForm, ctx: ValidateCtx): CreateJobBody {
     template: f.template || undefined,
     mock: f.mock,
   };
+  if (ctx.useLogo) body.use_logo = true;
   if (!f.mock) {
     body.provider = f.provider;
     if (opt(f.model_planner)) body.model_planner = f.model_planner.trim();

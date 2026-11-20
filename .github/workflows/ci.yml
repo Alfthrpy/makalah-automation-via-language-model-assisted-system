@@ -30,6 +30,10 @@ jobs:
           apps/api/src/malas_api/storage.py
           apps/api/tests/test_openapi.py
           apps/api/tests/test_storage.py
+          apps/api/tests/test_logo.py
+          apps/api/src/malas_api/migrations/versions/0003_user_logos.py
+          packages/engine/src/malas/logo.py
+          packages/engine/tests/test_logo.py
       - run: uv run pytest -q
 
   python-postgres:

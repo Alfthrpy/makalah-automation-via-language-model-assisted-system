@@ -70,6 +70,8 @@ def default_runner(job: dict, progress: Callable[[str, str, str], None], output_
         flow.template_path = job["template_path"]
         flow.output_path = str(output_path)
         flow.progress = progress
+        flow.logo_path = job.get("logo_path")
+        flow.neutral_logo = bool(job.get("neutral_logo"))
         flow.checkpoint_path = Path(output_path).parent / "checkpoint.json"
         flow.resume = bool(job.get("resume_from"))
         flow.kickoff()
@@ -173,7 +175,7 @@ class JobManager:
     def submit(self, request: dict, mock: bool, template_path: str, template_name: str, *,
                owner: str = "", runtime: Optional[Runtime] = None, resume_from: Optional[str] = None,
                key_source: Optional[str] = None, provider: Optional[str] = None,
-               models: Optional[dict] = None, quota_day: Optional[str] = None) -> dict:
+               models: Optional[dict] = None, quota_day: Optional[str] = None, use_logo: bool = False) -> dict:
         self.purge()
         if runtime is not None:
             key_source, provider = "session", runtime.provider_id
@@ -204,6 +206,7 @@ class JobManager:
             "usage": None,
             "stats": None,
             "has_file": False,
+            "use_logo": use_logo,  # pakai logo kampus/sekolah tersimpan milik pengguna di sampul
             "quota_day": quota_day,  # hari kuota yang dipakai job ini (untuk refund bila dibatalkan sebelum jalan)
         }
         if resume_from and not (self.repo.checkpoint_meta(resume_from)):
@@ -290,6 +293,23 @@ class JobManager:
 
     def delete_user_key(self, owner: str, provider: str) -> bool:
         return self.repo.delete_key(owner, provider)
+
+    # ---- logo kampus/sekolah (satu per pengguna)
+    def save_logo(self, owner: str, png: bytes) -> None:
+        self.repo.put_logo(owner, png)
+
+    def get_logo(self, owner: str) -> Optional[bytes]:
+        return self.repo.get_logo(owner)
+
+    def logo_info(self, owner: str) -> Optional[dict]:
+        return self.repo.logo_info(owner)
+
+    def delete_logo(self, owner: str) -> bool:
+        return self.repo.delete_logo(owner)
+
+    @property
+    def retention_hours(self) -> Optional[float]:
+        return self._retention
 
     def shutdown(self) -> None:
         self._stop.set()  # menghentikan pekerja & heartbeat; job yang sedang berjalan menjadi basi -> interrupted
@@ -423,6 +443,15 @@ class JobManager:
         quiet = (contextlib.redirect_stdout(sink), contextlib.redirect_stderr(sink)) if self._quiet else ()
         try:
             runtime = self._resolve_runtime(job)
+            job["neutral_logo"] = True  # tanpa logo pengguna: penanda netral, bukan logo bawaan template
+            if job.get("use_logo"):
+                logo = self.repo.get_logo(job["owner"])
+                if logo:
+                    logo_file = workdir / "logo.png"
+                    logo_file.write_bytes(logo)
+                    job["logo_path"] = str(logo_file)
+                else:
+                    self._progress(job_id, "docx", "info", "logo tersimpan tidak ditemukan; memakai penanda netral")
             ck = self.repo.get_checkpoint(job_id) if job.get("resume_from") else None
             if ck:
                 ck_path.write_bytes(ck[0])

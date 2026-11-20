@@ -119,7 +119,7 @@ key di `.env` server tidak pernah dipakai, jadi server tidak perlu menyimpan key
 |---|---|
 | Penyimpanan key | Hanya di memori proses selama job berjalan, lalu dibuang (selesai, gagal, batal, hapus, shutdown). Tidak masuk `job.json`, cache, log, env, URL, maupun localStorage/sessionStorage browser. Kolom key dikosongkan setelah dikirim dan saat halaman ditinggalkan. |
 | Kebocoran lewat error/log | Pesan error, log Python (termasuk litellm), dan traceback dibersihkan dari key; respons validasi tidak memantulkan input. Pesan ke pengguna berupa kalimat ramah, bukan JSON mentah penyedia. |
-| Jejak di host | stdout/stderr dibungkam saat job; telemetry CrewAI dimatikan; log crew mati kecuali `MALAS_DEBUG_LOGS=1`; riwayat dan berkas dihapus otomatis setelah `MALAS_WEB_RETENTION_HOURS` (default 6). |
+| Jejak di host | stdout/stderr dibungkam saat job; telemetry CrewAI dimatikan; log crew mati kecuali `MALAS_DEBUG_LOGS=1`; riwayat dan berkas dihapus otomatis setelah `MALAS_WEB_RETENTION_HOURS` (default 48 di mode hosting). |
 | Privasi antar pengguna | Tiap browser mendapat cookie sesi acak (HttpOnly, SameSite=Lax, Secure bila HTTPS); riwayat, status, dan unduhan hanya terlihat oleh pemiliknya (selain itu 404). |
 | Penyalahgunaan | Maks. 1 job aktif per pengguna dan `MALAS_WEB_MAX_QUEUE` (default 5) job aktif total; body dibatasi 100 KB; Host asing ditolak. |
 | Transport | Wajib HTTPS di internet (Netlify dan Hugging Face menyediakannya). UI menolak mengisi key bila halaman dibuka lewat HTTP non-localhost. |

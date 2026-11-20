@@ -93,6 +93,17 @@
             "title": "Providers",
             "type": "array"
           },
+          "retention_hours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retention Hours"
+          },
           "server_key_available": {
             "title": "Server Key Available",
             "type": "boolean"
@@ -392,6 +403,17 @@
                 "type": "null"
               }
             ]
+          },
+          "use_logo": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Use Logo"
           }
         },
         "required": [
@@ -547,6 +569,11 @@
             "minLength": 0,
             "title": "Universitas",
             "type": "string"
+          },
+          "use_logo": {
+            "default": false,
+            "title": "Use Logo",
+            "type": "boolean"
           },
           "use_saved_key": {
             "default": false,
@@ -899,6 +926,30 @@
         "title": "LogLine",
         "type": "object"
       },
+      "LogoOut": {
+        "properties": {
+          "size": {
+            "title": "Size",
+            "type": "integer"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "required": [
+          "size"
+        ],
+        "title": "LogoOut",
+        "type": "object"
+      },
       "MeOut": {
         "properties": {
           "id": {
@@ -911,6 +962,16 @@
               }
             ],
             "title": "Id"
+          },
+          "logo": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LogoOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "mode": {
             "enum": [
@@ -1522,6 +1583,55 @@
           }
         },
         "summary": "Delete Key"
+      }
+    },
+    "/api/logo": {
+      "delete": {
+        "operationId": "delete_logo_api_logo_delete",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Delete Logo"
+      },
+      "get": {
+        "operationId": "get_logo_api_logo_get",
+        "responses": {
+          "200": {
+            "content": {
+              "image/png": {}
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "description": "Belum ada logo"
+          }
+        },
+        "summary": "Get Logo"
+      },
+      "put": {
+        "operationId": "put_logo_api_logo_put",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogoOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Put Logo"
       }
     },
     "/api/me": {

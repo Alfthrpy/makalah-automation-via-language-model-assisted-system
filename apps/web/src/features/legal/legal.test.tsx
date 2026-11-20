@@ -29,15 +29,22 @@ describe.each([["terms", TERMS], ["privacy", PRIVACY]] as const)("halaman hukum:
 
 describe("kesesuaian dengan perilaku sistem", () => {
   const flat = (d: typeof TERMS) => JSON.stringify(d);
-  it("retensi 6 jam disebut di kedua dokumen", () => {
-    expect(flat(TERMS)).toContain("6 jam");
-    expect(flat(PRIVACY)).toContain("6 jam");
+  it("retensi 48 jam disebut di kedua dokumen", () => {
+    expect(flat(TERMS)).toContain("48 jam");
+    expect(flat(PRIVACY)).toContain("48 jam");
   });
   it("NIM tidak dikirim ke penyedia LLM, dan nama dosen/penyusun dikirim", () => {
     const sent = PRIVACY.sections.find((s) => s.id === "pihak-penerima")!;
     const text = JSON.stringify(sent);
     expect(text).toMatch(/nama dosen dan nama penyusun/);
     expect(text).toMatch(/NIM, kelas, universitas, fakultas, dan jurusan tidak dikirim/);
+  });
+  it("logo: tersimpan sampai dihapus, tidak dikirim ke penyedia LLM, hak atas logo ada di Ketentuan", () => {
+    const p = JSON.stringify(PRIVACY);
+    expect(p).toMatch(/Logo \(opsional\)/);
+    expect(p).toMatch(/Logo yang kamu unggah tidak dikirim ke penyedia model bahasa/);
+    expect(p).toMatch(/Logo tersimpan sampai kamu menghapusnya/);
+    expect(JSON.stringify(TERMS)).toMatch(/logo kampus atau sekolah yang kamu unggah/);
   });
   it("tidak ada klaim terlarang (lolos deteksi, jaminan nilai)", () => {
     for (const d of [TERMS, PRIVACY]) {

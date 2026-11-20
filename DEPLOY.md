@@ -54,7 +54,7 @@ Browser ──> Netlify (apps/web, statis)
 | `MALAS_DAILY_QUOTA` | Variable | mis. `3` |
 | `R2_*` | Secret | opsional, lihat bagian 6 |
 
-   Bawaan dari Dockerfile (tidak perlu diisi): `MALAS_WEB_REQUIRE_KEY=1`, `MALAS_FULLTEXT=1`, `PORT=7860`. `MALAS_WEB_RETENTION_HOURS` (6) dan `MALAS_WEB_MAX_QUEUE` (5) bisa ditimpa.
+   Bawaan dari Dockerfile (tidak perlu diisi): `MALAS_WEB_REQUIRE_KEY=1`, `MALAS_FULLTEXT=1`, `PORT=7860`. `MALAS_WEB_RETENTION_HOURS` (48) dan `MALAS_WEB_MAX_QUEUE` (5) bisa ditimpa.
    `SPACE_HOST` diisi otomatis oleh HF dan sudah diizinkan sebagai Host.
 3. **Mengisi kode Space**, pilih salah satu:
    - **Otomatis (disarankan):** di repo GitHub: *Settings > Secrets and variables > Actions*: secret `HF_TOKEN` (token HF izin *write*), variable `HF_SPACE` (`pemilik/nama-space`). Jalankan workflow **Deploy backend ke Hugging Face Space** (atau push ke `main`).
