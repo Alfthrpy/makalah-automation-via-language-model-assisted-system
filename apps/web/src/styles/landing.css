@@ -8,8 +8,10 @@
 .h-mark { background-image: linear-gradient(var(--mark), var(--mark)); background-repeat: no-repeat; background-position: 0 55%; background-size: 100% 78%; color: var(--mark-ink); padding: 0 .12em; }
 .anim-on .h-mark { animation: swipe .9s .3s cubic-bezier(.3, .7, .3, 1) both; }
 @keyframes swipe { from { background-size: 0 78%; color: var(--ink); } }
+@keyframes cue { 50% { transform: translateY(4px); } }
 
-.try { display: grid; gap: var(--sp-3); min-width: 0; padding: var(--sp-4); }
+.try { display: grid; gap: var(--sp-3); min-width: 0; padding: var(--sp-4); scroll-margin-top: 80px; }
+.hero-cue { display: none; }
 .try-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
 .try-title { font-family: var(--font-body); font-size: var(--fs-md); font-weight: 700; letter-spacing: 0; }
 .motion-btn { min-height: var(--tap); padding: 0 12px; font-size: var(--fs-xs); }
@@ -163,13 +165,27 @@
 }
 @container app (max-width: 980px) {
   .l-hero, .priv { grid-template-columns: minmax(0, 1fr); }
+  /* Satu kolom: layar pertama HANYA hero (judul, ajakan, fakta singkat). Kartu "Coba ketik judul" mulai tepat di bawah lipatan:
+     tinggi hero-copy = tinggi layar - topbar (65px) - jarak atas - jarak antar-baris (var --hp). Layar yang kependekan: tumbuh, tidak dipotong. */
+  .l-hero { --hp: var(--sp-6); padding-block: var(--hp) var(--sp-7); gap: var(--hp); }
+  .hero-copy { position: relative; align-content: center; min-height: calc(100svh - 65px - 2 * var(--hp)); padding-bottom: 56px; }
+  .hero-cue { position: absolute; inset: auto 0 0; display: flex; justify-content: center; align-items: center; gap: 4px; min-height: var(--tap); color: var(--accent); font-weight: 600; font-size: var(--fs-sm); text-decoration: none; }
+  .anim-on .hero-cue svg { animation: cue 1.6s ease-in-out 3; }
   .acro { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .l-steps { grid-template-columns: minmax(0, 1fr); }
   .situ-panel { grid-template-columns: minmax(0, 1fr); }
 }
 @container app (max-width: 680px) {
-  .l-hero { padding-block: var(--sp-5) var(--sp-6); gap: var(--sp-5); }
-  .hero-copy { padding-top: 0; }
+  .l-hero { --hp: var(--sp-5); padding-block: var(--hp) var(--sp-6); }
+  .hero-copy { padding-top: 0; justify-items: stretch; }
+  .hero-copy .btn-row { flex-wrap: nowrap; }
+  .landing .hero-copy .btn-row .btn { flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 12px; }
+  .landing .hero-copy .btn-row .btn.primary { flex-grow: 1.5; }
+  .l-hero h1 { font-size: clamp(2rem, 9vw, 3rem); }
+  .hero-facts { justify-content: flex-start; }
+  .topbar-in { gap: var(--sp-2); }
+  .topbar .right { gap: var(--sp-1); }
+  .topbar .right .btn { padding-inline: 12px; }
   .honest, .vs { grid-template-columns: minmax(0, 1fr); }
   .acro { grid-template-columns: minmax(0, 1fr); gap: var(--sp-2); }
   .acro-t { grid-template-columns: 44px minmax(0, 1fr); column-gap: 12px; row-gap: 0; padding: 12px; }
@@ -180,6 +196,15 @@
   .section { padding-block: var(--sp-6); }
   .pp { padding-left: 46px; background-image: linear-gradient(90deg, transparent 32px, var(--margin-red) 32px, var(--margin-red) 34px, transparent 34px), repeating-linear-gradient(transparent 0 calc(var(--lh) - 1px), var(--rule) calc(var(--lh) - 1px) var(--lh)); }
   .landing .btn.lg { white-space: normal; text-align: center; padding-block: 8px; }
+}
+
+/* Layar sangat sempit (≤360px): topbar dirapatkan supaya brand + tema + Masuk + Daftar muat tanpa geser samping. */
+@container app (max-width: 360px) {
+  .wrap.topbar-in { padding-inline: 12px; }
+  .brand { gap: 8px; }
+  .brand b { font-size: 1.1rem; }
+  .topbar .right { gap: 0; }
+  .topbar .right .btn { padding-inline: 8px; }
 }
 
 /* ===== ilustrasi "lembar tidur": geometris, garis 3, warna dari token ===== */
