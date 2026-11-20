@@ -36,6 +36,7 @@ from malas_api.crypto import cipher_from_env
 from malas_api.db import database_url_from_env, migrate_url_from_env
 from malas_api.jobs import ID_RE, JobManager
 from malas_api.schemas import ConfigOut, JobOut, JobSummary, KeysOut, MeOut, ResultOut
+from malas_api.storage import storage_from_env
 
 TEMPLATE_DIR = paths.TEMPLATES_DIR
 DEFAULT_TEMPLATE_NAME = paths.DEFAULT_TEMPLATE_NAME
@@ -171,6 +172,7 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
             database_url=database_url_from_env(),
             migrate_url=migrate_url_from_env(),
             cipher=cipher_from_env(),
+            storage=storage_from_env(),  # R2 bila R2_* diisi, selain itu bytea di database
         )
     mgr = manager
     max_queue = int(os.getenv("MALAS_WEB_MAX_QUEUE", "5"))

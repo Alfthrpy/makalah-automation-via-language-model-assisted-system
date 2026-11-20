@@ -1,0 +1,40 @@
+name: Deploy backend ke Hugging Face Space
+
+# Butuh: secret HF_TOKEN (token HF dengan izin write) dan variable HF_SPACE (mis. "pengguna/malas-api").
+# Tanpa HF_SPACE, job dilewati. Dijalankan manual atau tiap push ke main yang mengubah backend.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["apps/api/**", "packages/engine/**", "pyproject.toml", "uv.lock", "deploy/hf-space/**"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-hf
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ vars.HF_SPACE != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Susun bundel Space
+        run: deploy/hf-space/bundle.sh "$RUNNER_TEMP/space"
+      - name: Push ke Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_SPACE: ${{ vars.HF_SPACE }}
+        run: |
+          cd "$RUNNER_TEMP/space"
+          git init -q -b main
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Deploy dari ${GITHUB_REPOSITORY}@${GITHUB_SHA::7}"
+          # Token lewat header, bukan URL, supaya tidak tercetak di log.
+          auth=$(printf 'hf:%s' "$HF_TOKEN" | base64 -w0)
+          echo "::add-mask::$auth"
+          git -c http.extraHeader="Authorization: Basic $auth" push --force "https://huggingface.co/spaces/${HF_SPACE}" main

@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python-sqlite:
+    name: Python (SQLite)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages --frozen
+      - name: Lint (hanya berkas baru; kode lama belum dirapikan)
+        run: >
+          uv run ruff check
+          apps/api/src/malas_api/schemas.py
+          apps/api/src/malas_api/export_openapi.py
+          apps/api/src/malas_api/storage.py
+          apps/api/tests/test_openapi.py
+          apps/api/tests/test_storage.py
+      - run: uv run pytest -q
+
+  python-postgres:
+    name: Python (Postgres 16)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: malas_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      MALAS_TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/malas_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages --frozen
+      # Hanya apps/api: suite ini yang menyentuh database (database dikosongkan tiap tes).
+      - run: uv run pytest -q apps/api
+
+  web:
+    name: Web (typecheck, tes, build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter web typecheck
+      - run: pnpm --filter web test
+      - run: pnpm --filter web build
+
+  docker:
+    name: Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f apps/api/Dockerfile -t malas:ci .
+      - name: Smoke test (server naik, health check, config)
+        run: |
+          docker run -d --name malas -p 7860:7860 malas:ci
+          for i in $(seq 1 30); do curl -fsS http://localhost:7860/healthz && break || sleep 2; done
+          curl -fsS http://localhost:7860/api/config | grep -q '"hosted":true'
+          docker logs malas

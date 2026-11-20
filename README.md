@@ -49,13 +49,16 @@ GEMINI_API_KEY="isi_api_key_anda"
 
 ### Antarmuka web (disarankan)
 
+Backend (API) dan web dijalankan terpisah; web mem-proxy `/api` ke backend:
+
 ```bash
-uv run malas-web
+uv run malas-web                 # API di http://127.0.0.1:8000
+pnpm install && pnpm dev:web     # web di http://localhost:5173 (VITE_AUTH_MODE=dev = tanpa Clerk)
 ```
 
-Buka <http://127.0.0.1:8000>, isi formulir, lalu tekan **Buat makalah**. Halaman menampilkan
+Buka <http://localhost:5173>, isi formulir, lalu tekan **Buat makalah**. Halaman menampilkan
 progres tiap tahap, ringkasan hasil (jumlah sub-bab, referensi, sitasi, token), tombol unduh
-`.docx`, dan riwayat. Hasil tersimpan di `output/jobs/<id>/` sehingga selamat dari restart.
+`.docx`, dan riwayat. Riwayat dan hasil tersimpan di database (SQLite `output/malas.db` bila `DATABASE_URL` kosong), sehingga selamat dari restart.
 
 - **Mode uji**: centang untuk mencoba alur tanpa memanggil LLM (isi berupa teks contoh).
 - **API key sendiri (BYOK)**: pengguna memilih penyedia (**OpenRouter** atau **Kenari**), menempel key,
@@ -103,10 +106,10 @@ Tanpa konfigurasi Clerk server tetap berjalan dalam mode anonim (cookie acak), c
 
 ### Hosting publik tanpa login (mode BYOK)
 
-> Deploy ke Render langkah demi langkah: lihat **[DEPLOY.md](DEPLOY.md)** (sudah ada `apps/api/Dockerfile` dan `render.yaml`).
+> Deploy langkah demi langkah (Netlify + Hugging Face Space + Neon + Clerk + R2): lihat **[DEPLOY.md](DEPLOY.md)**.
 
 ```bash
-MALAS_WEB_REQUIRE_KEY=1 MALAS_WEB_HOST=0.0.0.0 MALAS_WEB_ALLOWED_HOSTS="app-anda.onrender.com" uv run malas-web
+MALAS_WEB_REQUIRE_KEY=1 MALAS_WEB_HOST=0.0.0.0 MALAS_WEB_ALLOWED_HOSTS="api.domain-anda.com" uv run malas-web
 ```
 
 Dengan `MALAS_WEB_REQUIRE_KEY=1` setiap pengguna **wajib** membawa key sendiri (kecuali Mode uji);
@@ -119,7 +122,7 @@ key di `.env` server tidak pernah dipakai, jadi server tidak perlu menyimpan key
 | Jejak di host | stdout/stderr dibungkam saat job; telemetry CrewAI dimatikan; log crew mati kecuali `MALAS_DEBUG_LOGS=1`; riwayat dan berkas dihapus otomatis setelah `MALAS_WEB_RETENTION_HOURS` (default 6). |
 | Privasi antar pengguna | Tiap browser mendapat cookie sesi acak (HttpOnly, SameSite=Lax, Secure bila HTTPS); riwayat, status, dan unduhan hanya terlihat oleh pemiliknya (selain itu 404). |
 | Penyalahgunaan | Maks. 1 job aktif per pengguna dan `MALAS_WEB_MAX_QUEUE` (default 5) job aktif total; body dibatasi 100 KB; Host asing ditolak. |
-| Transport | Wajib HTTPS di internet (Render dll. menyediakannya). UI menolak mengisi key bila halaman dibuka lewat HTTP non-localhost. |
+| Transport | Wajib HTTPS di internet (Netlify dan Hugging Face menyediakannya). UI menolak mengisi key bila halaman dibuka lewat HTTP non-localhost. |
 
 Batas yang jujur: Python tidak bisa menghapus string dari memori secara pasti, sehingga key bisa
 tersisa di RAM sampai di-garbage-collect; operator server dengan akses ke proses/RAM tetap bisa

@@ -31,7 +31,7 @@ apps/api/                 # paket Python `malas_api`
     repo.py               # SATU-SATUNYA tempat SQL: job/checkpoint/key; job <-> dict
     db.py                 # model SQLAlchemy 2, make_engine (Neon/SQLite), migrate(), Database
     migrations/           # Alembic: env.py, versions/0001_initial.py
-    storage.py            # Storage Protocol + DbStorage (bytea). R2 = implementasi berikutnya
+    storage.py            # Storage Protocol + DbStorage (bytea) + S3Storage (R2, aktif bila R2_* terisi)
     auth.py               # Authenticator Clerk: JWT RS256 via PyJWKClient, azp, token_from_request (cookie hanya GET)
     crypto.py             # KeyCipher (Fernet+HKDF), cipher_from_env, rotasi lewat MALAS_SECRET_KEY_OLD
     vault.py              # key sesi di memori + redaksi log/error
@@ -42,9 +42,9 @@ apps/api/                 # paket Python `malas_api`
 packages/api-types/       # @malas/api-types: openapi.json + schema.d.ts (generate: `pnpm --filter @malas/api-types generate`)
 packages/engine/          # paket Python `malas`: crews, docx_converter, citations, fulltext, tolerant, CLI `kickoff`
   src/malas/{paths.py,templates/,examples/}
-render.yaml               # Blueprint Render lama; diganti ke HF Space di Fase 5
+netlify.toml / deploy/hf-space/ / .github/workflows/   # deploy & CI (Fase 5); panduan: DEPLOY.md
 ```
-Perintah penting: `uv sync --all-packages`, `uv run pytest -q` (136 lulus + 1 skip khusus Postgres), `uv run malas-web`,
+Perintah penting: `uv sync --all-packages`, `uv run pytest -q` (138 lulus + 1 skip khusus Postgres), `uv run malas-web`,
 `MALAS_MOCK=1 uv run kickoff --output x.docx`.
 Tes ke Postgres: `MALAS_TEST_DATABASE_URL=postgresql://postgres@localhost:54329/malas_test uv run pytest apps/api`
 (database DIKOSONGKAN tiap tes). Postgres 16 ada di sandbox: `/usr/lib/postgresql/16/bin`, jalankan sebagai user `postgres`
@@ -79,8 +79,13 @@ dengan data dir milik `postgres` (mis. `/var/tmp/pgdata-malas`, port 54329, `-A 
     belakang proxy Netlify (domain/SameSite). Verifikasi saat Fase 5.
 - [x] **Fase 4: Frontend React** (`apps/web`), M0-M6 + B1-B5 selesai dan diverifikasi di sandbox.
   Sisa kecil: uji dengan Clerk asli, tes komponen MSW (opsional), B6 (label template ramah, hanya bila pemilik minta).
-- [ ] **Fase 5: Deploy + CI**: Dockerfile HF Space (port 7860, `PORT`), `netlify.toml`, GitHub Actions (pytest SQLite+Postgres service,
-  ruff terbatas pada kode baru, typecheck + build web), `S3Storage` untuk R2, update DEPLOY.md. Ingat: HF Space bisa tidur; disk ephemeral.
+- [x] **Fase 5: Deploy + CI** (kode & konfigurasi selesai; BELUM dideploy ke layanan asli).
+  - `apps/api/Dockerfile`: port 7860 (`PORT`), uid 1000, `MALAS_FULLTEXT=1`; user dibuat sebelum `uv sync` (hindari `chown -R` yang menggandakan layer). **Dibuild dan dijalankan sungguhan di sandbox** (3,76 GB; `/healthz` ok, `hosted:true`, boto3 ada, folder tulis ok). Build di sandbox butuh CA proxy sandbox (salinan Dockerfile sementara + `--build-context ca=/root/.ccr`); di CI/HF tidak perlu.
+  - `deploy/hf-space/{README.md,bundle.sh}` + `.github/workflows/deploy-hf.yml`: bundel sub-set repo (Dockerfile di root + front-matter HF `sdk: docker, app_port: 7860`) di-push ke Space; butuh secret `HF_TOKEN` + variable `HF_SPACE`, dilewati bila variable kosong. `bundle.sh` diuji (1,4 MB); workflow-nya BELUM pernah jalan.
+  - `netlify.toml`: build pnpm, proxy `/api/*` -> `https://GANTI-SPACE.hf.space` (HARUS diedit; Netlify tak mengizinkan env di redirect), fallback SPA, header keamanan + CSP untuk Clerk (BELUM diuji dengan Clerk asli; `index.html` build tanpa skrip inline).
+  - `.github/workflows/ci.yml`: pytest SQLite, pytest apps/api di Postgres 16 (service), web typecheck+test+build, build image + smoke test. Ruff hanya pada berkas baru/dirapikan (daftar eksplisit di ci.yml; tambahkan berkas bila dirapikan). BELUM pernah jalan di GitHub Actions.
+  - `S3Storage` + `storage_from_env()` (R2): aktif bila keempat `R2_*` terisi, sebagian terisi = error saat start. Diuji dengan klien S3 palsu (`test_storage.py`); R2 asli belum dicoba. `boto3` jadi dependensi apps/api (impor lambat).
+  - `DEPLOY.md` ditulis ulang (Neon, Clerk, HF Space, Netlify, R2, troubleshooting); `render.yaml` dihapus; README disesuaikan (UI web di :5173, API tidak lagi melayani HTML).
 - [ ] **Fase 6 (opsional)**: ToS/Privasi, email (Resend), Sentry, admin, pembayaran.
 
 ## Hal yang perlu diketahui
@@ -183,8 +188,13 @@ Jalankan e2e: `uv run malas-web` + `pnpm --filter web dev`, lalu `NODE_PATH=$(np
 Catatan: tes `test_ringkasan_riwayat_memuat_progres_dan_posisi_antrean` pernah flaky (race menunggu `current_detail`); sudah diperbaiki.
 
 ## Langkah berikutnya (mulai di sini)
-**Fase 4 praktis selesai.** Yang tersisa hanya yang butuh kredensial: uji login nyata dengan akun Clerk dev (`VITE_AUTH_MODE=clerk` + `VITE_CLERK_PUBLISHABLE_KEY`, backend `CLERK_ISSUER`), dan Neon asli.
-Yang dibutuhkan dari pemilik (via env/secret, JANGAN di chat): Publishable key Clerk (+ akun dev); connection string Neon bila ingin verifikasi ke Neon asli.
+Semua kode dan konfigurasi selesai. Yang tersisa HANYA yang butuh akun/kredensial milik pemilik; kerjakan berurutan mengikuti `DEPLOY.md` dan verifikasi tiap langkah:
+1. Push ke GitHub dan lihat CI hijau (pertama kali dijalankan; perbaiki bila ada beda lingkungan). Perlu `main`/PR agar workflow berjalan.
+2. Neon (DATABASE_URL pooled + direct) -> uji migrasi + latensi cold-start + PgBouncer.
+3. Clerk dev instance -> uji `<SignIn/>`, format `iss`/`azp`, `getToken`, `openUserProfile`.
+4. HF Space (secret `HF_TOKEN`, variable `HF_SPACE`) -> jalankan workflow deploy; cek `/healthz`.
+5. Netlify: ganti `GANTI-SPACE.hf.space` di `netlify.toml`, isi `VITE_CLERK_PUBLISHABLE_KEY`; cek Console (pelanggaran CSP Clerk), header `Authorization`/`Host` lewat proxy.
+6. (Opsional) R2.
+Yang dibutuhkan dari pemilik (via env/secret, JANGAN di chat): akun/token untuk langkah di atas.
 
-**Lanjut ke Fase 5** (tidak butuh kredensial untuk ditulis): `apps/api/Dockerfile` untuk HF Space (port 7860, `PORT`; sekarang `SPACE_HOST` sudah otomatis diizinkan), `netlify.toml` (build `apps/web`, redirect `/api/*` -> `https://<space>.hf.space/api/:splat` status 200 force, fallback SPA, header keamanan/CSP termasuk domain Clerk),
-GitHub Actions (pytest SQLite + service Postgres, ruff terbatas pada kode baru, typecheck + test + build web; tes drift OpenAPI sudah ada di pytest), `S3Storage` untuk R2, update DEPLOY.md, hapus `render.yaml`. Lalu Fase 6 (opsional).
+Fase 6 (opsional): isi ToS/Privasi (sekarang halaman placeholder `/ketentuan`, `/privasi`), email (Resend), Sentry, admin, pembayaran; B6 (label template ramah) bila diminta; tes komponen MSW; bundle size.
