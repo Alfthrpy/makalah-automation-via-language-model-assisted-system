@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1080">
+<title>MALAS Promo v6</title>
+<!--
+  Video promo vertikal MALAS v6 "5 Tahap Duka Ngerjain Makalah" (1080x1920, 30 fps, 75,0 dtk = 120 ketukan @ 96 BPM).
+  Pendekatan SOFT-SELL: ~87% durasi murni relatable/edukatif (parodi lima tahap menghadapi tugas wajib yang terasa receh:
+  ngeles, kesal, nawar, pasrah, nerima + tiga langkah kecil memulai yang berlaku TANPA MALAS). Promosi baru di 10 dtk terakhir,
+  berlabel jujur ("Promosi dikit ya, dari tim MALAS"), nama MALAS dibuka sebagai punchline lalu langsung dibalik maknanya.
+  Tanpa klaim kecepatan/nilai/deteksi AI. Layar UI Mode uji berlabel "Tampilan contoh". Hasil = DRAF.
+  Audio disintesis terpisah oleh audio.py dari window.EVENTS (lihat build.sh).
+  Deterministik: window.renderFrame(tMs) menghitung seluruh tampilan dari t.  ?play=1 -> pratinjau realtime; ?t=8.5 -> satu bingkai.
+  Adegan (ketukan): H 0-4 | T1 Ngeles 4-24 | T2 Kesal 24-40 | T3 Nawar 40-56 | T4 Pasrah 56-76 | T5 Nerima 76-100 | TR 100-104 | CTA-a 104-112 | CTA-b 112-120.
+-->
+<style>
+@font-face{font-family:"Bricolage";src:url(fonts/bricolage-grotesque-latin-wght-normal.woff2) format("woff2");font-weight:200 800;font-display:block}
+@font-face{font-family:"Jakarta";src:url(fonts/plus-jakarta-sans-latin-600-normal.woff2) format("woff2");font-weight:600;font-display:block}
+@font-face{font-family:"Jakarta";src:url(fonts/plus-jakarta-sans-latin-700-normal.woff2) format("woff2");font-weight:700;font-display:block}
+@font-face{font-family:"Jakarta";src:url(fonts/plus-jakarta-sans-latin-800-normal.woff2) format("woff2");font-weight:800;font-display:block}
+@font-face{font-family:"JBMono";src:url(fonts/jetbrains-mono-latin-700-normal.woff2) format("woff2");font-weight:700;font-display:block}
+@font-face{font-family:"Carlito";src:url(fonts/Carlito-Regular.ttf) format("truetype");font-weight:400;font-display:block}
+@font-face{font-family:"Carlito";src:url(fonts/Carlito-Bold.ttf) format("truetype");font-weight:700;font-display:block}
+:root{
+  --bg:#f4f5f8; --surface:#fff; --ink:#161a2c; --muted:#545b73; --line:#d9dce6;
+  --accent:#2c3a9e; --accent-soft:#e5e8fa; --mark:#ffe55c; --mark-ink:#1d1a05; --red:#d2405e; --green:#1d7a3e; --amber:#b86a0f;
+}
+html,body{margin:0;background:#000}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden;background:var(--bg);font-family:"Jakarta",sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+.tr{position:absolute;will-change:transform,opacity}
+.hd{left:84px;width:912px;margin:0;font:800 130px/1.0 "Bricolage";letter-spacing:-.035em}
+.hd .a{color:var(--accent)}
+.on-blue{color:#fff}
+.sm{font:700 54px/1.2 "Jakarta"}
+.pill{display:inline-flex;align-items:center;padding:12px 30px 15px;border-radius:999px;font:700 46px/1.1 "Jakarta";white-space:nowrap;background:var(--ink);color:#fff;box-shadow:0 10px 24px -8px rgba(22,26,44,.45)}
+.pill.l{background:rgba(255,255,255,.16);border:3px solid rgba(255,255,255,.6);box-shadow:none;font-size:42px}
+.mk{background:var(--mark);color:var(--mark-ink);padding:0 .1em;border-radius:.1em}
+.bubble{display:inline-block;background:#fff;border:2px solid var(--line);border-radius:44px;padding:26px 44px 32px;font:700 56px/1.2 "Jakarta";box-shadow:0 14px 30px -18px rgba(22,26,44,.35);box-sizing:border-box;max-width:860px}
+.row{display:flex;width:860px;left:84px}
+.mb{max-width:660px;padding:22px 34px 27px;font:700 46px/1.2 "Jakarta";box-sizing:border-box}
+.mb.me{background:var(--accent);color:#fff;border-radius:38px 38px 8px 38px}
+.mb.you{background:#e6e8ef;color:var(--ink);border-radius:38px 38px 38px 8px}
+.step{display:flex;align-items:center;gap:26px;height:120px;width:860px;left:84px;background:#fff;border-radius:28px;border:2px solid var(--line);box-sizing:border-box;padding:0 30px;box-shadow:0 14px 30px -20px rgba(22,26,44,.35)}
+.step i{flex:none;width:72px;height:72px;border-radius:50%;background:var(--accent);color:#fff;font:800 44px/72px "Bricolage";text-align:center;font-style:normal}
+.step span{font:700 42px/1.15 "Jakarta"}
+.tap{position:absolute;width:84px;height:84px;margin:-42px 0 0 -42px;border-radius:50%;background:rgba(22,26,44,.28);border:4px solid #fff;box-sizing:border-box;z-index:20;opacity:0}
+.it{position:absolute;border-radius:14px;box-shadow:0 8px 14px -8px rgba(22,26,44,.5)}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script>
+(function(){
+"use strict";
+/* ===== tempo: 96 BPM, semua peristiwa di ketukan / pecahan ketukan, dibulatkan ke bingkai ===== */
+const BPM=96, B=60/BPM;                // 0,625 dtk per ketukan (= 18,75 bingkai)
+const FPS=30;
+const fr=x=>Math.round(x*FPS)/FPS;
+const b=n=>fr(n*B);
+const T=b(120);                        // 120 ketukan = 75,0 dtk = 2250 bingkai
+const SC={T1:b(4),T2:b(24),T3:b(40),T4:b(56),T5:b(76),TR:b(100),CA:b(104),CB:b(112),END:T};
+const stage=document.getElementById('stage');
+const clamp=(x,a=0,c=1)=>Math.min(c,Math.max(a,x));
+const P=(t,a,d)=>clamp((t-a)/d);
+const lerp=(a,c,x)=>a+(c-a)*x;
+const outCubic=x=>1-Math.pow(1-x,3);
+const inCubic=x=>x*x*x;
+const inOut=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const outBack=(x,s=1.7)=>{const c=s+1;return 1+c*Math.pow(x-1,3)+s*Math.pow(x-1,2);};
+const $=(s,r=stage)=>r.querySelector(s);
+const f2=n=>n.toFixed(2);
+function el(html){const d=document.createElement('div');d.innerHTML=html.trim();const e=d.firstElementChild;stage.appendChild(e);return e;}
+
+/* ===== peristiwa (sumber kebenaran sinkron SFX di audio.py) ===== */
+const EV={
+  slam:b(1), notif:b(2.25),                                   // hook
+  num:[b(6),b(11),b(16)], tail:b(20),                         // T1 hitung mundur
+  bub:[b(25.5),b(29)], dosen:b(33), bub3:b(36.5),             // T2
+  sent:[b(42.5),b(45),b(52)], typeS:b(47), recv:b(49),        // T3
+  opens:[0,1,2,3,4,5,6].map(i=>b(58+2.5*i)), openDur:b(1.4), cap:b(68.5), // T4
+  st:b(78), mulai:b(81), steps:[b(84.5),b(88),b(91.5)], foot:b(95), res:b(97.5), // T5
+  tada:SC.TR,                                                 // TR konfeti
+  pill:b(104.25), t1:b(105), nam:b(106.5), scratch:b(107.5), slamM:b(108), sub:b(109.5), // CTA-a
+  ui:b(113), note1:b(115.5), press:b(116),                    // CTA-b
+};
+const EVENTS=[
+  {t:EV.slam,type:'thud'},{t:EV.notif,type:'notif'},
+  ...[SC.T1,SC.T2,SC.T3,SC.T4,SC.T5,SC.CA,SC.CB].map(t=>({t,type:'whoosh'})),
+  ...EV.num.map(t=>({t,type:'tick'})),{t:EV.tail,type:'plop'},
+  ...EV.bub.map(t=>({t,type:'pop'})),{t:EV.dosen,type:'stamp'},{t:EV.bub3,type:'plop'},
+  ...EV.sent.map(t=>({t,type:'sent'})),{t:EV.recv,type:'recv'},
+  ...EV.opens.map(t=>({t,type:'ting'})),{t:EV.cap,type:'plop'},
+  {t:EV.st,type:'pop'},{t:EV.mulai,type:'stamp'},
+  ...EV.steps.map((t,i)=>({t,type:'blip',i:[1,3,5][i]})),{t:EV.foot,type:'plop'},
+  {t:EV.tada,type:'tada'},
+  {t:EV.pill,type:'pop'},{t:EV.nam,type:'plop'},{t:EV.scratch,type:'scratch'},{t:EV.slamM,type:'thud'},
+  {t:EV.ui,type:'pop'},
+  {t:EV.note1,type:'note1'},{t:EV.press,type:'press'},{t:EV.press,type:'note2'},
+].sort((a,c)=>a.t-c.t);
+
+/* ===== track: masuk/keluar seragam ===== */
+const tracks=[];
+function track(e,tin,tout,o={}){tracks.push({e,tin,tout,dy:o.dy??80,hook:!!o.hook});e.style.zIndex=o.z||1;return e;}
+const ENTER=0.5, EXIT=0.35, LEAD=1/FPS;
+const CHECK='<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>';
+function head(n,word,tin,tout){
+  track(el(`<div class="tr" style="left:84px;top:270px"><span class="pill">TAHAP ${n} dari 5</span></div>`),tin,tout,{dy:40});
+  track(el(`<h1 class="hd tr" style="top:370px;font-size:150px">${word}</h1>`),tin,tout);
+}
+const flex=(top,just)=>`left:84px;width:860px;top:${top}px;display:flex;justify-content:${just}`;
+
+/* ---------- HOOK ---------- */
+track(el(`<h1 class="hd tr" style="top:270px;font-size:132px">5 tahap duka<br>ngerjain<br><span class="a" id="mk" style="display:inline-block;transform-origin:0 70%">makalah.</span></h1>`),0,SC.T1,{hook:true,z:3});
+track(el(`<div class="sm tr" style="left:84px;top:700px;width:860px;color:var(--muted);font-size:48px">Tahap 5 paling jarang dicapai.</div>`),0,SC.T1,{hook:true});
+track(el(`<div class="tr" style="left:84px;top:860px;width:860px;background:#fff;border-radius:36px;border:2px solid var(--line);box-shadow:0 30px 60px -28px rgba(22,26,44,.35);box-sizing:border-box;padding:30px 36px 36px">
+   <div style="display:flex;align-items:center;gap:20px;margin-bottom:22px"><div style="width:68px;height:68px;border-radius:50%;background:var(--accent)"></div>
+   <div><div style="font:800 40px/1.1 Jakarta">Grup Kelas</div><div style="font:600 30px/1.2 Jakarta;color:var(--muted)">baru saja</div></div></div>
+   <div class="mb you" style="max-width:none;font-size:50px">Tugas: makalah 10 hlm.<br>Kumpul 2 minggu lagi.</div></div>`),EV.notif-0.05,SC.T1,{dy:140,z:2});
+
+/* ---------- T1: NGELES ---------- */
+head(1,'Ngeles.',SC.T1,SC.T2);
+track(el(`<div class="tr" style="left:84px;top:640px;width:860px;height:620px;background:#fff;border-radius:36px;border:2px solid var(--line);box-shadow:0 30px 60px -28px rgba(22,26,44,.35)">
+  <div style="position:absolute;left:44px;top:34px;font:700 38px Jakarta;color:var(--muted)">Deadline makalah</div>
+  <div style="position:absolute;left:44px;right:44px;top:520px;height:32px;border-radius:16px;background:#e6e8f0;overflow:hidden"><div id="bar" style="height:100%;width:100%;border-radius:16px;background:var(--green)"></div></div>
+  <div style="position:absolute;left:44px;top:566px;font:600 30px Jakarta;color:var(--muted)">sisa waktu</div></div>`),SC.T1+0.1,SC.T2,{dy:100,z:2});
+[['14','Masih lama kok.','var(--green)'],['7','Masih banyak waktu.','var(--amber)'],['3','Masih bisa besok.','var(--red)']].forEach(([n,c,col],i)=>{
+  const t0=EV.num[i], t1=i<2?EV.num[i+1]+0.12:SC.T2;
+  track(el(`<div class="tr" style="left:84px;top:700px;width:860px;text-align:center"><div style="font:800 300px/1 Bricolage;letter-spacing:-.04em;color:${col}">${n}</div><div style="font:700 60px Jakarta;color:var(--muted);margin-top:-6px">hari lagi</div></div>`),i===0?SC.T1+0.2:t0,t1,{dy:60,z:3});
+  track(el(`<div class="tr" style="left:84px;top:1310px;width:860px;text-align:center;font:700 62px/1.2 Jakarta">“${c}”</div>`),i===0?SC.T1+0.3:t0,t1,{dy:50,z:3});
+});
+track(el(`<div class="tr" style="left:84px;top:1430px;width:860px;text-align:center;font:600 42px/1.2 Jakarta;color:var(--muted)">Waktunya masih banyak, katanya.</div>`),EV.tail,SC.T2,{dy:40});
+
+/* ---------- T2: KESAL ---------- */
+head(2,'Kesal.',SC.T2,SC.T3);
+track(el(`<div class="tr" style="${flex(640,'flex-start')}"><div class="bubble">Kenapa makalah <span id="lagi" style="display:inline-block;color:var(--red);font-weight:800">LAGI</span>?</div></div>`),EV.bub[0],SC.T3,{dy:60,z:2});
+track(el(`<div class="tr" style="${flex(850,'flex-end')}"><div class="bubble">Emang ada yang baca?</div></div>`),EV.bub[1],SC.T3,{dy:60,z:2});
+track(el(`<div class="tr" style="${flex(1070,'flex-start')}"><div class="bubble" style="background:var(--mark);border-color:#e6c93a;color:var(--mark-ink);font-size:64px;font-weight:800"><span id="dosen" style="display:inline-block">(ada: dosenmu.)</span></div></div>`),EV.dosen,SC.T3,{dy:30,z:3});
+track(el(`<div class="tr" style="${flex(1290,'flex-end')}"><div class="bubble" style="font-size:48px;color:var(--muted)">Yaudah… tapi mulai<br>dari mana?</div></div>`),EV.bub3,SC.T3,{dy:60,z:2});
+
+/* ---------- T3: NAWAR ---------- */
+head(3,'Nawar.',SC.T3,SC.T4);
+track(el(`<div class="tr" style="left:84px;top:640px;width:860px;height:770px;background:#fff;border-radius:36px;border:2px solid var(--line);box-shadow:0 30px 60px -28px rgba(22,26,44,.35)">
+  <div style="position:absolute;left:0;right:0;top:0;height:104px;border-bottom:2px solid var(--line);display:flex;align-items:center;gap:20px;padding:0 36px">
+  <div style="width:56px;height:56px;border-radius:50%;background:var(--accent)"></div><div style="font:800 42px Jakarta">Grup Kelas</div></div></div>`),SC.T3+0.1,SC.T4,{dy:100,z:1});
+track(el(`<div class="tr row" style="top:770px;justify-content:flex-end;padding-right:36px;box-sizing:border-box"><div class="mb me">Boleh 5 halaman aja nggak?</div></div>`),EV.sent[0],SC.T4,{dy:40,z:2});
+track(el(`<div class="tr row" style="top:915px;justify-content:flex-end;padding-right:36px;box-sizing:border-box"><div class="mb me">Font 14 boleh? Spasi 2?</div></div>`),EV.sent[1],SC.T4,{dy:40,z:2});
+track(el(`<div class="tr" style="left:120px;top:1060px;font:700 30px Jakarta;color:var(--muted)">Ketua Kelas</div>`),EV.typeS,SC.T4,{dy:20,z:2});
+track(el(`<div class="tr" style="left:120px;top:1110px"><div class="mb you" style="padding:34px 40px 36px"><span id="d0" style="font-size:44px">●</span> <span id="d1" style="font-size:44px">●</span> <span id="d2" style="font-size:44px">●</span></div></div>`),EV.typeS,EV.recv+0.1,{dy:20,z:2});
+track(el(`<div class="tr" style="left:120px;top:1110px"><div class="mb you">Baca RPS dulu.</div></div>`),EV.recv,SC.T4,{dy:30,z:2});
+track(el(`<div class="tr row" style="top:1265px;justify-content:flex-end;padding-right:36px;box-sizing:border-box"><div class="mb me">…oke.</div></div>`),EV.sent[2],SC.T4,{dy:40,z:2});
+
+/* ---------- T4: PASRAH ---------- */
+head(4,'Pasrah.',SC.T4,SC.T5);
+const ITEMS=[ // [w,h,warna,x0,y0,rot0,tujuan x]
+  [120,160,'#2c3a9e',620,60,-28],[110,150,'#d2405e',90,300,35],[100,140,'#1d7a3e',470,330,-50],[110,110,'#ffe55c',280,50,20],
+  [34,210,'#161a2c',700,260,60],[190,34,'#7a5c3a',60,90,-15],[150,90,'#9aa3c7',390,210,25],[90,90,'#e08a1e',200,380,-40]];
+track(el(`<div class="tr" style="left:84px;top:600px;width:860px;height:520px;background:#efe6d6;border-radius:32px;border:2px solid #d9cdb6;box-shadow:0 24px 50px -26px rgba(22,26,44,.4);overflow:hidden" id="desk">
+  ${ITEMS.map((it,i)=>`<div class="it" id="it${i}" style="width:${it[0]}px;height:${it[1]}px;background:${it[2]}"></div>`).join('')}
+  <div id="win" style="position:absolute;left:90px;top:40px;width:680px;height:440px;background:#fff;border-radius:22px;border:2px solid #b9bdc9;box-shadow:0 30px 60px -20px rgba(22,26,44,.55);overflow:hidden;transform-origin:50% 50%;opacity:0">
+    <div style="height:62px;background:#e9ebf0;display:flex;align-items:center;gap:12px;padding:0 22px"><i style="width:18px;height:18px;border-radius:50%;background:#d2405e"></i><i style="width:18px;height:18px;border-radius:50%;background:#e6b422"></i><i style="width:18px;height:18px;border-radius:50%;background:#2fa84f"></i><span style="margin-left:14px;font:600 28px Jakarta;color:var(--muted)">Dokumen1</span></div>
+    <div style="padding:46px 52px"><div id="cur" style="width:5px;height:56px;background:#161a2c"></div></div></div></div>`),SC.T4+0.1,SC.T5,{dy:100,z:2});
+track(el(`<div class="tr" style="left:84px;top:1150px;width:860px;height:190px;background:#fff;border-radius:30px;border:2px solid var(--line);box-sizing:border-box;padding:22px 40px;font:700 50px/1.35 Jakarta">
+  <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Dokumen dibuka</span><span><b id="cnt" style="font:800 56px Bricolage;color:var(--red)">0</b>x</span></div>
+  <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Kata yang ditulis</span><span><b style="font:800 56px Bricolage;color:var(--accent)">0</b></span></div></div>`),SC.T4+0.3,SC.T5,{dy:60,z:2});
+track(el(`<div class="tr" style="left:84px;top:1380px;width:860px;text-align:center;font:800 56px/1.2 Jakarta">Rapikan meja dulu kali ya.</div>`),EV.cap,SC.T5,{dy:40,z:2});
+
+/* ---------- T5: NERIMA ---------- */
+head(5,'Nerima.',SC.T5,SC.TR);
+track(el(`<div class="tr" style="left:84px;top:575px;width:860px;font:700 58px/1.22 Jakarta">Yang berat bukan ngerjainnya.<br>Tapi <span class="mk" id="mulai" style="display:inline-block">MULAINYA.</span></div>`),EV.st,SC.TR,{dy:40,z:2});
+[['1','Tulis judulnya dulu'],['2','Tulis 3 pertanyaan yang mau dijawab'],['3','Bikin kerangka Bab I–III, isinya belakangan']].forEach(([n,tx],i)=>
+  track(el(`<div class="tr step" style="top:${795+i*140}px"><i>${n}</i><span>${tx}</span></div>`),EV.steps[i],SC.TR,{dy:50,z:2}));
+track(el(`<div class="tr" style="left:84px;top:1240px;width:860px;font:800 44px/1.2 Jakarta">Halaman pertama nggak harus bagus.<br><span style="color:var(--accent)">Cukup ada.</span></div>`),EV.foot,SC.TR,{dy:40,z:2});
+track(el(`<div class="tr" style="left:84px;top:1400px;width:860px;font:600 34px/1.3 Jakarta;color:var(--muted)">Kata peneliti prokrastinasi: tugas yang nggak jelas mulainya dari mana paling sering ditunda.</div>`),EV.res,SC.TR,{dy:30,z:2});
+
+/* ---------- TR: tercapai + konfeti ---------- */
+track(el(`<h1 class="hd tr" style="top:650px;text-align:center;font-size:160px">Tahap 5:<br><span class="a">tercapai.</span></h1>`),SC.TR,SC.CA,{dy:60,z:3});
+track(el(`<div class="tr" style="left:84px;top:1060px;width:912px;text-align:center;font:700 58px/1.2 Jakarta;color:var(--muted)">Sekarang tinggal mulai.</div>`),SC.TR+b(1.2),SC.CA,{dy:40,z:3});
+const COLORS=['#2c3a9e','#ffe55c','#d2405e','#1d7a3e','#ffffff','#e08a1e'];
+let seed=7; const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647;};
+const CONF=Array.from({length:64},(_,i)=>({x:rnd()*1040,y0:-120-rnd()*420,v:650+rnd()*500,w:16+rnd()*18,h:26+rnd()*26,r0:rnd()*360,rv:(rnd()-.5)*700,sw:rnd()*60,ph:rnd()*6.28,c:COLORS[i%COLORS.length]}));
+const conf=el(`<div id="conf" style="position:absolute;left:0;top:0;width:1080px;height:1920px;pointer-events:none;z-index:2">${CONF.map((c,i)=>`<i id="cf${i}" style="position:absolute;left:0;top:0;width:${c.w.toFixed(0)}px;height:${c.h.toFixed(0)}px;background:${c.c};border-radius:3px;box-shadow:0 0 0 1px rgba(22,26,44,.18)"></i>`).join('')}</div>`);
+
+/* ---------- CTA-a: promosi jujur + punchline nama ---------- */
+const CTA_END=T+1;
+track(el(`<div class="tr on-blue" style="left:84px;width:912px;top:300px;display:flex;justify-content:center"><span class="pill l">Promosi dikit ya, dari tim MALAS</span></div>`),EV.pill,SC.CB,{dy:40,z:3});
+track(el(`<div class="tr on-blue" style="left:84px;width:912px;top:450px;text-align:center;font:700 56px/1.22 Jakarta">Kami bikin aplikasi buat bantu<br>langkah 1–3 tadi.</div>`),EV.t1,SC.CB,{dy:40,z:3});
+track(el(`<div class="tr on-blue" style="left:84px;width:912px;top:690px;text-align:center;font:700 66px/1.2 Jakarta;opacity:.9">Namanya…</div>`),EV.nam,SC.CB,{dy:30,z:3});
+track(el(`<div class="tr" style="left:84px;width:912px;top:800px;text-align:center"><span class="mk" id="mal" style="display:inline-block;font:800 215px/1.05 Bricolage;letter-spacing:-.035em;transform-origin:50% 60%">MALAS.</span></div>`),EV.slamM,SC.CB,{dy:0,z:3});
+track(el(`<div class="tr on-blue" style="left:84px;width:912px;top:1130px;text-align:center;font:700 54px/1.25 Jakarta">Bukan biar kamu nggak ngerjain.<br>Biar mulainya nggak seberat itu.</div>`),EV.sub,SC.CB,{dy:40,z:3});
+
+/* ---------- CTA-b: ajakan + info jujur ---------- */
+track(el(`<h1 class="hd tr on-blue" style="top:270px;font-size:100px;line-height:1.02;text-align:center">Ketik judul.<br>Dapat DRAF awal.</h1>`),SC.CB,CTA_END,{z:3});
+track(el(`<div class="tr" style="left:84px;top:540px;width:860px;height:270px;border-radius:24px;overflow:hidden;border:2px solid var(--line);background:#fff">
+   <img src="assets/ui-job-jalan.png" style="position:absolute;left:${f2(-74*860/1026)}px;top:${f2(-1540*860/1026)}px;width:${f2(1170*860/1026)}px"></div>`),EV.ui-0.05,CTA_END,{dy:120,z:2});
+track(el(`<div class="tr" style="right:136px;top:508px"><span class="pill" style="font-size:36px;padding:8px 22px 10px">Tampilan contoh</span></div>`),EV.ui+0.15,CTA_END,{z:5});
+track(el(`<div class="tr on-blue" style="left:84px;top:832px;width:912px;text-align:center;font:700 40px/1.25 Jakarta">Kerangka, template, daftar pustaka APA.</div>`),SC.CB+b(2.5),CTA_END,{dy:30,z:3});
+track(el(`<div class="tr on-blue" style="left:84px;top:925px;width:912px;text-align:center;font:600 35px/1.3 Jakarta;color:rgba(255,255,255,.9)">Tetap DRAF: baca, cek, tulis ulang.<br>Aturan AI kampus &amp; dosen tetap tanggung jawabmu.</div>`),SC.CB+b(3.5),CTA_END,{dy:30,z:3});
+const btnW=780, btnL=522-btnW/2;
+track(el(`<div class="tr" style="left:${btnL}px;top:1050px;width:${btnW}px;height:170px">
+   <div id="ripA" style="position:absolute;left:630px;top:85px;width:40px;height:40px;margin:-20px;border-radius:50%;border:6px solid #fff;box-sizing:border-box;opacity:0"></div>
+   <div id="btn" style="position:absolute;inset:0;background:#fff;color:var(--accent);border-radius:999px;display:flex;align-items:center;justify-content:center;gap:26px;
+      font:800 88px/1 Bricolage;letter-spacing:-.025em;box-shadow:0 26px 50px -14px rgba(8,12,48,.55),0 6px 0 0 rgba(8,12,48,.18)">Coba gratis
+      <svg id="arr" width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15M13 6l6 6-6 6"/></svg></div>
+   <div class="tap" id="tap2" style="left:630px;top:85px"></div></div>`),SC.CB+b(4.2),CTA_END,{z:3,dy:60});
+track(el(`<div class="tr on-blue" style="left:84px;top:1250px;width:912px;text-align:center;font:600 38px/1.3 Jakarta;color:rgba(255,255,255,.9)">Mode uji gratis, isinya contoh.</div>`),EV.press+0.3,CTA_END,{dy:30,z:3});
+track(el(`<div class="tr on-blue" style="left:84px;top:1318px;width:912px;display:flex;align-items:center;justify-content:center;gap:18px;font:800 66px/1 Bricolage;letter-spacing:-.02em">
+   <svg width="62" height="62" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13.5a4.5 4.5 0 0 0 6.4.4l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.2 1.2"/><path d="M14 10.5a4.5 4.5 0 0 0-6.4-.4l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/></svg>Link di bio</div>`),EV.press+0.45,CTA_END,{dy:30,z:3});
+track(el(`<div class="tr" style="left:84px;top:1410px;width:912px;display:flex;justify-content:center">
+   <div style="padding:18px 32px 22px;border-radius:999px;background:rgba(8,12,48,.32);border:3px solid rgba(255,255,255,.55);font:800 58px/1.1 Jakarta;color:#fff;letter-spacing:-.015em;white-space:nowrap">malas-app.netlify.app</div></div>`),EV.press+0.6,CTA_END,{dy:30,z:3});
+
+function inner(t){
+  // HOOK: "makalah." dihantam
+  const hs=P(t,EV.slam,0.4);
+  $('#mk').style.transform=`scale(${(t>=EV.slam?lerp(1.3,1,outBack(hs,2.2)):1).toFixed(4)})`;
+
+  // T1: bilah sisa waktu menyusut + warna
+  const w1=t<EV.num[1]-0.1?100:lerp(100,50,inOut(P(t,EV.num[1]-0.1,0.55)));
+  const w=t<EV.num[2]-0.1?w1:lerp(50,17,inOut(P(t,EV.num[2]-0.1,0.55)));
+  const mix=(a,c,x)=>a.map((v,i)=>Math.round(lerp(v,c[i],x)));
+  const G=[29,122,62],A=[184,106,15],R=[210,64,94];
+  const col=w>=50?mix(A,G,(w-50)/50):mix(R,A,(w-17)/33);
+  const bar=$('#bar'); bar.style.width=w.toFixed(2)+'%'; bar.style.background=`rgb(${col.join(',')})`;
+
+  // T2: "LAGI" bergetar, "(ada: dosenmu.)" dicap
+  const lg=$('#lagi'); const lt=t-EV.bub[0];
+  lg.style.transform=lt>0?`translate(${f2(Math.sin(lt*90)*3*Math.exp(-lt*0.6))}px,${f2(Math.cos(lt*70)*2*Math.exp(-lt*0.6))}px) rotate(${f2(Math.sin(lt*60)*2.2*Math.exp(-lt*0.6))}deg)`:'none';
+  const dd=P(t,EV.dosen,0.35);
+  $('#dosen').style.transform=`scale(${(t>=EV.dosen?lerp(1.3,1,outBack(dd,2.4)):1).toFixed(4)}) rotate(${(t>=EV.dosen?-2.5*(1-dd):0).toFixed(2)}deg)`;
+
+  // T3: titik-titik mengetik
+  [0,1,2].forEach(i=>{const ph=((t-EV.typeS)*3.2-i*0.33);const v=0.35+0.65*Math.max(0,Math.sin(ph*Math.PI*2*0.5+0.0));$('#d'+i).style.opacity=(t>=EV.typeS?v:0).toFixed(3);$('#d'+i).style.color='#7a8099';});
+
+  // T4: jendela dokumen buka-tutup, meja makin rapi, hitung "dibuka"
+  const win=$('#win'); let wv=0, ws=0.7;
+  EV.opens.forEach(o=>{ if(t>=o&&t<o+EV.openDur+0.3){ const a=P(t,o,0.22), c=P(t,o+EV.openDur,0.2);
+      wv=a*(1-c); ws=lerp(0.7,1,outBack(a,2.0))*lerp(1,0.8,inCubic(c)); }});
+  win.style.opacity=wv.toFixed(3); win.style.transform=`scale(${ws.toFixed(4)})`;
+  $('#cur').style.opacity=(Math.floor(t/(B/2))%2===0)?1:0;
+  let opened=0, tidy=0;
+  EV.opens.forEach(o=>{ if(t>=o) opened++; tidy+=P(t,o+EV.openDur,0.5)/EV.opens.length; });
+  $('#cnt').textContent=String(opened);
+  ITEMS.forEach((it,i)=>{
+    const tx=60+i*92, ty=420-it[1], e=inOut(clamp(tidy));
+    const x=lerp(it[3],tx,e), y=lerp(it[4],i%2?ty:ty,e), r=lerp(it[5],0,e);
+    const e2=$('#it'+i); e2.style.left=f2(x)+'px'; e2.style.top=f2(y)+'px'; e2.style.transform=`rotate(${f2(r)}deg)`;
+  });
+
+  // T5: MULAINYA dicap
+  const md=P(t,EV.mulai,0.35);
+  $('#mulai').style.transform=`scale(${(t>=EV.mulai?lerp(1.3,1,outBack(md,2.4)):1).toFixed(4)}) rotate(${(t>=EV.mulai?-3*(1-md):0).toFixed(2)}deg)`;
+  $('#mulai').style.background=t>=EV.mulai-0.02?'var(--mark)':'transparent';
+  $('#mulai').style.color=t>=EV.mulai-0.02?'var(--mark-ink)':'var(--ink)';
+
+  // TR: konfeti jatuh
+  CONF.forEach((c,i)=>{
+    const e=document.getElementById('cf'+i); const tt=t-SC.TR;
+    if(tt<0||tt>3.4){e.style.visibility='hidden';return;}
+    const y=c.y0+c.v*tt, x=c.x+Math.sin(tt*3+c.ph)*c.sw;
+    e.style.visibility=y>-80&&y<1980?'visible':'hidden';
+    e.style.transform=`translate(${f2(x)}px,${f2(y)}px) rotate(${f2(c.r0+c.rv*tt)}deg)`;
+  });
+
+  // CTA-a: MALAS dihantam setelah record scratch
+  const ms=P(t,EV.slamM,0.45);
+  const mal=$('#mal');
+  mal.style.transform=`scale(${(t>=EV.slamM?lerp(1.45,1,outBack(ms,2.4)):1).toFixed(4)}) rotate(${(t>=EV.slamM?-2.5*(1-ms):0).toFixed(2)}deg)`;
+
+  // CTA-b: panah menyenggol per ketukan, tombol ditekan tepat di EV.press
+  const beatPh=(((t-EV.press)/B)%1+1)%1;
+  $('#arr').style.transform=`translateX(${f2(10*Math.pow(Math.sin(Math.PI*beatPh),2))}px)`;
+  const pd=t-EV.press;
+  const press=pd<0?1:pd<0.07?lerp(1,0.92,pd/0.07):lerp(0.92,1,outBack(clamp((pd-0.07)/0.4),2.2));
+  $('#btn').style.transform=`scale(${press.toFixed(4)})`;
+  const tap2=$('#tap2'); const tp2=P(t,EV.press-0.12,0.5);
+  tap2.style.opacity=tp2>0&&tp2<1?(1-tp2*0.6).toFixed(3):0;
+  tap2.style.transform=`scale(${(tp2<0.24?lerp(1.3,0.85,tp2/0.24):lerp(0.85,1,(tp2-0.24)/0.76)).toFixed(3)})`;
+  const r=P(t,EV.press,0.75); const rp=$('#ripA');
+  rp.style.opacity=r>0&&r<1?(0.75*(1-r)).toFixed(3):0; rp.style.transform=`scale(${(1+outCubic(r)*10).toFixed(3)})`;
+}
+
+/* ===== latar per adegan (transisi 0,35 dtk) ===== */
+const BG=[[0,[244,245,248]],[SC.T2,[253,236,238]],[SC.T3,[233,241,252]],[SC.T4,[222,225,234]],[SC.T5,[255,247,214]],[SC.TR,[255,236,160]],[SC.CA,[44,58,158]]];
+function bgAt(t){
+  let i=0; for(let k=0;k<BG.length;k++) if(t>=BG[k][0]-0.0001) i=k;
+  if(i===0) return `rgb(${BG[0][1].join(',')})`;
+  const x=inOut(P(t,BG[i][0]-0.1,0.35)), a=BG[i-1][1], c=BG[i][1];
+  return `rgb(${a.map((v,j)=>Math.round(lerp(v,c[j],x))).join(',')})`;
+}
+
+window.DURATION_MS=Math.round(T*1000); window.FPS=FPS;
+window.TIMELINE={BPM,BEAT:B,T,SC,EV};
+window.EVENTS=EVENTS;
+window.renderFrame=function(tMs){
+  const t=Math.min(Math.max(tMs/1000,0),T);
+  stage.style.background=bgAt(t);
+  for(const k of tracks){
+    const enterStart=(k.hook?-ENTER:k.tin)-LEAD;
+    const vis=t>=enterStart&&t<k.tout;
+    k.e.style.visibility=vis?'visible':'hidden';
+    if(!vis) continue;
+    const ei=k.hook?1:outCubic(P(t,enterStart,ENTER)), ex=inCubic(P(t,k.tout-EXIT,EXIT));
+    k.e.style.transform=`translate(0,${f2((1-ei)*k.dy-ex*50)}px) scale(${(lerp(0.97,1,ei)*lerp(1,0.98,ex)).toFixed(4)})`;
+    k.e.style.opacity=(ei*(1-ex)).toFixed(3);
+  }
+  inner(t);
+};
+
+const FONTS=['800 100px Bricolage','600 30px Jakarta','700 30px Jakarta','800 30px Jakarta','700 30px JBMono','400 30px Carlito','700 30px Carlito'];
+window.__ready=(async()=>{
+  await Promise.all(FONTS.map(f=>document.fonts.load(f,'Aa0.')));
+  await document.fonts.ready;
+  await Promise.all(Array.from(document.images).map(im=>im.decode().catch(()=>{throw new Error('gagal memuat '+im.src)})));
+  const ok=FONTS.every(f=>document.fonts.check(f,'Aa'));
+  const q=new URLSearchParams(location.search);
+  window.renderFrame((parseFloat(q.get('t'))||0)*1000);
+  if(q.get('play')){const t0=performance.now();const loop=n=>{window.renderFrame(n-t0);requestAnimationFrame(loop);};requestAnimationFrame(loop);}
+  return ok;
+})();
+})();
+</script>
+</body>
+</html>
