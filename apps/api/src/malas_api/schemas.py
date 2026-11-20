@@ -72,8 +72,10 @@ class JobStats(_Out):
     citations_total: int | None = None
     citations_invalid_before: int | None = None
     citations_invalid_after: int | None = None
+    citations_suspect: int | None = None  # sitasi-mirip yang tak bisa diurai (wajib diperiksa manual)
     refs_final: int | None = None
     refs_pruned: int | None = None
+    refs_pruned_titles: list[str] | None = None  # judul referensi yang dibuang karena tak dikutip
 
 
 class Penyusun(_Out):

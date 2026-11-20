@@ -36,21 +36,45 @@ def _as_text(contents: list) -> list:
     return out
 
 
+_MARKER = re.compile(r"^\s*(?:[-*\u2022]|\d+[.)]|[a-zA-Z][.)])\s+")
+
+
 def _as_list(contents: list) -> list:
     """Paksa konten jadi satu item 'list' (template memakai content[0]['items']).
 
-    Teks naratif dipecah per baris dan penanda butir ("- ", "1.", "a)") dibuang.
+    LLM biasanya menulis: kalimat pengantar + butir bernomor + paragraf penjelasan. Hanya BUTIR yang boleh
+    jadi isi daftar (kalau tidak, pengantar/penjelasan ikut bernomor: "1) Berdasarkan latar belakang…").
+    - Ada item bertipe list -> hanya butir list (pengantar teks dibuang; butir berakhiran ":" = pengantar).
+    - Teks dengan >=2 baris bermarker ("1)", "a.", "-") -> hanya baris bermarker; baris tanpa marker di
+      antara dua butir = lanjutan butir sebelumnya; di luar itu (pengantar/penutup) dibuang.
+    - Selain itu perilaku lama: tiap baris tak kosong = satu butir.
     """
+    list_items = [str(i).strip() for c in contents if c.get("type") == "list" for i in c.get("items", []) if str(i).strip()]
+    if list_items:
+        if len(list_items) > 1 and list_items[0].rstrip().endswith(":"):
+            list_items = list_items[1:]
+        return [{"type": "list", "title_items": None, "items": list_items}]
+
+    lines = [ln for c in contents for ln in str(c.get("isi", "")).splitlines() if ln.strip()]
+    marked = [i for i, ln in enumerate(lines) if _MARKER.match(ln)]
     items: list = []
-    for c in contents:
-        if c.get("type") == "list":
-            items.extend(c.get("items", []))
-        else:
-            for line in str(c.get("isi", "")).splitlines():
-                line = re.sub(r"^\s*(?:[-*\u2022]|\d+[.)]|[a-zA-Z][.)])\s+", "", line).strip()
-                if line:
-                    items.append(line)
-    return [{"type": "list", "title_items": None, "items": items}]
+    if len(marked) >= 2:
+        for ln in lines[marked[0]:marked[-1] + 1]:
+            if _MARKER.match(ln):
+                items.append(_MARKER.sub("", ln, count=1).strip())
+            elif items:  # lanjutan butir yang terpotong baris
+                items[-1] = f"{items[-1]} {ln.strip()}"
+    else:
+        items = [_MARKER.sub("", ln, count=1).strip() for ln in lines]
+    return [{"type": "list", "title_items": None, "items": [i for i in items if i]}]
+
+
+_NOMOR_JUDUL = re.compile(r"^\s*\d{1,2}(?:\.\d{1,2})*[.)]?\s+")  # "2.1 ", bukan tahun "2024 "
+
+
+def strip_heading_number(judul: str) -> str:
+    """'2.1 Konsep Dasar' -> 'Konsep Dasar'. Gaya judul di template sudah bernomor otomatis (tanpa ini: '2.1 2.1 ...')."""
+    return _NOMOR_JUDUL.sub("", judul or "", count=1).strip() or (judul or "")
 
 
 _XML_ILLEGAL = re.compile("[\x00-\x08\x0b\x0c\x0e-\x1f\ufffe\uffff]")
@@ -74,6 +98,9 @@ def normalize_for_template(context: Dict[str, Any]) -> Dict[str, Any]:
     def subs(key):
         return bab.get(key, {}).get("subbab", [])
 
+    for key in bab:  # nomor hanya dihapus di tampilan; state/checkpoint/kunci refsearch tetap memakai judul bernomor
+        for sub in subs(key):
+            sub["judul"] = strip_heading_number(sub.get("judul", ""))
     for idx, sub in enumerate(subs("I")):
         sub["content"] = _as_text(sub["content"]) if idx == 0 else _as_list(sub["content"])
     for sub in subs("III"):

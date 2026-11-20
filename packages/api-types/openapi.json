@@ -613,6 +613,17 @@
             ],
             "title": "Citations Invalid Before"
           },
+          "citations_suspect": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Citations Suspect"
+          },
           "citations_total": {
             "anyOf": [
               {
@@ -678,6 +689,20 @@
               }
             ],
             "title": "Refs Pruned"
+          },
+          "refs_pruned_titles": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refs Pruned Titles"
           },
           "subbab_count": {
             "anyOf": [

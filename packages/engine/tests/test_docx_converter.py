@@ -6,7 +6,7 @@ from malas.crews.models.TaskOutput import (
     Bab, ContentList, ContentText, Makalah, Penyusun, ReferenceItem, SubBab,
 )
 from malas import paths
-from malas.docx_converter import DocxConverter, format_apa7
+from malas.docx_converter import DocxConverter, _as_list, format_apa7, normalize_for_template, strip_heading_number
 
 TEMPLATE = paths.DEFAULT_TEMPLATE
 
@@ -65,3 +65,39 @@ def test_karakter_khusus_xml_tidak_hilang(tmp_path):
     assert "p & q <b>" in teks
     assert "Lee, A. & Kim, B." in teks
     assert "?x=1&y=2" in teks
+
+
+def test_daftar_hanya_butir_pengantar_dan_penjelasan_dibuang():
+    """Regresi F22: pengantar + butir + paragraf penjelasan dulu semuanya jadi butir bernomor."""
+    teks = ("Berdasarkan latar belakang di atas, maka rumusan masalah adalah sebagai berikut:\n"
+            "1) Bagaimana peta penerapan?\n2) Bagaimana pengaruhnya?\n"
+            "Rumusan pertama merujuk pada kebutuhan memetakan landasan.")
+    assert _as_list([{"type": "text", "isi": teks}])[0]["items"] == ["Bagaimana peta penerapan?", "Bagaimana pengaruhnya?"]
+
+
+def test_daftar_butir_terpotong_baris_digabung():
+    teks = "1) Bagaimana peta penerapan\ngamifikasi di Indonesia?\n2) Bagaimana pengaruhnya?"
+    assert _as_list([{"type": "text", "isi": teks}])[0]["items"] == [
+        "Bagaimana peta penerapan gamifikasi di Indonesia?", "Bagaimana pengaruhnya?"]
+
+
+def test_daftar_tanpa_marker_perilaku_lama_dan_list_menang_atas_teks():
+    assert _as_list([{"type": "text", "isi": "Satu\nDua"}])[0]["items"] == ["Satu", "Dua"]
+    mixed = [{"type": "text", "isi": "Pengantar"}, {"type": "list", "items": ["A", "B"]}]
+    assert _as_list(mixed)[0]["items"] == ["A", "B"]
+    assert _as_list([{"type": "list", "items": ["Berikut tujuannya:", "A", "B"]}])[0]["items"] == ["A", "B"]
+
+
+def test_nomor_judul_tidak_ganda(tmp_path):
+    """Regresi F21: gaya Judul2 di template sudah bernomor otomatis; judul dari LLM tak boleh membawa nomor lagi."""
+    assert strip_heading_number("2.1 Konsep Dasar") == "Konsep Dasar"
+    assert strip_heading_number("2.1. Konsep") == "Konsep" and strip_heading_number("Tanpa Nomor") == "Tanpa Nomor"
+    assert strip_heading_number("2024 Tren Pasar") == "2024 Tren Pasar"  # tahun bukan nomor judul
+    ctx = {"bab": {"II": {"subbab": [{"judul": "2.1 Konsep Dasar", "content": []}]}}}
+    assert normalize_for_template(ctx)["bab"]["II"]["subbab"][0]["judul"] == "Konsep Dasar"
+    m = _makalah()
+    m.bab["II"].subbab[0].judul = "2.1 Teori Dasar"
+    out = DocxConverter(str(TEMPLATE), str(tmp_path / "h.docx")).convert(m)
+    teks = "\n".join(p.text for p in Document(out).paragraphs)
+    assert "Teori Dasar" in teks and "2.1 Teori Dasar" not in teks
+    assert m.bab["II"].subbab[0].judul == "2.1 Teori Dasar"  # state tidak diubah

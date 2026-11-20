@@ -349,6 +349,8 @@ export interface components {
             citations_invalid_after?: number | null;
             /** Citations Invalid Before */
             citations_invalid_before?: number | null;
+            /** Citations Suspect */
+            citations_suspect?: number | null;
             /** Citations Total */
             citations_total?: number | null;
             /** Fulltext Ok */
@@ -361,6 +363,8 @@ export interface components {
             refs_found?: number | null;
             /** Refs Pruned */
             refs_pruned?: number | null;
+            /** Refs Pruned Titles */
+            refs_pruned_titles?: string[] | null;
             /** Subbab Count */
             subbab_count?: number | null;
         };
