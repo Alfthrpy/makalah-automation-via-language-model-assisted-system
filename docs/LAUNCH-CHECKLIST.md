@@ -2,6 +2,10 @@
 
 Status per 2026-11-20. Centang setelah **dibuktikan**, bukan setelah dikonfigurasi. Panduan setup layanan: `DEPLOY.md`.
 
+## Deploy terakhir (2026-11-20)
+- Backend (Space): commit `d76661cb` (logo kustom + retensi 48 jam; migrasi 0003 terbukti jalan di Neon: tabel `user_logos` ada). **Titik kembali** bila bermasalah: commit Space `29b5f2d4` (tab *Files* → History → revert, atau deploy ulang dari git commit lama).
+- Web (Netlify): deploy `6affeb22`.
+
 ## Yang sudah live
 - Web: <https://malas-app.netlify.app> (Netlify, situs `malas-app`, id `f4f7ee2f-f459-4ce8-b20b-910fbb04b45b`; di-deploy lewat API, tidak terhubung git).
 - Backend: Hugging Face Space `PetaniHandal/stegano-f5-dmcss-api` (nama lama dari proyek sebelumnya; isinya MALAS), Docker, RUNNING.
