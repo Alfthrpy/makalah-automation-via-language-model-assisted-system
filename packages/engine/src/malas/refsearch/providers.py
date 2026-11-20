@@ -85,7 +85,18 @@ class OpenAlex:
         flt = f"from_publication_date:{year_min}-01-01,is_retracted:false"
         if lang == "id":
             flt += ",language:id"
-        params = {"search": query, "filter": flt, "per-page": limit, "select": self.SELECT}
+        return self._fetch(http, {"search": query, "filter": flt, "per-page": limit})
+
+    def landmark_search(self, http, concept: str, limit: int) -> List[Candidate]:
+        """Karya dasar untuk satu konsep: konsep di judul/abstrak, TANPA batas tahun, urut jumlah kutipan."""
+        c = " ".join(re.sub(r"[^\w\s\-]", " ", concept).split())  # koma/titik dua merusak sintaks filter
+        if not c:
+            return []
+        flt = f"title_and_abstract.search:{c},is_retracted:false,type:article|book|review"
+        return self._fetch(http, {"filter": flt, "sort": "cited_by_count:desc", "per-page": limit})
+
+    def _fetch(self, http, params: dict) -> List[Candidate]:
+        params = dict(params, select=self.SELECT)
         if os.getenv("MALAS_OPENALEX_API_KEY"):
             params["api_key"] = os.environ["MALAS_OPENALEX_API_KEY"]
         if http.contact:
@@ -101,6 +112,7 @@ class OpenAlex:
             bib = w.get("biblio") or {}
             out.append(Candidate(
                 source=self.name, source_id=str(w.get("id") or ""), title=clean_text(w["title"]) or "",
+                kind="book" if w.get("type") == "book" else "article",
                 authors=[a["author"]["display_name"] for a in w.get("authorships", [])
                          if (a.get("author") or {}).get("display_name")][:8],
                 year=_year(w.get("publication_year")), doi=doi,
@@ -339,6 +351,17 @@ class Fixture:
                 cited_by=i,
             ))
         return out
+
+
+    def landmark_search(self, http, concept: str, limit: int) -> List[Candidate]:
+        """Satu karya dasar palsu yang sangat banyak dikutip (menguji pass landmark tanpa jaringan)."""
+        h = int(hashlib.sha1(concept.encode()).hexdigest()[:6], 16)
+        return [Candidate(
+            source=self.name, source_id=f"fx-lm-{h}", title=f"Foundations of {concept}: a classic theory",
+            authors=["Klasik Fixture"], year=2000, doi=f"10.0000/fixture.lm.{h}",
+            abstract=f"A foundational account of {concept}. " * 2, venue="Journal of Fixture Classics",
+            language="en", cited_by=20000,
+        )][:limit]
 
 
 PROVIDERS: Dict[str, object] = {

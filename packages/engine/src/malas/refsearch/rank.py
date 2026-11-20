@@ -11,6 +11,7 @@ from malas.refsearch.models import Candidate, SectionQuery
 
 MIN_TITLE_WORDS = 3
 CLASSIC_CITES = 300  # karya sangat banyak dikutip boleh lebih tua dari batas tahun
+LANG_PRIOR = 0.1  # prior bahasa Indonesia untuk topik lokal (dulu 0,3: ikut membuat referensi didominasi jurnal lokal)
 _BAD_TITLE = re.compile(r"^(?:table of contents|front matter|back matter|cover|editorial|erratum|correction|"
                         r"daftar isi|sampul)\b", re.I)
 
@@ -155,7 +156,7 @@ def score(cands: List[Candidate], sq: SectionQuery, min_overlap: Optional[int] =
     for c, r, f in zip(keep, rel, rrf):
         prior = (0.3 if c.abstract else 0.0) + (0.2 if c.oa_pdf_url else 0.0) + (0.15 if c.doi else 0.0) \
             + min(0.3, 0.06 * math.log1p(c.cited_by)) + (0.1 if len(c.sources) > 1 else 0.0) \
-            + (0.3 if sq.indo and (c.language or "") == "id" else 0.0) \
+            + (LANG_PRIOR if sq.indo and (c.language or "") == "id" else 0.0) \
             - (0.4 if c.kind == "encyclopedia" else 0.0)
         final.append((0.5 * r / top_rel + 0.3 * f / top_rrf + 0.2 * max(min(prior, 1.0), -0.5), c))
     final.sort(key=lambda x: x[0], reverse=True)

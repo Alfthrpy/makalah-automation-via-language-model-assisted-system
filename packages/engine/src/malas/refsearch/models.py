@@ -12,6 +12,10 @@ class SectionQuery:
     q_id: str = ""  # query bahasa Indonesia (boleh kosong)
     bidang: str = "umum"  # medis | teknik | sains | sosial | hukum | agama | ekonomi | humaniora | pendidikan | umum
     indo: bool = False  # topik spesifik Indonesia -> sertakan sumber & bahasa Indonesia
+    # "landmark": sub-bab konsep/teori (atau 1.1) -> pass karya dasar (urut jumlah kutipan) + k lebih besar;
+    # "recent": sub-bab lain (pembahasan/studi kasus) -> literatur terbaru saja
+    role: str = "recent"
+    landmark_terms: List[str] = field(default_factory=list)  # konsep inti bahasa Inggris untuk pass landmark
 
     def queries(self) -> List[tuple]:
         out, seen = [], set()

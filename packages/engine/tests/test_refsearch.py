@@ -228,7 +228,38 @@ def test_choose_batasi_pemakaian_ulang():
 def test_heuristic_plan_membuang_kata_generik():
     p = heuristic_plan("Akuntansi Syariah pada UMKM di Indonesia", ["1.1 Latar Belakang", "2.1 Konsep Zakat Perusahaan"])
     assert p[0].q_id == "Akuntansi Syariah pada UMKM di Indonesia" and "Zakat Perusahaan" in p[1].q_id
-    assert p[0].indo is True and p[0].q_en == ""
+    assert p[0].indo is True  # "Indonesia" = penanda topik lokal
+    # terjemahan kasar glosarium (fallback tanpa LLM): kata kerja generik dibuang, nama/singkatan dipertahankan
+    assert p[0].q_en == "islamic accounting MSMEs Indonesia" and p[0].role == "landmark"
+    assert p[1].role == "landmark" and "Zakat" in p[1].q_en
+
+
+def test_heuristic_plan_judul_indonesia_generik_bukan_indo():
+    # RC-05: kata sambung (untuk/terhadap/dan) hanya menandakan BAHASA Indonesia, bukan topik khas Indonesia
+    for judul in ("Penerapan Gamifikasi untuk Meningkatkan Motivasi Belajar Bahasa Arab",
+                  "Pengaruh Media Sosial terhadap Kesehatan Mental Remaja",
+                  "Penerapan Machine Learning untuk Deteksi Penipuan Transaksi Keuangan"):
+        assert not any(sq.indo for sq in heuristic_plan(judul, ["1.1 Latar Belakang", "2.1 Landasan Teori"])), judul
+    for judul in ("Kebijakan Pajak UMKM di Indonesia", "Analisis Hukum Pidana terhadap Tindak Pidana Korupsi",
+                  "Strategi Pemasaran Digital di Era Ekonomi Syariah", "Pariwisata Budaya di Yogyakarta",
+                  "Sejarah Kerajaan Majapahit dan Pengaruhnya terhadap Nusantara"):
+        assert all(sq.indo for sq in heuristic_plan(judul, ["2.1 Landasan Teori"])), judul
+    # sub-bab boleh memicu topik lokal sendiri
+    p = heuristic_plan("Pengaruh Media Sosial terhadap Remaja", ["2.1 Teori", "2.2 Regulasi di Indonesia"])
+    assert [sq.indo for sq in p] == [False, True]
+
+
+def test_heuristic_plan_role_dan_konsep_landmark():
+    secs = ["1.1 Latar Belakang", "2.1 Landasan Teori", "2.2 Konsep Motivasi Belajar", "2.3 Kerangka Berpikir",
+            "2.4 Analisis dan Pembahasan", "2.5 Studi Kasus", "1.2 Rumusan Masalah"]
+    p = heuristic_plan("Penerapan Gamifikasi untuk Meningkatkan Motivasi Belajar Bahasa Arab", secs)
+    assert [sq.role for sq in p] == ["landmark"] * 4 + ["recent"] * 3
+    assert p[0].landmark_terms == ["gamification", "motivation"] and p[4].landmark_terms == []
+    assert p[2].landmark_terms[0] == "motivation"  # konsep sub-bab didahulukan
+    assert p[0].q_en == "gamification learning motivation arabic language"
+    assert "Konsep" not in p[2].q_en
+    # cakupan glosarium rendah -> tanpa query Inggris (lebih baik kosong daripada campur aduk)
+    assert heuristic_plan("Tradisi Sedekah Bumi Wong Samin", ["2.1 Teori"])[0].q_en == ""
 
 
 def test_llm_plan_parse_dan_fallback():
@@ -239,7 +270,12 @@ def test_llm_plan_parse_dan_fallback():
     assert p[0].q_en == "sharia accounting" and p[0].bidang == "ekonomi" and p[0].indo
     # JSON rusak -> semua dari heuristik
     p2 = llm_plan("Akuntansi Syariah", "Akuntansi", secs, lambda _: "bukan json")
-    assert p2[0].q_id and p2[0].q_en == ""
+    assert p2[0].q_id and p2[0].q_en == "islamic accounting"  # q_en dari glosarium heuristik
+    # konsep landmark dari LLM menggantikan konsep heuristik (hanya sub-bab konsep/teori)
+    resp3 = '{"2.1 Landasan Teori": {"q_en": "a", "konsep": ["maqasid sharia", "x y z w v", 3]}, ' \
+            '"2.2 Analisis": {"konsep": ["abc"]}}'
+    p3 = llm_plan("Akuntansi Syariah", "Akuntansi", secs, lambda _: resp3)
+    assert p3[0].landmark_terms == ["maqasid sharia"] and p3[1].landmark_terms == []
     # LLM melempar error -> heuristik, tanpa raise
     def boom(_): raise RuntimeError("quota")
     assert len(llm_plan("Akuntansi Syariah", "Akuntansi", secs, boom)) == 2
@@ -507,10 +543,10 @@ def test_tenggat_global_membuang_sub_bab_lambat_tapi_menjaga_yang_cepat(monkeypa
     from malas.refsearch import orchestrator
     asli = orchestrator._search_section
 
-    def pilih(http, sq, judul, year_min, k, names):
+    def pilih(http, sq, judul, year_min, k, names, *rest):
         if "lambat" in sq.section:
             _t.sleep(2.0)
-        return asli(http, sq, judul, year_min, k, names)
+        return asli(http, sq, judul, year_min, k, names, *rest)
 
     monkeypatch.setattr(orchestrator, "_search_section", pilih)
     c = client([("openalex.org", Resp(200, _oa_page(6))), ("crossref.org", Resp(200, {"message": {"items": []}}))])
@@ -540,7 +576,7 @@ def test_kandidat_tanpa_tautan_tidak_dipilih():
     page = {"results": [{"id": "W1", "doi": None, "title": "Sistem rekomendasi kolaboratif tanpa tautan", "publication_year": 2023,
                          "type": "article", "primary_location": {}, "abstract_inverted_index": {"sistem": [0], "rekomendasi": [1], "kolaboratif": [2]}}]}
     c = client([("openalex.org", Resp(200, page)), ("crossref.org", Resp(200, {"message": {"items": []}}))])
-    assert _search_section(c, SectionQuery("2.1 X", q_id="sistem rekomendasi kolaboratif"), "J", 2015, 2, ["openalex"]) == []
+    assert _search_section(c, SectionQuery("2.1 X", q_id="sistem rekomendasi kolaboratif"), "J", 2015, 2, ["openalex"]) == ([], [])
 
 
 # --------------------------------------------------------------------------- unduhan full-text aman
@@ -592,3 +628,96 @@ def test_doi_di_url_unpaywall_di_encode():
     urls = []
     resolve_pdf_url("https://doi.org/x", lambda u: urls.append(u), doi="10.1002/(sici)1097#a?b", email="a@b.c")
     assert urls and "#" not in urls[0].split("?email=")[0] and "%23" in urls[0] and "%3F" in urls[0]
+
+
+# --------------------------------------------------------------------------- S14: landmark, k adaptif, laporan
+JUDUL_GAMI = "Penerapan Gamifikasi untuk Meningkatkan Motivasi Belajar Bahasa Arab"
+KLASIK = {"id": "W-klasik", "doi": "https://doi.org/10.1145/2181037.2181040",
+          "title": "From game design elements to gamefulness: defining gamification", "publication_year": 2011,
+          "type": "article", "cited_by_count": 20000, "language": "en",
+          "authorships": [{"author": {"display_name": "Sebastian Deterding"}}],
+          "abstract_inverted_index": {"gamification": [0], "game": [1], "design": [2], "motivation": [3]}}
+KLASIK_SAMBIL_LALU = {"id": "W-lalu", "doi": "https://doi.org/10.1000/lalu", "title": "Deep residual networks for vision",
+                      "publication_year": 2016, "type": "article", "cited_by_count": 90000, "language": "en",
+                      "abstract_inverted_index": {"gamification": [0]}}  # konsep hanya di abstrak -> bukan landmark
+
+
+def _lokal(n):
+    return {"results": [{"id": f"L{i}", "doi": f"https://doi.org/10.2000/l{i}",
+                         "title": f"Gamifikasi pembelajaran bahasa Arab dan motivasi belajar siswa varian {i}",
+                         "publication_year": 2023, "type": "article", "cited_by_count": i, "language": "id",
+                         "authorships": [{"author": {"display_name": f"Penulis {i}"}}],
+                         "abstract_inverted_index": {"gamifikasi": [0], "motivasi": [1], "belajar": [2]}}
+                        for i in range(n)]}
+
+
+def _oa_landmark(seen):
+    def h(p):
+        seen.append(p)
+        if p.get("sort") == "cited_by_count:desc":
+            return Resp(200, {"results": [KLASIK, KLASIK_SAMBIL_LALU]})
+        return Resp(200, _lokal(8))
+    return h
+
+
+def test_landmark_20rb_kutipan_dipilih_untuk_sub_bab_konsep(monkeypatch):
+    monkeypatch.setenv("MALAS_REF_TARGET", "0")
+    seen = []
+    c = client([("openalex.org", _oa_landmark(seen)), ("crossref.org", Resp(200, {"message": {"items": []}}))])
+    secs = ["1.1 Latar Belakang", "2.1 Landasan Teori", "2.2 Konsep Gamifikasi", "2.3 Analisis dan Pembahasan"]
+    refs, rep = search_references(heuristic_plan(JUDUL_GAMI, secs), JUDUL_GAMI, c, year_min=2016)
+    klasik = [r for r in refs if r.doi == "10.1145/2181037.2181040"]
+    assert len(klasik) == 1 and klasik[0].year == 2011  # lolos walau jauh lebih tua dari year_min
+    assert len(klasik[0].sections) == 2 and set(klasik[0].sections) <= set(secs[:3])  # max_reuse=2 tetap berlaku
+    assert "2.3 Analisis dan Pembahasan" not in klasik[0].sections
+    assert not any("residual" in r.title for r in refs)
+    lm = [p for p in seen if p.get("sort")]
+    assert lm and all("from_publication_date" not in p["filter"] and "title_and_abstract.search:" in p["filter"]
+                      for p in lm)
+    assert len({p["filter"] for p in lm}) == len(lm)  # konsep sama antar sub-bab -> tidak diulang (memo)
+    assert rep["landmark_count"] == 1 and rep["landmarks"][0].startswith("From game design")
+    assert set(rep["language_ratio"]) == {"en", "id"} and abs(sum(rep["language_ratio"].values()) - 1) < 0.01
+
+
+def test_k_adaptif_dan_target_total(monkeypatch):
+    secs = ["1.1 Latar Belakang", "2.1 Landasan Teori", "2.3 Analisis dan Pembahasan"]
+    route = [("crossref.org", Resp(200, {"message": {"items": []}}))]
+    monkeypatch.setenv("MALAS_REF_TARGET", "0")
+    refs, rep = search_references(heuristic_plan(JUDUL_GAMI, secs), JUDUL_GAMI,
+                                  client([("openalex.org", _oa_landmark([]))] + route), year_min=2016)
+    assert rep["k_per_section"] == {"1.1 Latar Belakang": 3, "2.1 Landasan Teori": 3, "2.3 Analisis dan Pembahasan": 2}
+    assert rep["per_section"] == rep["k_per_section"] and len(refs) == 5  # klasik + 4 lokal (dipakai ulang <= 2x)
+    monkeypatch.setenv("MALAS_REF_TARGET", "9")
+    refs, rep = search_references(heuristic_plan(JUDUL_GAMI, secs), JUDUL_GAMI,
+                                  client([("openalex.org", _oa_landmark([]))] + route), year_min=2016)
+    assert len(refs) == 9  # isi ulang bergiliran sampai target
+    assert sum(len(r.sections) for r in refs) == sum(rep["per_section"].values())
+    assert all(len(r.sections) <= 2 for r in refs)
+    # k eksplisit = perilaku lama: tepat k per sub-bab, tanpa isi ulang
+    refs, rep = search_references(heuristic_plan(JUDUL_GAMI, secs), JUDUL_GAMI,
+                                  client([("openalex.org", _oa_landmark([]))] + route), k=2, year_min=2016)
+    assert set(rep["per_section"].values()) == {2} and len(refs) <= 6
+
+
+def test_rank_landmarks_saring_kutipan_dan_judul():
+    from malas.refsearch.orchestrator import rank_landmarks
+    sq = SectionQuery("2.1 Teori", role="landmark", landmark_terms=["gamification", "motivation"])
+    a = cand("Gamification and motivation a review", doi="10.1/a", cites=900, year=2014)
+    b = cand("From game design elements to gamefulness defining gamification", doi="10.1/b", cites=20000, year=2011)
+    kecil = cand("Gamification in a small classroom study", doi="10.1/c", cites=12, year=2020)
+    lalu = cand("Attention is all you need today", doi="10.1/d", cites=99999, year=2017, abstract="gamification")
+    assert rank_landmarks([b, kecil, lalu, a], sq) == [a, b]  # a memuat kedua konsep; b lebih dikutip, satu konsep
+
+
+def test_mode_mock_fixture_tetap_jalan_dengan_landmark():
+    from malas.config import set_mock_override
+    set_mock_override(True)
+    try:
+        c = client([("", TimeoutError("tanpa jaringan"))])
+        secs = ["1.1 Latar Belakang", "2.1 Landasan Teori", "2.2 Analisis dan Pembahasan"]
+        refs, rep = search_references(heuristic_plan(JUDUL_GAMI, secs), JUDUL_GAMI, c)
+    finally:
+        set_mock_override(None)
+    assert c.calls == 0 and refs and not rep["sections_without_refs"]
+    assert rep["landmark_count"] >= 1 and all(r.source == "fixture" for r in refs)
+    assert rep["k_per_section"]["1.1 Latar Belakang"] == 3 and "language_ratio" in rep
