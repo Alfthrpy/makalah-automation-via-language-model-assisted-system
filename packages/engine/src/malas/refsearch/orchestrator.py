@@ -53,7 +53,7 @@ def _search_section(http: HttpClient, sq: SectionQuery, judul: str, year_min: in
     """Kandidat terbaik untuk satu sub-bab, dengan fallback bertahap bila hasil kurang dari k."""
     good: List[Candidate] = []
 
-    def absorb(cands: List[Candidate], yr: int, overlap: int = 2) -> None:
+    def absorb(cands: List[Candidate], yr: int, overlap: Optional[int] = None) -> None:
         nonlocal good
         merged = dedupe(good + [c for c in cands if is_valid(c, yr)])
         good = score(merged, sq, min_overlap=overlap)

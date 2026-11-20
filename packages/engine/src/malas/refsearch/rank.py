@@ -120,12 +120,20 @@ def is_valid(c: Candidate, year_min: int) -> bool:
     return c.year >= year_min or c.cited_by >= CLASSIC_CITES or c.kind == "book"  # buku boleh lebih tua
 
 
-def score(cands: List[Candidate], sq: SectionQuery, min_overlap: int = 2) -> List[Candidate]:
-    """Urutkan kandidat; kandidat dengan kata kunci query terlalu sedikit dibuang (tidak relevan)."""
+def adaptive_overlap(n_query_tokens: int) -> int:
+    """Jumlah kata kunci query yang wajib muncul di judul+abstrak: ±60% (min 2, maks 4)."""
+    return max(2, min(4, math.ceil(0.6 * n_query_tokens)))
+
+
+def score(cands: List[Candidate], sq: SectionQuery, min_overlap: Optional[int] = None) -> List[Candidate]:
+    """Urutkan kandidat; kandidat dengan kata kunci query terlalu sedikit dibuang (tidak relevan).
+
+    min_overlap=None -> adaptif (lihat adaptive_overlap); fallback memanggil dengan 1 untuk melonggarkan.
+    """
     q = query_tokens(sq)
     if not cands or not q:
         return []
-    need = min(min_overlap, len(q))
+    need = min(min_overlap if min_overlap is not None else adaptive_overlap(len(q)), len(q))
     docs, keep = [], []
     for c in cands:
         toks = _tokens(c.title) * 2 + _tokens(c.abstract or "")  # judul berbobot 2x
