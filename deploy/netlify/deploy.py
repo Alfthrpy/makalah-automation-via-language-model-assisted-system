@@ -36,7 +36,12 @@ def call(token: str, method: str, path: str, body=None, raw: bytes | None = None
 def write_edge_files(dist: Path, toml_path: Path) -> None:
     cfg = tomllib.loads(toml_path.read_text(encoding="utf-8"))
     redirects = [f"{r['from']}  {r['to']}  {r['status']}{'!' if r.get('force') else ''}" for r in cfg.get("redirects", [])]
-    (dist / "_redirects").write_text("\n".join(redirects) + "\n", encoding="utf-8")
+    # _redirects hasil prerender (apps/web/scripts/prerender.mjs: tiap halaman publik dilayani persis di URL-nya) HARUS
+    # tetap ada dan berada SEBELUM aturan netlify.toml (urutan = prioritas; fallback SPA /* paling akhir).
+    existing = dist / "_redirects"
+    prerender = [ln for ln in existing.read_text(encoding="utf-8").splitlines() if ln.strip() and not ln.lstrip().startswith("#")] if existing.is_file() else []
+    merged = prerender + [r for r in redirects if r not in prerender]
+    existing.write_text("\n".join(merged) + "\n", encoding="utf-8")
     lines: list[str] = []
     for h in cfg.get("headers", []):
         lines.append(h["for"])
