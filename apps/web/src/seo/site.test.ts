@@ -3,7 +3,7 @@ import { id } from "../copy/id";
 import { LEGAL_UPDATED, PRIVACY, TERMS } from "../features/legal/content";
 import guidesRaw from "./guides.json";
 import {
-  LANDING_DESCRIPTION, LANDING_TITLE, LEGAL_LASTMOD, applyPage, buildPages, esc, formatDateId, fullTitle, guideBody, headHtml,
+  LANDING_DESCRIPTION, LANDING_TITLE, LEGACY_HOST, LEGAL_LASTMOD, SITE_URL, applyPage, buildPages, esc, formatDateId, fullTitle, guideBody, headHtml,
   redirectsFile, sitemapXml, type GuidesData, type PageMeta,
 } from "./site";
 
@@ -52,7 +52,15 @@ describe("sitemap & redirects", () => {
     expect(x).not.toContain("/masuk");
   });
   it("_redirects melayani tiap halaman prerender persis di URL-nya", () => {
-    expect(redirectsFile(pages)).toBe("/panduan/x  /panduan/x/index.html  200\n/masuk  /masuk/index.html  200\n");
+    const lines = redirectsFile(pages).trim().split("\n");
+    expect(lines.slice(-2)).toEqual(["/panduan/x  /panduan/x/index.html  200", "/masuk  /masuk/index.html  200"]);
+  });
+  it("_redirects mengalihkan alamat lama (netlify.app) ke domain utama, paling atas dan dipaksa (301!)", () => {
+    const lines = redirectsFile(pages).trim().split("\n");
+    expect(lines[0]).toBe(`https://${LEGACY_HOST}/*  ${SITE_URL}/:splat  301!`);
+    expect(lines[1]).toBe(`http://${LEGACY_HOST}/*  ${SITE_URL}/:splat  301!`);
+    expect(SITE_URL).not.toContain(LEGACY_HOST);
+    expect(lines.filter((l) => l.includes(LEGACY_HOST))).toHaveLength(2);
   });
 });
 

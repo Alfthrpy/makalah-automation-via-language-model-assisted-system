@@ -122,7 +122,20 @@ export function sitemapXml(pages: PageMeta[]): string {
 
 /** Netlify _redirects: tiap halaman prerender dilayani PERSIS di URL-nya (status 200, tanpa redirect). */
 export function redirectsFile(pages: PageMeta[]): string {
-  return pages.filter((p) => p.path !== "/").map((p) => `${p.path}  ${p.path}/index.html  200`).join("\n") + "\n";
+  return [...legacyHostRedirects(), ...pages.filter((p) => p.path !== "/").map((p) => `${p.path}  ${p.path}/index.html  200`)].join("\n") + "\n";
+}
+
+/** Alamat lama (subdomain Netlify) yang dialihkan permanen ke SITE_URL. */
+export const LEGACY_HOST = "malas-app.netlify.app";
+
+/**
+ * Aturan _redirects yang mengalihkan SEMUA permintaan ke alamat lama (http dan https, path dan query dipertahankan) ke
+ * domain utama dengan 301. Harus berada PALING ATAS (urutan = prioritas) dan memakai `!` (force) supaya menang atas
+ * rewrite halaman prerender. Bergantung pada tanda `from` berhost penuh, yang hanya cocok untuk host itu: deploy
+ * preview/branch (`*--malas-app.netlify.app`) dan domain utama tidak terkena.
+ */
+export function legacyHostRedirects(): string[] {
+  return ["https", "http"].map((s) => `${s}://${LEGACY_HOST}/*  ${SITE_URL}/:splat  301!`);
 }
 
 // --------------------------------------------------------------------------- HTML statis (untuk crawler)
