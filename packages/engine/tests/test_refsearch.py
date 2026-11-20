@@ -386,3 +386,19 @@ def test_format_apa_penulis_lembaga_dan_inisial_kapital():
     assert format_apa7({"authors": ["Wikipedia"], "year": 2026, "title": "Majapahit", "link": "u"}).startswith("Wikipedia. (2026).")
     assert format_apa7({"authors": ["JA Smith", "K Lee"], "year": 2021, "title": "t", "link": "u"}).startswith("Smith, J. A. & Lee, K. (2021)")
     assert format_apa7({"authors": ["John Smith"], "year": 2020, "title": "t", "link": "u"}).startswith("Smith, J. (2020)")
+
+
+def test_buang_file_sampul_repositori():
+    ok = cand("Kajian sejarah maritim peranan sungai Kalimas", url="https://digilib.x.ac.id/1/skripsi.pdf")
+    bad = cand("Kajian sejarah maritim peranan sungai Kalimas", url="http://digilib.uinsby.ac.id/12136/1/Cover.pdf")
+    assert is_valid(ok, 2015) and not is_valid(bad, 2015)
+
+
+def test_crossref_tanpa_mailto_dijeda_lebih_lama():
+    t = [0.0]
+    sleeps = []
+    c = HttpClient(session=FakeSession([("crossref.org", Resp(200, "{}"))]),
+                   sleep=lambda s: (sleeps.append(s), t.__setitem__(0, t[0] + s)), clock=lambda: t[0])
+    c.get_text("https://api.crossref.org/works", {"a": 1})
+    c.get_text("https://api.crossref.org/works", {"a": 2})
+    assert sleeps and sleeps[0] >= 1.0

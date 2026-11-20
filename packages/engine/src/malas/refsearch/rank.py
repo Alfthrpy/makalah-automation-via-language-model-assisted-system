@@ -105,8 +105,13 @@ def query_tokens(sq: SectionQuery) -> Set[str]:
     return set(_tokens(f"{sq.q_en} {sq.q_id}"))
 
 
+_BAD_FILE = re.compile(r"/(?:cover|abstrak|abstract|daftar[-_ ]?isi|toc|sampul)\.pdf(?:\?|$)", re.I)
+
+
 def is_valid(c: Candidate, year_min: int) -> bool:
     if not c.year or _BAD_TITLE.match(c.title):
+        return False
+    if _BAD_FILE.search(c.url or "") or _BAD_FILE.search(c.oa_pdf_url or ""):  # repositori kampus: file sampul/abstrak saja
         return False
     if c.kind == "encyclopedia":  # judul artikel pendek ("Majapahit") wajar
         return True

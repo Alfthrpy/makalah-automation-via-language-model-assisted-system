@@ -27,6 +27,8 @@ MIN_INTERVAL: Dict[str, float] = {
     "en.wikipedia.org": 0.5,
     "openlibrary.org": 1.0,
 }
+# timeout baca per host (detik); Europe PMC terukur 29 dtk untuk satu panggilan dari runner CI
+READ_TIMEOUT: Dict[str, float] = {"www.ebi.ac.uk": 40.0}
 _SECRET_PARAMS = {"api_key", "mailto", "email"}  # tidak ikut kunci cache
 MAX_BODY = 2_000_000
 
@@ -96,6 +98,8 @@ class HttpClient:
     # ------------------------------------------------------------------ laju & breaker
     def _throttle(self, host: str) -> None:
         gap = MIN_INTERVAL.get(host, 0.1)
+        if host == "api.crossref.org" and not self.contact:
+            gap = max(gap, 1.1)  # pool publik Crossref: ±1 request/detik (list); tanpa mailto lebih ketat
         with self._lock:
             hl = self._host_lock.setdefault(host, threading.Lock())
         with hl:  # serialisasi per host agar jeda benar-benar dihormati antar thread
@@ -124,7 +128,8 @@ class HttpClient:
             self._throttle(host)
             self.calls += 1
             try:
-                r = self.session.get(url, params=params, headers=hdrs, timeout=self.timeout)
+                r = self.session.get(url, params=params, headers=hdrs,
+                                     timeout=(self.timeout[0], READ_TIMEOUT.get(host, self.timeout[1])))
             except Exception:
                 r = None
             code = getattr(r, "status_code", 0)

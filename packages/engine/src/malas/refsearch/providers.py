@@ -102,7 +102,7 @@ class Crossref:
         params = {
             "query.bibliographic": query, "rows": limit,
             "filter": f"from-pub-date:{year_min},type:journal-article",
-            "select": "DOI,title,author,issued,container-title,abstract,URL,language,is-referenced-by-count",
+            "select": "DOI,title,author,issued,container-title,abstract,URL,is-referenced-by-count",
         }
         if http.contact:
             params["mailto"] = http.contact
@@ -121,7 +121,7 @@ class Crossref:
                 source=self.name, source_id=doi or "", title=clean_text(titles[0]) or "",
                 authors=[a for a in authors if a], year=_year(parts[0] if parts else None), doi=doi,
                 url=_doi_url(doi) or it.get("URL"), abstract=clean_text(it.get("abstract")),
-                venue=(it.get("container-title") or [None])[0], language=it.get("language"),
+                venue=(it.get("container-title") or [None])[0], language=None,
                 cited_by=int(it.get("is-referenced-by-count") or 0),
             ))
         return out
