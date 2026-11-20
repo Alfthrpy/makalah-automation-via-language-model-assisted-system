@@ -7,7 +7,7 @@ Status per 2026-11-20. Centang setelah **dibuktikan**, bukan setelah dikonfigura
 - Web (Netlify): deploy `6affeb22`.
 
 ## Yang sudah live
-- Web: <https://malas-app.netlify.app> (Netlify, situs `malas-app`, id `f4f7ee2f-f459-4ce8-b20b-910fbb04b45b`; di-deploy lewat API, tidak terhubung git).
+- Web: <https://malas.alfthrpy.my.id> (domain sendiri sejak 2026-11-20; alamat lama `malas-app.netlify.app` dialihkan 301; Netlify, situs `malas-app`, id `f4f7ee2f-f459-4ce8-b20b-910fbb04b45b`; di-deploy lewat API, tidak terhubung git).
 - Backend: Hugging Face Space `PetaniHandal/stegano-f5-dmcss-api` (nama lama dari proyek sebelumnya; isinya MALAS), Docker, RUNNING.
 - Database: Neon project `malas` (`still-lab-16179546`), branch `production`.
 - Login: Clerk instance dev `moral-camel-3719` (`https://moral-camel-3719.clerk.accounts.dev`).
@@ -15,11 +15,11 @@ Status per 2026-11-20. Centang setelah **dibuktikan**, bukan setelah dikonfigura
 ## A. Wajib sebelum dibuka ke publik
 - [ ] **Tes alur lengkap di HP**: daftar → verifikasi → masuk → buat makalah **Mode uji** → unduh `.docx`. (Belum ada yang membuktikan Clerk + proxy Netlify + backend + Neon nyambung ujung ke ujung.)
 - [ ] **Satu makalah sungguhan** dengan API key sendiri (key khusus, kredit kecil). Periksa: outline masuk akal, sitasi cocok dengan sumber, waktu 10-30 menit, dan catat token/biaya dari halaman job. Klaim di landing dan video bergantung pada ini.
-- [ ] **Isi `CLERK_AUTHORIZED_PARTIES`** di Space = `https://malas-app.netlify.app` (persis, tanpa garis miring akhir), **setelah** login terbukti jalan. Jika setelahnya semua `/api/*` 401, hapus variabelnya (artinya klaim `azp` tidak cocok) dan kirim `azp` dari token.
+- [ ] **Isi `CLERK_AUTHORIZED_PARTIES`** di Space = `https://malas.alfthrpy.my.id` (persis, tanpa garis miring akhir), **setelah** login terbukti jalan. Jika setelahnya semua `/api/*` 401, hapus variabelnya (artinya klaim `azp` tidak cocok) dan kirim `azp` dari token.
 - [ ] **Setelan Clerk** (Dashboard, nama menu bisa berbeda): wajibkan verifikasi email; batasi metode masuk yang diinginkan; biarkan bot protection aktif; isi URL Ketentuan (`/ketentuan`) dan Privasi (`/privasi`) di pengaturan *Legal* bila tersedia.
 - [ ] **Tinjau Ketentuan dan Privasi** (`apps/web/src/features/legal/content.ts`). Ini draf yang ditulis dari perilaku sistem, **bukan nasihat hukum**. Cek: identitas pengelola ("perorangan, proyek pribadi"), kontak (kini GitHub issues; ganti `CONTACT_URL` bila punya email), retensi 48 jam, logo tersimpan sampai dihapus pengguna, daftar pihak penerima data. Bila ada pertanyaan hukum (mis. UU PDP), minta tinjauan ahli.
 - [ ] **Cabut token yang sempat bocor/tersimpan**: token HF lama (tertempel di chat), serta token HF, Neon, dan Netlify yang disimpan di environment sesi Claude (`makalah-malas`) bila tidak dipakai lagi. Password database Neon sudah direset sekali; jangan tempel connection string ke chat lagi.
-- [ ] **Link di bio**: video marketing menulis "Link di bio"; pasang `malas-app.netlify.app` di bio akun sebelum unggah.
+- [ ] **Link di bio**: video marketing menulis "Link di bio"; pasang `malas.alfthrpy.my.id` di bio akun sebelum unggah.
 
 ## B. Disarankan
 - [ ] **Template di repo masih memuat logo institusi tertentu** (`packages/engine/src/malas/templates/*.docx`, `word/media/image1.png`). Layanan web sudah memakai penanda netral atau logo pengguna, tapi berkas template di repo (publik) masih membawanya. Ganti dengan gambar netral bila bukan milikmu atau tanpa izin.
