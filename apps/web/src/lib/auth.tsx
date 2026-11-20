@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { idID } from "@clerk/localizations";
-import { ClerkProvider, useAuth as useClerkAuth, useClerk, useUser } from "@clerk/clerk-react";
+import { ClerkProvider, useAuth as useClerkAuth, useClerk, useUser } from "@clerk/react";
 import { setTokenGetter } from "./api";
 import { initials } from "./format";
 import { store } from "./storage";

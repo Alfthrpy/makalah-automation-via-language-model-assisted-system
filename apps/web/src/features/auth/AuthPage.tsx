@@ -1,4 +1,4 @@
-import { SignIn, SignUp } from "@clerk/clerk-react";
+import { SignIn, SignUp } from "@clerk/react";
 import { Navigate, useLocation } from "react-router";
 import { Icon } from "../../components/icons";
 import { LogoMark } from "../../components/Mascot";
