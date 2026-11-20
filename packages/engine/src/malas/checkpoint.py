@@ -16,7 +16,8 @@ VERSION = 1
 def meta_of(state: Makalah) -> dict:
     total = sum(len(b.subbab) for b in state.bab.values())
     done = sum(1 for b in state.bab.values() for s in b.subbab if s.content)
-    return {"outline": bool(state.bab and state.daftar_pustaka), "done": done, "total": total}
+    # outline dianggap selesai bila struktur bab ada; daftar pustaka boleh kosong (mis. semua API mati)
+    return {"outline": bool(state.bab), "done": done, "total": total}
 
 
 def save(path: Path, state: Makalah, usage: dict, stats: dict) -> None:

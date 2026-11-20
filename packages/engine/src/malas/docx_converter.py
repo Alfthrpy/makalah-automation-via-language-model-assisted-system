@@ -8,6 +8,7 @@ from typing import Any, Dict, Optional
 from docxtpl import DocxTemplate
 from jinja2 import Environment
 
+from malas.citations import is_institution
 from malas.crews.models.TaskOutput import Makalah
 from malas.logo import apply_logo, normalize_logo
 
@@ -98,9 +99,14 @@ def format_apa7(ref):
         parts = name.split()
         if not parts:
             continue
+        if is_institution(name):  # lembaga ("Wikipedia", "Badan Pusat Statistik"): tulis utuh
+            formatted_authors.append(" ".join(parts))
+            continue
         last_name = parts[-1]
-        # Membuat inisial dari nama depan/tengah
-        initials = " ".join([f"{p[0]}." for p in parts[:-1]])
+        # Membuat inisial dari nama depan/tengah; "JA" (inisial kapital dari sumber) -> "J. A."
+        initials = " ".join(
+            f"{ch}." for p in parts[:-1] for ch in (p if p.isalpha() and p.isupper() and len(p) <= 3 else p[0])
+        )
         formatted_authors.append(f"{last_name}, {initials}")
 
     # Menggabungkan daftar penulis dengan koma dan ampersand (&)

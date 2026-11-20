@@ -60,6 +60,21 @@ def extract_citations(text: str) -> List[Citation]:
     return found
 
 
+_LEMBAGA = re.compile(
+    r"\b(badan|kementerian|kemenkes|kemendikbud|dinas|lembaga|pusat|universitas|institut|politeknik|sekolah tinggi|"
+    r"organisasi|asosiasi|komisi|dewan|bank|perusahaan|pemerintah|republik|world|organization|association|ministry|"
+    r"institute|university|bureau|agency|commission|council|foundation|department|office)\b", re.I)
+
+
+def is_institution(name: str) -> bool:
+    """Penulis berupa lembaga ("Badan Pusat Statistik"): ditulis utuh, bukan 'Statistik, B. P.'.
+
+    Nama satu kata ("Wikipedia") selalu dianggap lembaga; nama multi-kata hanya bila memuat kata kunci lembaga.
+    """
+    parts = name.split()
+    return len(parts) == 1 or (len(parts) > 1 and bool(_LEMBAGA.search(name)))
+
+
 def citation_label(ref: ReferenceItem) -> str:
     """Bentuk sitasi in-text yang benar untuk sebuah referensi, mis. '(Smith & Jones, 2024)'."""
     names = [_surname_display(a) for a in ref.authors if a.strip()]
@@ -76,11 +91,19 @@ def citation_label(ref: ReferenceItem) -> str:
 
 def _surname_display(author: str) -> str:
     author = author.strip()
+    if is_institution(author):
+        return author
     return author.split(",")[0].strip() if "," in author else author.split()[-1]
 
 
 def _ref_keys(ref: ReferenceItem) -> Set[tuple]:
     keys = {(_surname(a), ref.year) for a in ref.authors if a.strip()}
+    for a in ref.authors:
+        if a.strip() and is_institution(a):
+            # in-text "(Kementerian Pendidikan dan Kebudayaan, 2023)" dipotong di "dan" oleh extract_citations
+            seg = re.split(r"\s+(?:dan|&|and)\s+|\s+(?:et al\.|dkk\.)", a.strip())[0].split()
+            if seg:
+                keys.add((_norm(seg[-1]), ref.year))
     if not ref.authors:  # sumber tanpa penulis: sitasi memakai judul
         keys.add((_norm(ref.title.split(":")[0].split()[0] if ref.title.split() else ""), ref.year))
     return keys

@@ -41,6 +41,8 @@ GEMINI_API_KEY="isi_api_key_anda"
 # MALAS_MODEL_PLANNER=openrouter/deepseek/deepseek-v3.2
 # MALAS_MODEL_WRITER=openrouter/google/gemini-2.5-flash
 # MALAS_MOCK=1                              # LLM palsu, tanpa API call (uji alur)
+# MALAS_REFSEARCH=1                         # (eksperimental) cari referensi via API deterministik, bukan agen LLM; lihat docs/refsearch.md
+# MALAS_CONTACT_EMAIL=anda@mail.com         # untuk MALAS_REFSEARCH (Crossref/Unpaywall); MALAS_OPENALEX_API_KEY untuk OpenAlex
 # MALAS_FULLTEXT=0                          # matikan pengambilan full-text referensi
 # MALAS_FULLTEXT_CHARS=3000                 # batas kutipan full-text per sub-bab (~750 token)
 ```

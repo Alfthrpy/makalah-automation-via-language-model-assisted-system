@@ -1,221 +1,129 @@
-# HANDOFF: MALAS → monorepo SaaS (free tier)
+# HANDOFF: MALAS (penulis makalah otomatis) sebagai SaaS gratis
 
-> Dokumen ini diperbarui setiap selesai satu fase atau saat sesi ditutup. Mulai sesi baru dengan membacanya
-> dulu, lalu lanjut ke bagian "Langkah berikutnya". Branch kerja: `claude/jolly-maxwell-xdh9bs`.
+> Dokumen aktif untuk sesi berikutnya. Terakhir diperbarui **2026-11-20**. Baca bagian 1-4 dulu (±5 menit), sisanya sebagai rujukan.
+> Detail lengkap per fase dan riwayat revisi desain (v1-v5) ada di `docs/archive/HANDOFF-lengkap-2026-11-20.md`.
+> Bahasa percakapan dan UI: **Indonesia**, nada santai ("kamu"), tapi lugas untuk privasi/error/hapus/kuota.
 
-## Tujuan
-Mengubah MALAS (penulis makalah otomatis berbasis crewAI) menjadi monorepo frontend + backend ala SaaS,
-memakai layanan gratis. Bahasa percakapan dan UI: Indonesia.
+## 1. Ringkasan satu paragraf
+MALAS = **M**akalah **A**utomation via **L**anguage-model **A**ssisted **S**ystem. Pengguna mengetik judul, menempel API key sendiri (BYOK, OpenRouter/Kenari) atau memakai **Mode uji** (tanpa LLM, teks contoh), lalu pipeline crewAI menyusun DRAF makalah `.docx` dengan template kampus. Monorepo: backend FastAPI + antrean di Postgres (`apps/api`), engine crewAI (`packages/engine`), web React (`apps/web`). **Sudah live**: web di Netlify, backend di Hugging Face Space, database di Neon, login Clerk. Semua kode, tes, CI, deploy, halaman hukum, logo kustom, dan video promo sudah selesai dan ter-merge. Yang belum: **bukti ujung-ke-ujung dengan akun/key nyata** (lihat bagian 3).
 
-## Keputusan yang sudah disepakati
+## 2. Yang live sekarang
+| Komponen | Detail |
+|---|---|
+| Web | https://malas-app.netlify.app (Netlify, situs `malas-app`, id `f4f7ee2f-f459-4ce8-b20b-910fbb04b45b`; **tidak git-linked**, di-deploy lewat API; deploy terakhir `6affeb22`) |
+| Backend | HF Space `PetaniHandal/stegano-f5-dmcss-api` → `https://petanihandal-stegano-f5-dmcss-api.hf.space` (Docker, RUNNING; commit `d76661cb`; **titik kembali** `29b5f2d4`). Nama Space salah kaprah: bekas proyek steganografi yang DITIMPA atas persetujuan pemilik (riwayat lama tetap di History Space) |
+| Database | Neon project `malas` (`still-lab-16179546`), branch `production` (`br-snowy-bread-bedoe94t`), `aws-us-east-2`, Postgres 18, role `neondb_owner`, DB `neondb`. Migrasi 0001-0003 terpasang (tabel `user_logos` terverifikasi lewat API Neon) |
+| Login | Clerk instance **dev** `moral-camel-3719` (`https://moral-camel-3719.clerk.accounts.dev`). Publishable key (publik) `pk_test_bW9yYWwtY2FtZWwtMzcxOS5jbGVyay5hY2NvdW50cy5kZXYk` |
+| Repo | `Alfthrpy/makalah-automation-via-language-model-assisted-system`, branch kerja `claude/jolly-maxwell-xdh9bs` (disinkronkan ke `main` tiap selesai merge: `git fetch origin main && git checkout -B claude/jolly-maxwell-xdh9bs origin/main`). PR #1-#4 sudah ter-merge |
+| Tes | pytest 163 lulus + 1 skip (Postgres: `apps/api` 125 lulus), web 41, e2e Playwright (`apps/web/e2e/{flow,states,logo}.cjs`), CI GitHub Actions 4 job hijau |
+
+**Konfigurasi Space** (Settings → Variables and secrets). Variabel: `CLERK_ISSUER`, `MALAS_AUTH_REQUIRED=1`, `MALAS_DAILY_QUOTA=3`. Secret: `DATABASE_URL` (pooled), `DATABASE_URL_DIRECT`. Bawaan Dockerfile: `MALAS_WEB_REQUIRE_KEY=1`, `MALAS_FULLTEXT=1`, `PORT=7860`. **Belum diisi (disengaja)**: `CLERK_AUTHORIZED_PARTIES` (isi `https://malas-app.netlify.app` SETELAH login terbukti jalan; bila semua `/api/*` jadi 401, hapus), `MALAS_SECRET_KEY` (fitur simpan-API-key mati), `MALAS_WEB_RETENTION_HOURS` (default 48 jam), `R2_*` (file `.docx` disimpan sebagai bytea di Neon).
+
+**Kredensial**: tidak ada yang ada di repo. Di sandbox Claude, token HF, Neon, dan Netlify tersimpan sebagai *network secret* pada environment sesi `makalah-malas` (`env_01BNncQLupktjSKUqfqiync5`); proxy menyuntikkannya, jadi skrip memakai placeholder `proxy-injected` (mis. `HF_TOKEN=proxy-injected`). Sesi di environment lain tidak punya akses itu: minta lagi lewat `request_credential` (formulir aman, tempel token di formulir, BUKAN di chat). Host yang diizinkan di environment itu: `moral-camel-3719.clerk.accounts.dev`, `huggingface.co`, `console.neon.tech`, `api.netlify.com`.
+
+## 2b. Pencarian referensi baru (refsearch), status 2026-11-20
+Pengganti agen LLM bertool untuk tahap "cari referensi": paket `packages/engine/src/malas/refsearch/` (OpenAlex + Crossref, +Europe PMC/arXiv/DOAJ
+sesuai bidang, fallback Wikipedia/Open Library). Dokumen lengkap: **`docs/refsearch.md`**. Aktif lewat `MALAS_REFSEARCH=1`; jalur lama (agen) tetap ada dan jadi default bila variabel kosong.
+- **Live di Space** sejak commit Space `b02dad45` (kode dari branch kerja; BELUM di-merge ke `main`, tidak ada PR). Variabel Space: `MALAS_REFSEARCH=1`; secret: `MALAS_OPENALEX_API_KEY` (diisi pemilik). `MALAS_CONTACT_EMAIL` belum diisi (opsional; Crossref lebih lambat tanpanya, Unpaywall mati).
+- **Titik kembali:** Space ke `d76661cb` / `29b5f2d4` (push ulang bundel dari commit repo `8ff5161`), ATAU cukup hapus variabel `MALAS_REFSEARCH` di Space (tanpa deploy). Tag git lokal `pre-refsearch-2026-11-20` (push tag gagal; titik kembali yang berlaku `8ff5161`).
+- **Terbukti nyata** (workflow CI sementara `refsearch-probe.yml`, SUDAH DIHAPUS; pulihkan dengan `git show b3d7aea:.github/workflows/refsearch-probe.yml`): 8 topik lintas bidang, 32/32 sub-bab >=2 referensi, abstrak 100%, PDF-OA 97%, full-text 78%, tanpa key & tanpa LLM. Bug nyata yang ditemukan lewat uji ini sudah diperbaiki (Crossref `select=language` -> 400; file `Cover.pdf` repositori).
+- **BELUM terbukti:** rencana query dari LLM (`llm_plan`, EN+ID+bidang) di produksi; perbandingan token/biaya vs jalur lama (butuh key LLM); relevansi sempurna (topik Majapahit masih menyertakan 1 artikel Sriwijaya; topik teknis tanpa query Inggris hanya dapat jurnal Indonesia); Europe PMC lambat (~29 dtk, timeout baca 40 dtk).
+- **Keamanan izin:** deploy ke Space butuh persetujuan eksplisit pemilik (menimpa isi Space). Sesi ini mendapat kredensial `api.openalex.org` di environment lewat kartu `request_credential`.
+- **Rerank LLM berbasis ID** sudah ada (`MALAS_REF_LLM_RERANK=1`, default mati, belum diuji dengan LLM sungguhan).
+- **Ide lanjutan** (belum dikerjakan): pencarian web dengan allowlist domain, regulasi (JDIH BPK), CORE, embedding lokal.
+
+## 3. Yang BELUM terbukti (jujur)
+1. **Login/sign-up sampai tuntas di browser nyata.** `<SignIn/>`/`<SignUp/>` render dengan 0 pelanggaran CSP terhadap instance Clerk asli, dan JWKS + `Authenticator` terbukti. Tapi sign-up di browser headless sandbox kena `403 "For your security..."` (dugaan: bot protection Clerk karena `cdn.protect.clerk.com` diblokir proxy sandbox). Belum ada yang mencoba di HP. `getToken`, klaim `azp` pada token nyata, `openUserProfile` belum teruji.
+2. **Satu makalah sungguhan dengan API key.** Seluruh pengujian memakai Mode uji. Kualitas isi, validitas sitasi, waktu 10-30 menit, dan biaya token nyata belum pernah diukur. Klaim di landing/video bergantung pada ini.
+3. **`/api/*` lewat proxy Netlify ke Space** (header `Authorization`/`Host`) dan tampilan situs live: sandbox tidak bisa membuka `*.netlify.app` maupun `*.hf.space`.
+4. R2 (hanya klien S3 palsu), workflow `deploy-hf.yml` (belum pernah jalan; deploy dilakukan lewat `deploy/hf-space/push.py`), panggilan lanjutan skrip Clerk Protect (bisa memicu pelanggaran `connect-src`; tambahkan host dari pesannya ke CSP di `netlify.toml`).
+5. Audio video promo belum pernah didengar manusia (hanya diukur).
+
+## 4. Prioritas berikutnya
+**A. Butuh pemilik (HP/akun)**: tes alur lengkap di HP (daftar → masuk → Mode uji → unduh `.docx`; coba unggah logo; `/privasi` harus bilang 48 jam); satu makalah sungguhan dengan key khusus berkredit kecil (catat waktu, token, biaya); lalu isi `CLERK_AUTHORIZED_PARTIES`; setelan Clerk (verifikasi email, URL hukum di bagian Legal); cabut token yang sempat bocor (token HF lama yang tertempel di chat) dan hapus token HF/Neon/Netlify di environment `makalah-malas` bila tak dipakai; pasang "link di bio" sebelum unggah video; **tinjau Ketentuan/Privasi** (draf dari perilaku sistem, bukan nasihat hukum; pengelola ditulis "perorangan", kontak = GitHub issues).
+**B. Keputusan pemilik yang menggantung**: (1) **template di repo (`packages/engine/src/malas/templates/*.docx`, `word/media/image1.png`) memuat logo institusi tertentu**; layanan web sudah memakai penanda netral/logo pengguna, tapi repo publik masih membawanya: ganti permanen dengan gambar netral? (2) rename Space (mis. `PetaniHandal/malas-api`; dampak: host berubah → edit `netlify.toml`, deploy ulang web, `HF_SPACE` di GitHub); (3) domain sendiri (ubah `og:*` di `apps/web/index.html`, `robots.txt`, `sitemap.xml`, `CLERK_AUTHORIZED_PARTIES`, Clerk); (4) logo per akun (sekarang) atau per makalah?
+**C. Ide produk (diurutkan gue)**: set uji kualitas (±10 judul lintas jurusan dijalankan berkala dengan key sungguhan, nilai sitasi/struktur/panjang); edit/setujui outline sebelum penulisan; estimasi biaya sebelum kirim; notifikasi selesai (email Resend/push); gaya sitasi (APA/IEEE) dan opsi bahasa Inggris; laporan verifikasi sitasi di hasil; B6 label template ramah (`GET /api/config.templates` jadi objek); PWA; tombol umpan balik; pemantauan job gagal (Sentry perlu DSN + penyaringan agar body/key tak terkirim; bila analitik ditambah, UPDATE Kebijakan Privasi yang kini menyatakan tanpa pelacak pihak ketiga); tes komponen MSW; code-splitting.
+**D. Fase 6 opsional**: admin, pembayaran, i18n.
+
+Daftar peluncuran terperinci: `docs/LAUNCH-CHECKLIST.md`. Panduan setup layanan + troubleshooting: `DEPLOY.md`.
+
+## 5. Keputusan arsitektur (sudah disepakati)
 | # | Topik | Keputusan |
 |---|---|---|
-| 1 | Auth | **Clerk** (verifikasi JWT di backend lewat JWKS) |
-| 2 | Frontend | **Vite + React + TypeScript + Tailwind**, deploy ke **Netlify**; `/api/*` di-proxy ke backend (satu origin, tanpa CORS) |
-| 3 | API key BYOK | **Opsi (b)**: opsional disimpan **terenkripsi di DB** dengan secret server, supaya job terputus bisa dilanjut otomatis. Default tetap tidak menyimpan; pengguna memilih menyimpan |
-| 4 | Backend host | **Hugging Face Space (Docker)**, bukan Render (RAM lebih besar, `MALAS_FULLTEXT=1` bisa nyala). Port HF = **7860** |
-| 5 | Database | **Neon Postgres** (pooled URL untuk app, direct URL untuk migrasi Alembic) |
-| 6 | File hasil | Antarmuka `Storage`; MVP boleh `bytea` di Neon, target **Cloudflare R2** |
-| 7 | Antrean | Tabel Postgres + `FOR UPDATE SKIP LOCKED` (tanpa Redis) |
+| 1 | Auth | **Clerk** (JWT RS256 diverifikasi backend lewat JWKS; `iss`, `exp`, `sub` wajib; `azp` bila `CLERK_AUTHORIZED_PARTIES`). Tanpa Clerk, backend jalan mode anonim (cookie acak) untuk lokal/tes |
+| 2 | Frontend | **Vite + React + TS + react-router + TanStack Query + zod**, Tailwind v4 (utilitas berprefiks `tw:`, tanpa preflight), CSS prototipe di `src/styles/*`; deploy Netlify; `/api/*` di-proxy ke backend (satu origin, tanpa CORS) |
+| 3 | API key (BYOK) | Default HANYA di memori selama job; opsional disimpan terenkripsi (Fernet) di DB bila `MALAS_SECRET_KEY` diisi dan pengguna memilihnya; tidak pernah dikembalikan lewat API |
+| 4 | Backend host | **Hugging Face Space (Docker, port 7860)**; disk ephemeral, bisa tidur |
+| 5 | Database | **Neon Postgres** (pooled untuk app, direct untuk migrasi Alembic) |
+| 6 | File hasil | Antarmuka `Storage`: `DbStorage` (bytea, kini dipakai) atau `S3Storage` (R2, aktif bila keempat `R2_*` terisi) |
+| 7 | Antrean | Tabel Postgres + `FOR UPDATE SKIP LOCKED`, 1 worker/proses, heartbeat, pemulihan job basi, auto-resume bila key tersimpan |
+| 8 | Retensi | Riwayat/berkas dihapus 48 jam setelah selesai (mode hosting); tampil di `/api/config`; harus sama dengan teks hukum (ada tes) |
+| 9 | Kuota | `MALAS_DAILY_QUOTA` makalah nyata/akun/hari (Mode uji dan lanjutan tidak dihitung); tabel `usage` persisten |
+| 10 | Logo sampul | Satu logo/akun (`user_logos`), dinormalkan Pillow jadi PNG persegi; tanpa logo = penanda netral "LOGO" (hanya layanan web) |
 
-## Struktur repo sekarang (setelah Fase 2)
+## 6. Struktur repo
 ```
-pyproject.toml            # root uv workspace (virtual) + dev group (pytest, httpx, ruff) + config pytest
-pnpm-workspace.yaml / package.json   # skeleton JS (apps/web belum ada)
-apps/api/                 # paket Python `malas_api`
-  .env.example            # semua env backend (DATABASE_URL, DATABASE_URL_DIRECT, MALAS_SECRET_KEY, ...)
-  alembic.ini             # hanya untuk CLI; runtime memakai malas_api.db.migrate() (script_location di dalam paket)
-  src/malas_api/
-    app.py                # FastAPI: routes, middleware sesi/header (auth Clerk bila CLERK_* diisi, selain itu cookie anonim)
-    jobs.py               # JobManager: worker thread, claim antrean, heartbeat, pemulihan, key sesi/tersimpan
-    repo.py               # SATU-SATUNYA tempat SQL: job/checkpoint/key; job <-> dict
-    db.py                 # model SQLAlchemy 2, make_engine (Neon/SQLite), migrate(), Database
-    migrations/           # Alembic: env.py, versions/0001_initial.py
-    storage.py            # Storage Protocol + DbStorage (bytea) + S3Storage (R2, aktif bila R2_* terisi)
-    auth.py               # Authenticator Clerk: JWT RS256 via PyJWKClient, azp, token_from_request (cookie hanya GET)
-    crypto.py             # KeyCipher (Fernet+HKDF), cipher_from_env, rotasi lewat MALAS_SECRET_KEY_OLD
-    vault.py              # key sesi di memori + redaksi log/error
-    schemas.py            # model respons Pydantic (sumber kontrak OpenAPI + penyaring keluaran)
-    export_openapi.py     # `uv run malas-openapi` -> packages/api-types/openapi.json
-  tests/                  # test_web, test_byok, test_resume, test_db (Fase 2), conftest (PG opsional)
-  Dockerfile              # build context = ROOT: docker build -f apps/api/Dockerfile .
-packages/api-types/       # @malas/api-types: openapi.json + schema.d.ts (generate: `pnpm --filter @malas/api-types generate`)
-packages/engine/          # paket Python `malas`: crews, docx_converter, citations, fulltext, tolerant, CLI `kickoff`
-  src/malas/{paths.py,templates/,examples/}
-netlify.toml / deploy/hf-space/ / .github/workflows/   # deploy & CI (Fase 5); panduan: DEPLOY.md
+pyproject.toml, uv.lock      # uv workspace (apps/api, packages/engine) + dev group
+package.json, pnpm-*.yaml    # pnpm workspace (apps/web, packages/*)
+apps/api/                    # paket `malas_api`
+  src/malas_api/app.py       # routes, middleware (Clerk/anonim, header keamanan), retention_from_env
+  jobs.py repo.py db.py      # JobManager+worker; SATU-SATUNYA tempat SQL; model SQLAlchemy
+  schemas.py                 # model respons Pydantic (sumber kontrak OpenAPI + penyaring keluaran)
+  export_openapi.py          # `uv run malas-openapi` -> packages/api-types/openapi.json
+  auth.py crypto.py vault.py storage.py
+  migrations/versions/       # 0001 skema awal, 0002 usage, 0003 user_logos
+  tests/                     # test_web, test_byok, test_resume, test_db, test_auth, test_openapi (drift), test_storage, test_logo
+  Dockerfile                 # build context = ROOT repo
+packages/engine/             # paket `malas`: crews, docx_converter, logo.py, citations, fulltext, providers, CLI `kickoff`
+packages/api-types/          # @malas/api-types: openapi.json + schema.d.ts (hasil generate; JANGAN edit tangan)
+apps/web/                    # React; src/{features,components,lib,copy,styles}; copy UI di src/copy/id.ts
+  features/legal/content.ts  # teks Ketentuan/Privasi (dikunci tes terhadap fakta sistem)
+  e2e/ og/ public/           # skrip Playwright, sumber gambar OG, aset publik (favicon, og.png, robots, sitemap)
+deploy/{netlify,hf-space}/   # deploy.py, push.py, bundle.sh + README Space
+.github/workflows/           # ci.yml (4 job), deploy-hf.yml (butuh HF_TOKEN + var HF_SPACE)
+netlify.toml                 # build, proxy /api/* ke Space, SPA fallback, header + CSP (Clerk)
+docs/                        # LAUNCH-CHECKLIST.md, design/ (prototipe + HANDOFF-frontend), archive/
+marketing/video/             # video promo; v4 = final (lihat bagian 8)
 ```
-Perintah penting: `uv sync --all-packages`, `uv run pytest -q` (138 lulus + 1 skip khusus Postgres), `uv run malas-web`,
-`MALAS_MOCK=1 uv run kickoff --output x.docx`.
-Tes ke Postgres: `MALAS_TEST_DATABASE_URL=postgresql://postgres@localhost:54329/malas_test uv run pytest apps/api`
-(database DIKOSONGKAN tiap tes). Postgres 16 ada di sandbox: `/usr/lib/postgresql/16/bin`, jalankan sebagai user `postgres`
-dengan data dir milik `postgres` (mis. `/var/tmp/pgdata-malas`, port 54329, `-A trust`); tidak aktif lagi di sesi baru.
 
-## Status fase
-- [x] **Fase 1: Restrukturisasi** (perilaku tidak berubah).
-- [x] **Fase 2: Backend + Neon**. Selesai dan terverifikasi di SQLite dan Postgres 16 sungguhan.
-  - Skema (Alembic 0001): `users`, `jobs` (kolom nyata + JSON `data`/`resume`), `job_checkpoints`, `job_files`, `user_api_keys`.
-    Tabel `usage` SENGAJA ditunda ke Fase 3 (kuota).
-  - Antrean di DB: `claim_next` (`FOR UPDATE SKIP LOCKED` + UPDATE bersyarat), 1 worker thread/proses, heartbeat
-    (default tiap 20 dtk, basi 90 dtk), `recover_stale()` saat start + berkala, job zombie tidak menimpa job yang
-    sudah dinyatakan mati (`_finish` hanya mengubah job `running`).
-  - Checkpoint & `.docx` di DB (zlib / bytea); folder kerja per job di `<root>/work` dihapus setelah job.
-  - Opsi 3b: `save_key`/`use_saved_key` di `POST /api/jobs`, `GET/DELETE /api/keys`, auto-resume sekali bila
-    `key_source="saved"` + checkpoint ada. Key sesi (tanpa simpan) tetap hanya di memori; job antre yang kehilangan key
-    karena restart gagal dengan pesan jelas.
-  - Neon: `DATABASE_URL` (pooled) + `DATABASE_URL_DIRECT` (migrasi), `prepare_threshold=None` (PgBouncer), `pool_pre_ping`,
-    `pg_advisory_xact_lock` saat migrasi.
-  - Smoke test: server dari instalasi bersih (`--no-dev`) + Postgres: job mode uji selesai, restart server, riwayat & unduhan tetap ada.
-  - BELUM dites terhadap Neon asli (tidak ada kredensial di sandbox). Yang berisiko: latensi cold-start Neon, perilaku PgBouncer.
-- [x] **Fase 3: Auth + kuota**. Selesai; diverifikasi di SQLite (133 lulus) dan Postgres (108 api).
-  - `auth.py`: `Authenticator` (RS256 saja; `iss`, `exp`, `sub` wajib; `azp` bila `CLERK_AUTHORIZED_PARTIES`), JWKS via
-    `PyJWKClient`. Tes mencakup alg `none`, HS256-dengan-kunci-publik, issuer/azp salah, kunci lain, JWKS mati (-> 401),
-    dan JWKS sungguhan lewat server HTTP lokal. Tes sudah dimutasi untuk memastikan ia benar-benar menjaga.
-  - `app.py`: middleware: mode Clerk -> owner = `sub`, 401 untuk `/api/*` selain `/api/config`; tanpa Clerk -> cookie anonim
-    (kompatibel mundur). `GET /api/me` (id, mode, kuota). `/api/config` kini memuat `auth` dan `daily_quota`. `SPACE_HOST`
-    (HF) otomatis ke daftar Host yang diizinkan.
-  - Kuota: tabel `usage` (migrasi 0002), `Repo.consume_quota` atomik (UPDATE bersyarat), refund bila batal sebelum jalan
-    atau submit gagal; job lanjutan, auto-resume, dan Mode uji tidak dihitung. `MALAS_DAILY_QUOTA`, `MALAS_QUOTA_TZ`.
-  - BELUM dites dengan Clerk asli (tidak ada akun). Risiko: format `azp`/`iss` instance nyata, dan cookie `__session` di
-    belakang proxy Netlify (domain/SameSite). Verifikasi saat Fase 5.
-- [x] **Fase 4: Frontend React** (`apps/web`), M0-M6 + B1-B5 selesai dan diverifikasi di sandbox.
-  Sisa kecil: uji dengan Clerk asli, tes komponen MSW (opsional), B6 (label template ramah, hanya bila pemilik minta).
-- [x] **Fase 5: Deploy + CI** (kode & konfigurasi selesai; BELUM dideploy ke layanan asli).
-  - `apps/api/Dockerfile`: port 7860 (`PORT`), uid 1000, `MALAS_FULLTEXT=1`; user dibuat sebelum `uv sync` (hindari `chown -R` yang menggandakan layer). **Dibuild dan dijalankan sungguhan di sandbox** (3,76 GB; `/healthz` ok, `hosted:true`, boto3 ada, folder tulis ok). Build di sandbox butuh CA proxy sandbox (salinan Dockerfile sementara + `--build-context ca=/root/.ccr`); di CI/HF tidak perlu.
-  - `deploy/hf-space/{README.md,bundle.sh}` + `.github/workflows/deploy-hf.yml`: bundel sub-set repo (Dockerfile di root + front-matter HF `sdk: docker, app_port: 7860`) di-push ke Space; butuh secret `HF_TOKEN` + variable `HF_SPACE`, dilewati bila variable kosong. `bundle.sh` diuji (1,4 MB); workflow-nya BELUM pernah jalan.
-  - `netlify.toml`: build pnpm, proxy `/api/*` -> `https://petanihandal-stegano-f5-dmcss-api.hf.space` (host Space asli; Netlify tak mengizinkan env di redirect), fallback SPA, header keamanan + CSP untuk Clerk (BELUM diuji dengan Clerk asli; `index.html` build tanpa skrip inline).
-  - `.github/workflows/ci.yml`: pytest SQLite, pytest apps/api di Postgres 16 (service), web typecheck+test+build, build image + smoke test. Ruff hanya pada berkas baru/dirapikan (daftar eksplisit di ci.yml; tambahkan berkas bila dirapikan). BELUM pernah jalan di GitHub Actions.
-  - `S3Storage` + `storage_from_env()` (R2): aktif bila keempat `R2_*` terisi, sebagian terisi = error saat start. Diuji dengan klien S3 palsu (`test_storage.py`); R2 asli belum dicoba. `boto3` jadi dependensi apps/api (impor lambat).
-  - `DEPLOY.md` ditulis ulang (Neon, Clerk, HF Space, Netlify, R2, troubleshooting); `render.yaml` dihapus; README disesuaikan (UI web di :5173, API tidak lagi melayani HTML).
-- [ ] **Fase 6 (opsional)**: ToS/Privasi, email (Resend), Sentry, admin, pembayaran.
+## 7. Perintah penting
+```bash
+uv sync --all-packages && pnpm install            # setup
+uv run pytest -q                                  # semua tes Python (SQLite); lalu:
+MALAS_TEST_DATABASE_URL=postgresql://postgres@localhost:54329/malas_test uv run pytest apps/api   # Postgres (lihat catatan)
+pnpm --filter web {typecheck,test,build}          # web
+uv run malas-web  &  pnpm --filter web dev        # lokal: API :8000, web :5173 (VITE_AUTH_MODE=dev, tanpa Clerk)
+NODE_PATH=$(npm root -g) node apps/web/e2e/{flow,states,logo}.cjs   # e2e (server di atas harus hidup)
+MALAS_MOCK=1 uv run kickoff --output x.docx [--logo logo.png]       # pipeline mode uji via CLI
+# Ubah model respons API -> regenerasi kontrak (tes drift gagal bila lupa):
+uv run malas-openapi && (cd packages/api-types && pnpm exec openapi-typescript openapi.json -o schema.d.ts)
+# Deploy web (build dengan key Clerk publik):
+VITE_AUTH_MODE=clerk VITE_CLERK_PUBLISHABLE_KEY=pk_test_... pnpm --filter web build
+NETLIFY_AUTH_TOKEN=... python3 deploy/netlify/deploy.py --site f4f7ee2f-f459-4ce8-b20b-910fbb04b45b
+# Deploy backend (SATU commit, riwayat Space aman):
+HF_TOKEN=... uv run --no-project --with huggingface_hub python deploy/hf-space/push.py PetaniHandal/stegano-f5-dmcss-api
+```
+Postgres lokal di sandbox: `/usr/lib/postgresql/16/bin`, jalankan sebagai user `postgres` dengan data dir milik `postgres` (mis. `/var/tmp/pgdata-malas`, port 54329, `initdb -A trust`, `createdb malas_test`); tidak aktif lagi di sesi baru; database DIKOSONGKAN tiap tes. Docker daemon bisa dijalankan manual (`dockerd &`); build di sandbox butuh CA proxy sandbox (`--build-context ca=/root/.ccr` + salinan Dockerfile yang menambah CA); di CI/HF tidak perlu.
 
-## Hal yang perlu diketahui
-- Proteksi keamanan yang ada harus dipertahankan: key tidak ke disk/log/error, stdout dibungkam saat job,
-  telemetry CrewAI mati di mode web, retensi otomatis. Dengan keputusan 3(b), key terenkripsi hanya boleh
-  disimpan bila pengguna memilihnya, dan tidak pernah dikembalikan lewat API.
-- Job CrewAI tidak bisa dihentikan di tengah jalan; yang bisa dibatalkan hanya yang masih mengantre.
-- `malas-web` tidak mem-parse argumen CLI (`--help` langsung menyalakan server).
-- Di sandbox tanpa internet, `kickoff` mencetak error ekspor telemetry OTel; tidak berbahaya.
-- Batas free tier (Neon, HF, Netlify, Clerk, R2) berubah-ubah; cek ulang saat deploy.
-- Jangan buat PR kecuali diminta. Push hanya ke `claude/jolly-maxwell-xdh9bs`.
+## 8. Video marketing
+`marketing/video/v4/` = final (30,7 dtk, 9:16, 1080×1920, musik+SFX orisinal sintesis, -14 LUFS, true peak ≤ -1 dBTP; CTA: "Coba gratis", "Mode uji gratis, tanpa API key", "Link di bio", `malas-app.netlify.app`). v1-v3 = versi lama (v1 tanpa aset asli, v2 tanpa audio, v3 sebelum CTA baru). Dibuat dari HTML deterministik (`window.renderFrame`) → Playwright → ffmpeg; `v4/build.sh` merender video + sintesis audio + mux + verifikasi; `soundtrack.wav` dan `verify/stems` tidak di-commit (dibuat ulang). Aset memakai tangkapan layar asli UI (Mode uji) dan halaman `.docx` asli dengan data generik dan placeholder logo. Pasang link di bio sebelum unggah; audio belum didengar manusia.
 
-## Desain UI Fase 4 (DISETUJUI; riwayat revisi v1-v5 di bawah)
-Prototipe klik (satu berkas HTML, dibuat dengan Opus): `docs/design/malas-ui.html`.
-Artifact (privat): https://claude.ai/artifact/Ab8P4YSww4WU7wKKAhgWfE. Routing hash: `#beranda #masuk #dasbor #buat #job #pengaturan #keadaan #catatan`.
-Layar: landing, masuk (tiruan Clerk, diganti `<SignIn/>`/`<SignUp/>`), dasbor, buat makalah, detail job (6 status + simulasi progres),
-pengaturan, state khusus (401/429/antrean penuh/offline/skeleton), catatan desain (token, komponen, peta rute ke API).
-Keputusan desain: identitas "pulpen biru & stabilo" (biru tinta untuk aksi, kuning stabilo hanya untuk sitasi); font Bricolage
-Grotesque (judul), Plus Jakarta Sans (teks), JetBrains Mono (id model/NIM/log); token di `:root` + mode gelap; form SATU halaman
-bersegmen (bukan wizard); key tersimpan jadi pilihan bawaan bila ada, "Simpan key saya" default mati; aksi terlarang tetap tampil
-tapi nonaktif + alasan; "Lanjutkan" lewat dialog (n/m sub-bab, tidak memakai kuota); status = ikon + teks (bukan warna saja);
-container query + bottom nav 3 tab di ponsel.
-Diverifikasi saya: tidak ada error JS di 8 layar x terang/gelap x desktop/ponsel. Masalah kecil yang tersisa (cuma di ponsel):
-overflow horizontal 4px di Detail job (baris id model) dan 135px di Catatan desain (tabel); bukan bagian produk, boleh diabaikan atau
-dirapikan saat porting.
-Celah API yang ditemukan desain (kandidat tugas backend kecil): riwayat (`GET /api/jobs`) belum memuat `mata_kuliah` dan ringkasan
-progres; belum ada posisi antrean; durasi per tahap belum dicatat; OpenAPI perlu dinyalakan untuk generasi tipe.
-Pertanyaan terbuka untuk pemilik: (1) template tampil sebagai nama berkas atau label ramah + pratinjau (butuh metadata server);
-(2) lama simpan riwayat/.docx dan hitung mundur penghapusan; (3) key tersimpan kedaluwarsa otomatis?; (4) notifikasi selesai
-(email Resend / browser)?; (5) kuota final 3/hari dan selalu tampil di header?; (6) metode masuk Clerk & wajib verifikasi email?;
-(7) estimasi biaya sebelum kirim atau cukup token sesudahnya?; (8) model OpenRouter diketik bebas atau daftar teruji?;
-(9) Mode uji terlihat semua pengguna atau di "Opsi lanjutan"?; (10) siapa menulis ToS/Privasi + persetujuan eksplisit saat daftar?
-### Revisi v2 (landing ditulis ulang atas masukan pemilik: "kurang pas, harusnya relate sama rasa males")
-- Headline: "Males bikin makalah? Santai, biar MALAS yang bikinin drafnya." (alternatif: "Tugas makalah numpuk? Ketik judulnya, drafnya
-  biar MALAS yang nyusun." / "Mager nulis? Kasih judulnya, MALAS yang nyusun drafnya."). Sub-judul: 3 langkah + "10-30 menit, tergantung model".
-- Urutan landing: hero (coba ketik judul, pratinjau outline+sitasi tiruan) -> 3 langkah (mini-animasi, "Putar ulang") ->
-  "Kamu lagi di mana?" (4 chip opsional) -> "Biar adil" (draf, cek sitasi, aturan kampus, waktu/biaya/kuota) -> privasi key -> FAQ (7) -> CTA -> footer.
-- Aturan "tidak memaksa": tanpa popup/modal otomatis/scroll-jacking/suara/urgensi palsu/CTA lengket; animasi berhenti sendiri, ada tombol
-  "Jeda animasi", `prefers-reduced-motion` = keadaan akhir statis. DILARANG: klaim lolos deteksi AI, jaminan nilai, saran menyembunyikan AI.
-- Dua overflow ponsel (Detail job, Catatan desain) sudah diperbaiki. Panel "Landing v2" di Catatan desain memuat panduan suara (Pakai/Jangan).
-- Verifikasi (agen + saya, Playwright): nol error konsol/pageerror dan nol overflow horizontal di semua layar x terang/gelap x 1280/390;
-  keadaan reduced-motion benar. Belum: mode "Bingkai ponsel", pembaca layar asli, kontras AA dengan alat ukur.
-- Polish kecil untuk porting: saat stabilo "menggores" kata MALAS di mode gelap, huruf yang belum tersorot sempat redup ~0,9 dtk karena
-  `color` ikut dianimasikan (keyframe `swipe`); animasi landing mengulang tiap kembali ke #beranda; pratinjau hero berganti setelah judul selesai diketik.
-- Pertanyaan terbuka baru: (a) nada santai ("kamu") dipakai di seluruh aplikasi atau landing saja? Saran agen: "kamu" di semua, candaan hanya
-  di empty state/sapaan/toast sukses; error, privasi, hapus, kuota habis, sesi berakhir tetap lugas. (b) pilih headline final dari 3 opsi;
-  (c) ganti sitasi tiruan di pratinjau ("Pratama, 2023") dengan penanda netral "(Penulis, Tahun)"?; (d) chip "Jam 2 pagi, deadline jam 8"
-  dipertahankan atau dihapus (bisa terbaca mendorong kerja mepet)?
+## 9. Aturan yang TIDAK boleh dilanggar
+- **Keamanan**: API key tidak ke disk/log/error/localStorage/URL; stdout dibungkam saat job; telemetry CrewAI mati di mode web; respons validasi tidak memantulkan input; unggahan (logo) divalidasi ketat dan dikodekan ulang; secret hanya lewat env/formulir aman, tidak pernah di repo atau chat.
+- **Kejujuran produk/marketing**: hasil = DRAF yang pengguna baca dan cek; sitasi dicocokkan dengan sumber asli tapi bisa keliru; aturan kampus/dosen soal AI = tanggung jawab pengguna. **DILARANG**: klaim lolos deteksi AI/plagiarisme, jaminan nilai, saran menyembunyikan penggunaan AI, testimoni/angka palsu, urgensi palsu. Layar yang berisi data Mode uji diberi label "Tampilan contoh".
+- **Teks hukum mengikuti perilaku sistem**: ubah retensi/data/analitik → ubah `features/legal/content.ts` + `LEGAL_UPDATED` (tes akan mengingatkan).
+- **Git**: jangan buat PR atau merge kecuali diminta pemilik; push hanya ke `claude/jolly-maxwell-xdh9bs`; hook penutup sesi akan meminta commit+push berkas yang belum terlacak (jangan commit hasil sementara/stems besar).
 
-### Revisi v4 (ilustrasi manusia DITOLAK pemilik; diganti maskot geometris)
-- v3 (tokoh manusia di bean bag) ditolak: "gak rapih, itu manusia atau apa". Dibuang total beserta token `--ill-skin`/`--ill-paper`.
-- Sekarang: LEMBAR MAKALAH BERMUKA yang tidur (kertas sudut terlipat, garis margin merah, mata tertutup, senyum, pipi, stabilo, "zz"),
-  ~12 elemen primitif, satu tebal garis, warna hanya dari token yang ada. Dua ukuran: besar (CTA, 200px) dan kompak (langkah 3, 136px).
-  Progres: bar tipis + lencana centang saat selesai. Gerak: napas scale(1.03), "zz" 3x; `.calm`/reduced-motion = keadaan akhir. Hook skrip langkah 3 utuh.
-- Dua alternatif kecil ada di Catatan desain (B: bantal bulat bermuka; C: stabilo tidur). Keduanya belum dipoles (B: lembar mengintip terpotong; C: terbaca seperti baterai).
-- Tata letak dirapikan setelah saya lihat sendiri: CTA dibatasi 34em dan dipusatkan (sebelumnya ilustrasi terdorong ke tepi kanan dengan ruang kosong besar);
-  ilustrasi langkah 3 dipusatkan (sebelumnya menempel kiri).
-- Kekurangan yang diketahui: di mode gelap "kertas" = `--surface` (navy), bukan putih; detail kecil (pipi, baris teks) nyaris hilang di 64px;
-  lencana centang dan chip .docx di langkah 3 sama-sama menandakan "selesai" (bisa hapus salah satu). Belum dicek: mode "Bingkai ponsel".
+## 10. Jebakan yang sudah pernah memakan waktu
+- **Sandbox**: hanya host yang di-allowlist yang terjangkau; `*.netlify.app` dan `*.hf.space` TIDAK. Playwright ke `localhost` harus pakai `proxy.bypass`. Python yang memuat paket pihak ketiga dari folder skrip: jalankan dengan `python -I` (folder scratchpad pernah memuat `copy.py` yang membayangi stdlib).
+- **`openapi-typescript` butuh TypeScript 5** (workspace memakai TS 7 tanpa `ts.factory`): TS 5 di-pin hanya di `packages/api-types`. Skema `JobRequest` hasil generate menandai field ber-default sebagai wajib, jadi tipe INPUT form di `apps/web/src/lib/types.ts` tetap ditulis tangan; hanya tipe respons yang digenerasi.
+- **Pool koneksi**: `JobManager.shutdown()` harus `db.dispose()` (dulu bocor → "too many clients" di Postgres CI).
+- **Deploy Netlify lewat API tidak membaca `netlify.toml`**: `deploy.py` menurunkan `_redirects`/`_headers` darinya. Host proxy ke Space ditulis di `netlify.toml` (Netlify tak mengizinkan env di redirect).
+- **CSP Clerk**: perlu `font-src data:` dan `script-src https://cdn.protect.clerk.com`; `@clerk/clerk-react` v5 ditolak Clerk saat sign-up → pakai `@clerk/react` v6 + `@clerk/localizations` (idID).
+- **`ruff` hanya pada berkas baru** (daftar eksplisit di `ci.yml`; tambahkan berkas baru ke sana); kode lama belum dirapikan.
+- Job CrewAI tidak bisa dihentikan di tengah jalan (hanya yang mengantre bisa dibatalkan); `malas-web` tidak mem-parse argumen CLI; HF Space gratis bisa tidur dan restart (job terputus jadi "Terhenti", bisa dilanjutkan dari checkpoint).
+- Pemeriksa izin otomatis pernah menolak `merge_pull_request` saat PR memuat perubahan di luar yang diminta; berhasil setelah permintaan merge eksplisit dari pemilik.
+- Batas free tier (Neon, HF, Netlify, Clerk) berubah-ubah; cek ulang sebelum promosi besar.
 
-### Revisi v5 (hook dipadatkan + branding kepanjangan MALAS)
-- MALAS = **M**akalah **A**utomation via **L**anguage-model **A**ssisted **S**ystem (akronim resmi; juga plesetan "malas"). Aturan tulis: "MALAS" selalu kapital;
-  kepanjangan resmi berbahasa Inggris dengan "via" kecil dan "Language-model" bertanda hubung; gloss Indonesia hanya untuk nuansa di landing. Ada di Catatan desain > "Merek".
-- Headline hero: **"Kamu mager, MALAS yang gerak."** (plesetan "mager" = malas gerak). Kandidat lain di Catatan desain: "Judul masuk, draf keluar." / "Males nulis? Biar MALAS." /
-  "Rebahan dulu, drafnya nyusul." / "Ketik judul, terus rebahan." / "Tugas numpuk? MALAS-in aja." / "Mager boleh, draf tetap jadi." / "Kamu rebahan, draf jalan."
-- Teks dipangkas: sub-judul "Ketik judul, tempel API key, rebahan. Drafnya jadi berkas .docx."; chip hero "±10-30 menit / Hasilnya draf / Pakai key-mu"; judul section pendek
-  ("Tiga langkah, beres.", "Pilih situasimu.", "Yang perlu kamu tahu", "Yang sering ditanya"); CTA "Coba gratis" / "Masuk"; penutup "Tutup 14 tab jurnalnya.".
-  Kejujuran tetap ada (draf, cek sitasi, aturan kampus, 10-30 menit, biaya dari key sendiri, kuota 3/hari, Mode uji) tetapi dipindah ke "Biar adil" dan FAQ.
-- Strip "MALAS itu singkatan." tepat setelah 3 langkah: kalimat lengkap (huruf awal berstabilo) + 5 kartu (huruf, kata, gloss) selalu terbaca tanpa interaksi;
-  hover/fokus/tap menyorot satu kartu (`aria-pressed`); animasi masuk sekali, mati di `.calm`. Footer memuat kepanjangan satu baris.
-- Verifikasi (saya, Playwright, setelah perubahan terakhir): 0 error konsol/pageerror, 0 overflow di semua layar x terang/gelap x 1280/390; saya lihat landing penuh
-  terang desktop dan gelap ponsel.
-- Kekurangan yang diketahui: kartu langkah 1-2 punya ruang kosong di bawah (kartu 3 lebih tinggi); "3 makalah per hari" dan "Mode uji gratis" tidak lagi jadi chip hero
-  (ada di "Biar adil" dan FAQ); gloss "AI yang nyusun drafnya" menyederhanakan; kolom FAQ hanya memakai separuh kiri lebar di desktop.
-- Pertanyaan terbuka: CTA "Coba gratis" atau lebih berkarakter ("Gaskeun")?; kepanjangan perlu muncul juga di halaman Masuk/Daftar atau "Tentang"?;
-  "Mode uji gratis" kembali jadi chip hero?
-
-STATUS DESAIN: pemilik menyetujui arah ("sip") setelah v5. Implementasi: ikuti `docs/design/HANDOFF-frontend.md` (spesifikasi lengkap, kontrak API, tugas backend B1-B6, rencana tonggak M0-M6, default untuk pertanyaan terbuka).
-
-## Status Fase 4 (frontend `apps/web`)
-Dikerjakan dari `docs/design/malas-ui.html` dengan default keputusan terbuka di `docs/design/HANDOFF-frontend.md` bagian 9 (nada "kamu", CTA "Coba gratis", sitasi tiruan "(Penulis, Tahun)").
-**Stack:** Vite 8 + React 19 + TS strict + react-router 8 (path) + TanStack Query + zod 4 + `@clerk/clerk-react`; font self-host (`@fontsource`); Vitest + Testing Library; e2e Playwright (skrip biasa, bukan `@playwright/test`).
-**Gaya:** CSS prototipe dipindah apa adanya ke `src/styles/*` (tokens, base, shell, components, landing, screens, responsive), termasuk container query pada `#app`.
-Tailwind v4 terpasang dengan `@theme inline` yang memetakan token CSS variables, TAPI utilitasnya diberi prefix `tw:` dan preflight tidak dimuat: kelas prototipe (`.ring`, `.block`, ...) bentrok dengan utilitas Tailwind tanpa prefix (kasus nyata: gauge dasbor tampil berkotak). Kode saat ini tidak memakai utilitas `tw:*`.
-**Teks UI:** semua di `src/copy/id.ts`. **API:** `src/lib/{api,queries,types,validation}.ts`; tipe ditulis manual dari kontrak (B4 belum).
-**Auth:** `src/lib/auth.tsx`: `VITE_AUTH_MODE=dev` (tanpa Clerk; "Masuk" hanya menandai di localStorage, backend memakai cookie anonim) atau `clerk` (`VITE_CLERK_PUBLISHABLE_KEY`; token lewat `getToken()` di header Bearer; `appearance` diturunkan dari tema aktif).
-**Keamanan web:** API key hanya di state komponen; dikosongkan setelah kirim, saat `pagehide`, dan saat unmount; draf formulir (`malas.draft.v1`) TANPA key (ada tes + e2e yang memeriksa localStorage/sessionStorage). 401 di mana pun -> dialog "Sesi kamu berakhir".
-**Struktur:** `src/features/{landing,auth,dashboard,create,job,settings,states}`, `src/components/{ui,shell,icons,Mascot,QuotaCard}`.
-**Backend B1-B3 selesai** (tes di `apps/api/tests/test_web.py`): `GET /api/jobs` memuat `mata_kuliah`, `progress {done,total}` (tahap, hanya job aktif), `current_step`, `current_detail`, `queue_position`; `GET /api/jobs/:id` memuat `queue_position`; tiap tahap mencatat `started_at`/`finished_at`.
-Catatan performa B1: ringkasan riwayat kini ikut memuat kolom JSON `data` (termasuk `log`) untuk 30 baris; bila terasa berat di Neon, pindahkan `mata_kuliah`/progres ke kolom nyata.
-**Verifikasi (sandbox):** `pnpm --filter web test` (24 tes unit), `pnpm --filter web typecheck`, `pnpm --filter web build` bersih. E2E (`apps/web/e2e/flow.cjs`) terhadap backend sungguhan (`uv run malas-web`, mode anonim, Mode uji):
-landing -> masuk -> dasbor -> buat -> job selesai -> unduh .docx valid ("PK") -> riwayat -> pengaturan -> 404, di 1280 terang dan 390 gelap, 0 error konsol, 0 overflow horizontal.
-`apps/web/e2e/states.cjs` (API dicegat): job antre/berjalan/gagal/terhenti/dibatalkan, dialog Lanjutkan, tombol kirim nonaktif + alasan, validasi (fokus ke isian pertama), 429 antrean penuh, 401, server 5xx, hapus key; plus audit axe-core WCAG 2.1 A/AA di semua layar app: 0 pelanggaran.
-Jalankan e2e: `uv run malas-web` + `pnpm --filter web dev`, lalu `NODE_PATH=$(npm root -g) node apps/web/e2e/flow.cjs` (dan `states.cjs`).
-**Belum teruji / diketahui:** (1) Clerk asli (`<SignIn/>`, `<SignUp/>`, `getToken`, `openUserProfile`; hanya lolos typecheck/build), (2) Neon dan Netlify/HF asli, (3) pembaca layar sungguhan dan kontras dengan alat ukur selain axe, (4) animasi landing hanya dilihat dalam mode reduced-motion di tangkapan layar (perilaku animasi dan tombol jeda belum dicek otomatis), (5) tangkapan layar app tidak dibandingkan piksel-ke-piksel dengan prototipe (landing dibandingkan visual dan nyaris identik),
-(6) Ketentuan Layanan/Kebijakan Privasi masih halaman placeholder (`/ketentuan`, `/privasi`), (7) tidak ada layar `_design`/catatan (dokumentasi tetap di `docs/design`), (8) polish landing yang tercatat di desain (kedip `color` saat stabilo di mode gelap) belum ditangani.
-**B4 selesai:** `malas_api/schemas.py` (model respons, dipasang sebagai `response_model` di semua endpoint JSON; field tak tercantum, mis. `owner`/`template_path`, tidak pernah keluar) + `uv run malas-openapi` -> `packages/api-types/{openapi.json,schema.d.ts}` (openapi-typescript, TypeScript 5 di-pin khusus paket itu karena TS 7 tak punya compiler API). `apps/web/src/lib/types.ts` kini alias dari skema generasi untuk RESPONS; tipe INPUT form (`PaperRequest`, `CreateJobBody`) tetap manual karena skema `JobRequest` menandai field ber-default sebagai wajib. Tes `test_openapi.py` gagal bila `openapi.json` usang: ubah model -> `pnpm --filter @malas/api-types generate` -> commit.
-**B5 selesai:** `apps/api/.../static/`, rute `/` dan mount `/static` dihapus; API tidak lagi melayani HTML (`/` = 404). Cookie sesi anonim kini hanya diterbitkan di `/api/*`.
-**Belum dikerjakan:** B6 (label template ramah), bundle size/code-splitting lanjutan (layar sudah `lazy`), tes komponen dengan MSW (tes saat ini: fungsi murni + e2e).
-Catatan: tes `test_ringkasan_riwayat_memuat_progres_dan_posisi_antrean` pernah flaky (race menunggu `current_detail`); sudah diperbaiki.
-
-## Status deploy (2026-11-20)
-- **HF Space LIVE:** `PetaniHandal/stegano-f5-dmcss-api` (`https://petanihandal-stegano-f5-dmcss-api.hf.space`), Docker, RUNNING, mode hosting/BYOK + login Clerk. Isi lama (proyek steganografi) DITIMPA atas persetujuan pemilik; commit lama tetap ada di History Space. Nama Space tidak cocok dengan isinya; boleh di-rename (lalu perbarui host di `netlify.toml`).
-- **Variabel Space:** `CLERK_ISSUER=https://moral-camel-3719.clerk.accounts.dev`, `MALAS_AUTH_REQUIRED=1`, `MALAS_DAILY_QUOTA=3`. **Secret:** `DATABASE_URL` (pooled) dan `DATABASE_URL_DIRECT` ke Neon project `malas` (branch production, role `neondb_owner`; password sudah direset karena sempat bocor di chat). Belum ada `CLERK_AUTHORIZED_PARTIES` (menunggu URL Netlify) dan `MALAS_SECRET_KEY` (fitur simpan-key mati).
-- Belum terbukti: koneksi Neon end-to-end (log hanya menunjukkan server naik; Space tidak crash), `/api/config` dari luar (hf.space tidak terjangkau dari sandbox).
-- Netlify BELUM dibuat: pemilik membuatnya sendiri dari UI (import repo, env `VITE_CLERK_PUBLISHABLE_KEY`).
-- Catatan sandbox: environment `makalah-malas` menyimpan credential HF dan Neon (proxy menyuntikkan); hapus bila tak dipakai. Token HF lama yang sempat tertempel di chat harus dicabut.
-
-## Persiapan peluncuran (2026-11-20)
-- **Ketentuan Layanan dan Kebijakan Privasi** sudah ada (bukan placeholder lagi): `apps/web/src/features/legal/content.ts` (data) + `features/states/Legal.tsx`. Ditulis dari perilaku sistem (retensi 48 jam; logo tersimpan sampai dihapus dan tidak dikirim ke LLM; ke penyedia LLM hanya judul, mata kuliah, tahun, kota, NAMA dosen/penyusun; NIM, kelas, kampus tidak dikirim; pencarian Crossref/Semantic Scholar/arXiv). Ada tes (`legal.test.tsx`) yang mengunci fakta-fakta itu; bila perilaku berubah (analitik, retensi, dll.), perbarui teks dan `LEGAL_UPDATED`. BUKAN nasihat hukum; pengelola ditulis "perorangan (proyek pribadi)", kontak = GitHub issues (`CONTACT_URL`). Pemilik perlu meninjau. Diverifikasi di browser: 0 pelanggaran axe, 0 overflow, 0 error konsol (390/1280 x terang/gelap).
-- **Pratinjau dibagikan**: meta OG/Twitter di `apps/web/index.html` (URL absolut `malas-app.netlify.app`), `public/og.png` (sumber `apps/web/og/`), `favicon.svg`, `robots.txt`, `sitemap.xml`. Ganti domain di semuanya bila memakai domain sendiri.
-- **Skrip deploy** yang bisa diulang: `deploy/netlify/deploy.py` (deploy web lewat API Netlify, `NETLIFY_AUTH_TOKEN`) dan `deploy/hf-space/push.py` (backend ke Space dalam SATU commit, riwayat lama aman, `HF_TOKEN`).
-- **`docs/LAUNCH-CHECKLIST.md`**: daftar peluncuran (wajib / disarankan / operasional) dengan fakta live (situs Netlify `malas-app`, Space, Neon, Clerk).
-- Tes web sekarang 33 (24 + 9 tes halaman hukum); pytest tidak berubah.
-
-## Logo kampus/sekolah + retensi 48 jam (2026-11-20)
-- **Logo kustom di sampul.** Satu logo per akun: `PUT/GET/DELETE /api/logo` (unggahan mentah, maks 300 KB), tabel `user_logos` (migrasi 0003), `use_logo` di `POST /api/jobs`, `logo` di `GET /api/me`. Engine: `packages/engine/src/malas/logo.py` (`normalize_logo`: hanya PNG/JPEG, batas berkas/piksel/"decompression bomb", dikodekan ulang jadi PNG persegi 600x600 transparan tanpa metadata, batas keluaran 350 KB dengan fallback 256 warna; `placeholder_logo`; `swap_cover_logo` menukar isi `word/media/*.png` yang dirujuk gambar pertama di dokumen; ukuran tampil di dokumen tetap). `DocxConverter(logo_path=, neutral_logo=)`; CLI `kickoff --logo`.
-- **Default tanpa logo = penanda netral "LOGO"** (API selalu `neutral_logo=True`), BUKAN logo institusi bawaan template (template di repo tetap memuat logo itu; CLI tanpa `--logo` tidak mengubahnya). Pemilik perlu memutuskan apakah logo di berkas template mau diganti permanen.
-- **Web**: `components/LogoManager.tsx` (di bagian Institusi form Buat makalah dan di Pengaturan), `lib/image.ts` (perkecil + ubah ke PNG persegi di browser; SVG/GIF ditolak), opsi "Pakai logo ini di sampul". e2e: `apps/web/e2e/logo.cjs` (UI asli + backend sungguhan: validasi, unggah, `.docx` memuat logo byte-identik, tanpa opsi = penanda netral, hapus, axe 0, tanpa overflow; 390 dan 1280).
-- **Retensi default 48 jam** (sebelumnya 6): `DEFAULT_RETENTION_HOURS` / `retention_from_env()` di `app.py`, tampil di `GET /api/config` (`retention_hours`). Ketentuan dan Privasi diperbarui (48 jam; logo disimpan sampai dihapus dan tidak dikirim ke LLM; hak atas logo). Variabel `MALAS_WEB_RETENTION_HOURS` di Space (belum diisi) menimpa default.
-- Tes: pytest 163 (+Postgres 125 di apps/api), web 41. Migrasi 0003 diuji di Postgres 16.
-
-## Langkah berikutnya (mulai di sini)
-Semua kode dan konfigurasi selesai. Yang tersisa HANYA yang butuh akun/kredensial milik pemilik; kerjakan berurutan mengikuti `DEPLOY.md` dan verifikasi tiap langkah:
-1. Push ke GitHub dan lihat CI hijau (pertama kali dijalankan; perbaiki bila ada beda lingkungan). Perlu `main`/PR agar workflow berjalan.
-2. Neon (DATABASE_URL pooled + direct) -> uji migrasi + latensi cold-start + PgBouncer.
-3. Clerk: instance dev `moral-camel-3719` (publishable key publik; Frontend API `https://moral-camel-3719.clerk.accounts.dev`). SUDAH diuji dari sandbox: JWKS asli dimuat oleh `Authenticator` (1 kunci RS256, kid cocok; token kid-asli-tanda-tangan-palsu ditolak `InvalidSignatureError`, kid asing `PyJWKClientError`), `<SignIn/>` render di web mode Clerk dengan CSP dari `netlify.toml` (0 pelanggaran setelah menambah `font-src data:` dan `script-src https://cdn.protect.clerk.com`), teks sudah Indonesia (`@clerk/localizations` idID). BELUM: login sungguhan (butuh akun uji), `getToken` + `azp` pada token nyata, `openUserProfile`, avatar `img.clerk.com`/captcha (host itu tidak terjangkau dari sandbox), panggilan lanjutan skrip Clerk Protect. Isi `CLERK_ISSUER` HARUS sama dengan Frontend API URL di dashboard.
-4. HF Space (secret `HF_TOKEN`, variable `HF_SPACE`) -> jalankan workflow deploy; cek `/healthz`.
-5. Netlify: (host Space di `netlify.toml` sudah benar) isi `VITE_CLERK_PUBLISHABLE_KEY`; cek Console (pelanggaran CSP Clerk), header `Authorization`/`Host` lewat proxy.
-6. (Opsional) R2.
-Yang dibutuhkan dari pemilik (via env/secret, JANGAN di chat): akun/token untuk langkah di atas.
-
-Fase 6 (opsional): isi ToS/Privasi (sekarang halaman placeholder `/ketentuan`, `/privasi`), email (Resend), Sentry, admin, pembayaran; B6 (label template ramah) bila diminta; tes komponen MSW; bundle size.
+## 11. Riwayat fase (ringkas)
+Fase 1 restrukturisasi monorepo → Fase 2 backend + Neon (antrean Postgres, checkpoint, key terenkripsi) → Fase 3 auth Clerk + kuota → Fase 4 frontend React (landing, dasbor, buat, job, pengaturan; B1-B5: ringkasan riwayat, posisi antrean, durasi tahap, response model + OpenAPI, hapus UI statis) → Fase 5 deploy + CI (Dockerfile HF, netlify.toml, GitHub Actions, S3Storage) → peluncuran: Clerk v6, Ketentuan/Privasi, pratinjau dibagikan, skrip deploy, checklist, video v1-v4, logo kustom, retensi 48 jam. Rincian setiap fase: arsip di atas.
