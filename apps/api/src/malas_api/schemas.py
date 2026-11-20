@@ -64,6 +64,13 @@ class JobUsage(_Out):
     total: int = 0
 
 
+class QualityFinding(_Out):
+    rule_id: str
+    severity: Literal["blocker", "major", "minor", "info"]
+    subbab: str = ""
+    message: str
+
+
 class JobStats(_Out):
     subbab_count: int | None = None
     refs_found: int | None = None
@@ -72,8 +79,14 @@ class JobStats(_Out):
     citations_total: int | None = None
     citations_invalid_before: int | None = None
     citations_invalid_after: int | None = None
+    citations_suspect: int | None = None  # sitasi-mirip yang tak bisa diurai (wajib diperiksa manual)
     refs_final: int | None = None
     refs_pruned: int | None = None
+    refs_pruned_titles: list[str] | None = None  # judul referensi yang dibuang karena tak dikutip
+    quality: dict[str, Any] | None = None  # ringkasan lint (total, by_severity, by_rule, score, score_before, auto_fixed)
+    quality_findings: list[QualityFinding] | None = None  # temuan blocker/major (maks 30) untuk "Catatan mutu"
+    usage_by_stage: dict[str, dict[str, int]] | None = None  # token per tahap (taksiran untuk panggilan langsung)
+    logo_placeholder: bool | None = None  # True: sampul masih memakai penanda "LOGO"
 
 
 class Penyusun(_Out):
@@ -92,6 +105,10 @@ class PaperRequest(_Out):
     jurusan: str
     kota: str
     tahun: str
+    subjek: str = ""
+    jenjang: str = ""
+    jenis_makalah: str = "kajian_pustaka"
+    enhance: str = "lite"
 
 
 class JobOut(_Out):
@@ -159,6 +176,7 @@ class ConfigOut(_Out):
     active_job: str | None = None
     auth: AuthInfo
     daily_quota: int | None = None
+    enhance_max: str = "deep"
     key_storage: bool
     retention_hours: float | None = None
     year: int

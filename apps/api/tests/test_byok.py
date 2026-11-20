@@ -110,7 +110,10 @@ def test_get_llm_tidak_menyentuh_environment():
     config.set_runtime(config.Runtime("openrouter", KEY, "deepseek/deepseek-v3.2", "google/gemini-2.5-flash"))
     try:
         llm = config.get_llm("writer")
-        assert llm.model == "openrouter/google/gemini-2.5-flash"
+        # crewAI 1.x (provider native): awalan "openrouter/" menjadi `provider`, `model` tanpa awalan
+        assert llm.model.endswith("google/gemini-2.5-flash")
+        assert getattr(llm, "provider", "") == "openrouter" or llm.model.startswith("openrouter/")
+        assert "openrouter.ai" in str(getattr(llm, "base_url", "") or getattr(llm, "api_base", ""))
         # (impor crewai boleh menambah env non-rahasia; yang dilarang: key muncul di env mana pun)
         assert KEY not in "\n".join(os.environ.values())
         assert not [k for k in set(os.environ) - set(before) if "KEY" in k.upper() or "SECRET" in k.upper()]

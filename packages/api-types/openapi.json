@@ -58,6 +58,11 @@
             "title": "Default Template",
             "type": "string"
           },
+          "enhance_max": {
+            "default": "deep",
+            "title": "Enhance Max",
+            "type": "string"
+          },
           "fulltext": {
             "title": "Fulltext",
             "type": "boolean"
@@ -450,11 +455,38 @@
             "title": "Dosen Pengampu",
             "type": "string"
           },
+          "enhance": {
+            "default": "lite",
+            "enum": [
+              "off",
+              "lite",
+              "standard",
+              "deep"
+            ],
+            "title": "Enhance",
+            "type": "string"
+          },
           "fakultas": {
             "default": "",
             "maxLength": 150,
             "minLength": 0,
             "title": "Fakultas",
+            "type": "string"
+          },
+          "jenis_makalah": {
+            "default": "kajian_pustaka",
+            "enum": [
+              "kajian_pustaka",
+              "penelitian"
+            ],
+            "title": "Jenis Makalah",
+            "type": "string"
+          },
+          "jenjang": {
+            "default": "",
+            "maxLength": 60,
+            "minLength": 0,
+            "title": "Jenjang",
             "type": "string"
           },
           "judul": {
@@ -547,6 +579,13 @@
             "title": "Save Key",
             "type": "boolean"
           },
+          "subjek": {
+            "default": "",
+            "maxLength": 120,
+            "minLength": 0,
+            "title": "Subjek",
+            "type": "string"
+          },
           "tahun": {
             "pattern": "^(19|20)\\d{2}$",
             "title": "Tahun",
@@ -613,6 +652,17 @@
             ],
             "title": "Citations Invalid Before"
           },
+          "citations_suspect": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Citations Suspect"
+          },
           "citations_total": {
             "anyOf": [
               {
@@ -645,6 +695,43 @@
               }
             ],
             "title": "Fulltext Total"
+          },
+          "logo_placeholder": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Logo Placeholder"
+          },
+          "quality": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quality"
+          },
+          "quality_findings": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/QualityFinding"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quality Findings"
           },
           "refs_final": {
             "anyOf": [
@@ -679,6 +766,20 @@
             ],
             "title": "Refs Pruned"
           },
+          "refs_pruned_titles": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refs Pruned Titles"
+          },
           "subbab_count": {
             "anyOf": [
               {
@@ -689,6 +790,23 @@
               }
             ],
             "title": "Subbab Count"
+          },
+          "usage_by_stage": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "additionalProperties": {
+                    "type": "integer"
+                  },
+                  "type": "object"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Usage By Stage"
           }
         },
         "title": "JobStats",
@@ -1004,8 +1122,23 @@
             "title": "Dosen Pengampu",
             "type": "string"
           },
+          "enhance": {
+            "default": "lite",
+            "title": "Enhance",
+            "type": "string"
+          },
           "fakultas": {
             "title": "Fakultas",
+            "type": "string"
+          },
+          "jenis_makalah": {
+            "default": "kajian_pustaka",
+            "title": "Jenis Makalah",
+            "type": "string"
+          },
+          "jenjang": {
+            "default": "",
+            "title": "Jenjang",
             "type": "string"
           },
           "judul": {
@@ -1034,6 +1167,11 @@
             },
             "title": "Penyusun",
             "type": "array"
+          },
+          "subjek": {
+            "default": "",
+            "title": "Subjek",
+            "type": "string"
           },
           "tahun": {
             "title": "Tahun",
@@ -1178,6 +1316,40 @@
           "needs_model"
         ],
         "title": "ProviderInfo",
+        "type": "object"
+      },
+      "QualityFinding": {
+        "properties": {
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "rule_id": {
+            "title": "Rule Id",
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "blocker",
+              "major",
+              "minor",
+              "info"
+            ],
+            "title": "Severity",
+            "type": "string"
+          },
+          "subbab": {
+            "default": "",
+            "title": "Subbab",
+            "type": "string"
+          }
+        },
+        "required": [
+          "rule_id",
+          "severity",
+          "message"
+        ],
+        "title": "QualityFinding",
         "type": "object"
       },
       "Quota": {

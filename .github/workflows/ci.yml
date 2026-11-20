@@ -34,6 +34,20 @@ jobs:
           apps/api/src/malas_api/migrations/versions/0003_user_logos.py
           packages/engine/src/malas/logo.py
           packages/engine/tests/test_logo.py
+          packages/engine/src/malas/apa.py
+          packages/engine/src/malas/names.py
+          packages/engine/tests/test_names.py
+          packages/engine/tests/test_apa.py
+          packages/engine/scripts/bench_refsearch.py
+          packages/engine/scripts/paper_to_makalah.py
+          packages/engine/src/malas/enhance
+          packages/engine/tests/test_enhance_lint.py
+          packages/engine/tests/test_enhance_llm.py
+          packages/engine/scripts/build_template_v3.py
+          packages/engine/src/malas/template_check.py
+          packages/engine/tests/test_template_v3.py
+          packages/engine/src/malas/enhance/context.py
+          packages/engine/tests/test_enhance_context.py
       - run: uv run pytest -q
 
   python-postgres:

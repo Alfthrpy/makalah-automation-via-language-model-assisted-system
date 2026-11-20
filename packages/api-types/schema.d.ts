@@ -169,6 +169,11 @@ export interface components {
             daily_quota?: number | null;
             /** Default Template */
             default_template: string;
+            /**
+             * Enhance Max
+             * @default deep
+             */
+            enhance_max: string;
             /** Fulltext */
             fulltext: boolean;
             /** Hosted */
@@ -277,10 +282,27 @@ export interface components {
              */
             dosen_pengampu: string;
             /**
+             * Enhance
+             * @default lite
+             * @enum {string}
+             */
+            enhance: "off" | "lite" | "standard" | "deep";
+            /**
              * Fakultas
              * @default
              */
             fakultas: string;
+            /**
+             * Jenis Makalah
+             * @default kajian_pustaka
+             * @enum {string}
+             */
+            jenis_makalah: "kajian_pustaka" | "penelitian";
+            /**
+             * Jenjang
+             * @default
+             */
+            jenjang: string;
             /** Judul */
             judul: string;
             /**
@@ -324,6 +346,11 @@ export interface components {
              */
             save_key: boolean;
             /** Tahun */
+            /**
+             * Subjek
+             * @default
+             */
+            subjek: string;
             tahun?: string;
             /** Template */
             template?: string | null;
@@ -349,20 +376,55 @@ export interface components {
             citations_invalid_after?: number | null;
             /** Citations Invalid Before */
             citations_invalid_before?: number | null;
+            /** Citations Suspect */
+            citations_suspect?: number | null;
             /** Citations Total */
             citations_total?: number | null;
             /** Fulltext Ok */
             fulltext_ok?: number | null;
             /** Fulltext Total */
             fulltext_total?: number | null;
+            /** Logo Placeholder */
+            logo_placeholder?: boolean | null;
+            /** Quality */
+            quality?: {
+                [key: string]: unknown;
+            } | null;
+            /** Quality Findings */
+            quality_findings?: components["schemas"]["QualityFinding"][] | null;
             /** Refs Final */
             refs_final?: number | null;
             /** Refs Found */
             refs_found?: number | null;
             /** Refs Pruned */
             refs_pruned?: number | null;
+            /** Refs Pruned Titles */
+            refs_pruned_titles?: string[] | null;
             /** Subbab Count */
             subbab_count?: number | null;
+            /** Usage By Stage */
+            usage_by_stage?: {
+                [key: string]: {
+                    [key: string]: number;
+                };
+            } | null;
+        };
+        /** QualityFinding */
+        QualityFinding: {
+            /** Message */
+            message: string;
+            /** Rule Id */
+            rule_id: string;
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "blocker" | "major" | "minor" | "info";
+            /**
+             * Subbab
+             * @default
+             */
+            subbab: string;
         };
         /** JobStep */
         JobStep: {
@@ -479,8 +541,23 @@ export interface components {
         PaperRequest: {
             /** Dosen Pengampu */
             dosen_pengampu: string;
+            /**
+             * Enhance
+             * @default lite
+             */
+            enhance: string;
             /** Fakultas */
             fakultas: string;
+            /**
+             * Jenis Makalah
+             * @default kajian_pustaka
+             */
+            jenis_makalah: string;
+            /**
+             * Jenjang
+             * @default
+             */
+            jenjang: string;
             /** Judul */
             judul: string;
             /** Jurusan */
@@ -493,6 +570,11 @@ export interface components {
             mata_kuliah: string;
             /** Penyusun */
             penyusun: components["schemas"]["Penyusun"][];
+            /**
+             * Subjek
+             * @default
+             */
+            subjek: string;
             /** Tahun */
             tahun: string;
             /** Universitas */

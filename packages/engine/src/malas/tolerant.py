@@ -15,6 +15,7 @@ from typing import Any, List, Optional
 
 from crewai.utilities.converter import Converter, ConverterError
 
+from malas.enhance.models import Scope
 from malas.crews.models.TaskOutput import (
     ContentItem, ContentList, ContentText, KataPengantar, Outline, ReferenceItem, References,
     SimpleSubbab, SubBab,
@@ -203,6 +204,8 @@ def parse_outline(text: str) -> Outline:
     result = {}
     if isinstance(mapping, dict):
         for bab, val in mapping.items():
+            if bab in ("scope", "research_questions", "rumusan_masalah"):
+                continue  # kunci tambahan (lingkup/RM), bukan bab
             secs = val.get("sections") or val.get("subbab") or val.get("sub_bab") if isinstance(val, dict) else val
             if isinstance(secs, list):
                 rows = [_s(x) for x in secs if _s(x)]
@@ -220,7 +223,17 @@ def parse_outline(text: str) -> Outline:
         result = {k: v for k, v in result.items() if v.sections}
     if not result:
         raise ParseError("Outline tidak ditemukan")
-    return Outline(subbabs=result)
+    scope, rqs = None, []
+    if isinstance(obj, dict):
+        sc = obj.get("scope")
+        if isinstance(sc, dict):
+            jenis = _s(sc.get("jenis_makalah")).lower().replace(" ", "_")
+            scope = Scope(jenis_makalah=jenis if jenis in ("kajian_pustaka", "penelitian") else "kajian_pustaka",
+                          subjek=_s(sc.get("subjek"))[:120], jenjang=_s(sc.get("jenjang"))[:60])
+        raw = obj.get("research_questions") or obj.get("rumusan_masalah")
+        if isinstance(raw, list):
+            rqs = [_clean_md(_s(x)) for x in raw if _s(x)][:5]
+    return Outline(subbabs=result, scope=scope, research_questions=rqs)
 
 
 _PARSERS = {

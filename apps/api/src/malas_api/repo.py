@@ -23,7 +23,7 @@ COLUMN_KEYS = ("status", "started_at", "finished_at", "title", "mock", "byok", "
                "resume_from", "template", "template_path", "has_file", "error", "error_step", "resume")
 TIME_KEYS = ("created_at", "started_at", "finished_at")
 SUMMARY_KEYS = ("id", "status", "title", "created_at", "finished_at", "mock", "byok", "has_file", "resume")
-STEP_ORDER = ("input", "outline", "fulltext", "tulis", "sitasi", "pengantar", "docx")
+STEP_ORDER = ("input", "outline", "fulltext", "tulis", "sitasi", "enhance", "pengantar", "docx")
 
 
 def _iso(dt: Optional[datetime]) -> Optional[str]:

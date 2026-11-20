@@ -116,6 +116,8 @@ function SideCard({ job, onResume }: { job: Job; onResume: () => void }) {
           <Button variant="primary" lg block aria-disabled={dl || undefined} onClick={async () => { setDl(true); await actions.download(job); setDl(false); }}>
             <Icon name="download" size="md" />{dl ? S.downloading : S.download}
           </Button>
+          {!mock && st.logo_placeholder && <p className="why"><Icon name="info" />{S.logoNote}</p>}
+          {!mock && <QualityNote job={job} />}
           <p className="small muted">{mock ? S.mockNote : S.realNote}</p>
           {!mock && <p className="why"><Icon name="shield" />{job.key_source === "saved" ? S.keyKept : S.keyGone}</p>}
           <div className="btn-row"><Button variant="ghost" onClick={refill}>{S.refill}</Button>{del}</div>
@@ -153,6 +155,34 @@ function SideCard({ job, onResume }: { job: Job; onResume: () => void }) {
         </section>
       );
   }
+}
+
+/** "Catatan mutu": ringkasan temuan pemeriksa otomatis (hanya yang serius/penting); bukan jaminan mutu. */
+export function QualityNote({ job }: { job: Job }) {
+  const st = job.stats;
+  const q = st?.quality as { total?: number; by_severity?: Record<string, number>; auto_fixed?: number } | null | undefined;
+  if (!q) return null;
+  const Q = J.side.quality;
+  const sev = q.by_severity ?? {};
+  const list = st?.quality_findings ?? [];
+  const shown = list.slice(0, 5);
+  const hidden = Math.max(0, (sev.blocker ?? 0) + (sev.major ?? 0) - shown.length);
+  return (
+    <div className="quality-note" aria-label={Q.title}>
+      <h3 className="small"><b>{Q.title}</b></h3>
+      {list.length === 0 ? <p className="small">{Q.clean}</p> : (
+        <>
+          <p className="small">{Q.counts(sev.blocker ?? 0, sev.major ?? 0)}</p>
+          <ul className="small" style={{ display: "grid", gap: 4, paddingLeft: 18 }}>
+            {shown.map((f, i) => <li key={`${f.rule_id}-${i}`}><b>{Q.sev[f.severity] ?? f.severity}</b>{f.subbab ? ` · ${f.subbab}` : ""}: {f.message}</li>)}
+          </ul>
+          {hidden > 0 && <p className="small muted">{Q.more(hidden)}</p>}
+        </>
+      )}
+      {(q.auto_fixed ?? 0) > 0 && <p className="small muted">{Q.fixed(q.auto_fixed ?? 0)}</p>}
+      <p className="small muted">{Q.note}</p>
+    </div>
+  );
 }
 
 function ConnBanner({ failures, errorAt, onNow }: { failures: number; errorAt: number; onNow: () => void }) {

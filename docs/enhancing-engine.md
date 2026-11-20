@@ -26,6 +26,26 @@
 
 ---
 
+## Status implementasi (diperbarui saat WP berjalan)
+
+| WP | Status | Catatan penyimpangan dari rancangan |
+|---|---|---|
+| WP-1 | **Selesai di cabang `claude/epic-einstein-gthev3`** (belum di-merge) | S01 `malas/names.py` (bukan `refsearch/names.py`, agar tanpa efek samping impor); S02: referensi **tidak dipangkas bila ada `suspect`** (sitasi tak terurai), tetapi tetap dipangkas bila hanya ada `invalid` (perilaku lama, ada tesnya); S03 di `malas/apa.py` + italik lewat override `patch_xml` docxtpl (bukan `{{r ref}}`, karena RichText membuang format run template); dua penulis ditulis "A, X., & B, Y." (APA 7); tanpa tahun "t.t."; S04/S05 di `docx_converter.py`. Stats baru: `citations_suspect`, `refs_pruned_titles`. Uji nyata ke OpenAlex: `biblio` terisi dan APA benar; Crossref mengembalikan 0 hasil pada probe tunggal (belum diselidiki, bukan bagian perubahan ini). |
+| WP-2 | **Selesai** (cabang kerja) | template v3 default; loop generik Bab I/III, TOC, tanda tangan bernama, tabel (fragmen XML), `template_check.py` |
+| WP-3 | **Selesai** | `enhance/context.py`; penulis tanpa tool bila refsearch aktif; scope di API dan kolom formulir web |
+| WP-4 | **Selesai** | `enhance/lint` (20 aturan), autofix, CLI, tahap "Cek mutu" |
+| WP-5 | **Selesai** | retrieval v2 + benchmark nyata (lihat benchmark) |
+| WP-6 | **Selesai** | crewAI 1.15.44, tanpa litellm; belum diuji dengan LLM nyata |
+| WP-7 | **Selesai** | blueprint, kartu bukti, tabel sintesis, outline v2 |
+| WP-8 | **Selesai** | guardrail (soft-fail, baca `raw`), kritik, tambal monoton, cek dukungan-sumber |
+| WP-0 | **Sebagian** | telemetri `usage_by_stage` + skrip bench; benchmark tim: `docs/enhancing-engine-benchmark.md` |
+
+Hasil uji terhadap analisis ini: **`docs/enhancing-engine-benchmark.md`** (sebagian klaim terbukti, beberapa tidak: perkiraan hemat token lite −13% ternyata −4%).
+
+Keterbatasan S03 yang diketahui: sentence case bisa ikut melindungi kata yang berkapital di abstrak ("Bahasa Arab"); akronim pada judul KAPITAL hanya dikenali bila dalam kurung/tanpa vokal/di daftar bawaan; Wikipedia/arXiv ditampilkan seperti jurnal; jalur cadangan italik bisa memunculkan peringatan log yang menyesatkan.
+
+---
+
 ## 1. Ringkasan eksekutif
 
 Makalah uji **sumbernya nyata** (9 DOI terverifikasi ke OpenAlex) dan prosanya rapi, tetapi gagal di tiga hal:
@@ -192,7 +212,7 @@ dicetak "2.1 2.1 Judul". Judul bernomor juga dipakai sebagai kunci (`refsearch`,
 #### RC-09 Cacat template **[V]**
 Diurai dari XML: (a) `DAFTAR ISI` hanya judul + bookmark `_Toc…`, **tanpa field TOC** → kosong; (b) page-break hanya sebelum Daftar Isi,
 Bab II, Daftar Pustaka → Bab III menempel; (c) blok "Penulis" tanpa nama dan tanpa `keepNext` → terlempar ke halaman sendiri;
-(d) teks harfiah "Latar Bekalang" di repo (PDF uji tidak memuatnya → kemungkinan diedit manual/template lain; **perbaiki di template**);
+(d) teks harfiah "Latar Bekalang" di template, dan **PDF uji memang memuatnya** (koreksi: analisis awal salah membaca visual; ditemukan lint LNG-001);
 (e) logo "LOGO" = perilaku sengaja layanan web (`HANDOFF` §5 #10) tetapi pengguna tidak diberi tahu.
 
 #### RC-10 Pemformat pustaka minimal **[K]**
@@ -405,7 +425,7 @@ Format kartu: **Menyelesaikan** · **P**rioritas (P0 wajib, P1 tinggi, P2 sedang
 - **Perubahan**
   1. Terima nama ≥1 huruf **hanya** untuk jalur parenthetical (`(M dkk., 2026)`) atau, lebih aman, tambah ember **`suspect`**: setiap isi kurung bertahun yang cocok `_PAREN` tetapi gagal `_ITEM`/`_NARASI` dicatat (bukan dibuang). Hindari melonggarkan `_NARASI` global (risiko "Gambar A (2024)").
   2. `CitationReport.suspect: Dict[judul, List[str]]`; `stats.citations_suspect`.
-  3. `prune_unused_references`: **jangan prune** bila ada `suspect` ATAU `invalid`; selalu kembalikan daftar judul yang dibuang → `stats.refs_pruned_titles` (info CIT-002).
+  3. `prune_unused_references`: **jangan prune** bila ada `suspect` (diputuskan saat implementasi: `invalid` saja tetap memangkas agar tes lama valid); selalu kembalikan daftar judul yang dibuang → `stats.refs_pruned_titles` (info CIT-002).
   4. Kesimpulan verifikasi: bila `suspect`/`invalid` masih ada setelah perbaikan → tampilkan peringatan nyata di hasil (bukan "bersih").
 - **Selesai bila** tes: reproduksi §4.2 RC-02 (`(M dkk., 2026)` ×2) menghasilkan `suspect` tidak kosong dan **tidak** ada prune; kasus "semua sitasi cocok" tidak berubah; tes lama `test_citations.py` hijau.
 - **Risiko** false positive pada kurung non-sitasi ("(lihat Tabel 2, 2024)") → hanya laporkan bila kurung berisi pola `Nama[ dkk.| &…], tahun` sebelum koma; selain itu abaikan.

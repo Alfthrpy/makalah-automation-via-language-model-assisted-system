@@ -10,8 +10,9 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Set
 
 from malas.crews.models.TaskOutput import (
-    ContentItem, ContentList, ContentText, Makalah, ReferenceItem,
+    ContentItem, ContentList, ContentTable, ContentText, Makalah, ReferenceItem,
 )
+from malas.names import family_of, is_institution  # noqa: F401  (is_institution diekspor ulang untuk docx_converter)
 
 _NAMA = r"[A-ZÀ-Ý][\w'’\-]+"
 # (Nama[, Nama2 | & Nama2 | dan Nama2 | et al. | dkk.], 2024[a])  -- boleh beberapa dipisah ';'
@@ -23,6 +24,25 @@ _NARASI = re.compile(
     rf"(?P<nama>{_NAMA}(?:\s+(?:dan|&|and)\s+{_NAMA}|\s+(?:et al\.|dkk\.))?)\s*\((?P<tahun>(?:1[89]|20)\d{{2}})[a-z]?\)"
 )
 
+# Sitasi-MIRIP yang gagal diurai (mis. "(M dkk., 2026)": nama 1 huruf) tidak boleh hilang tanpa jejak:
+# tanpa ini verifier "bersih" padahal rusak dan referensinya terbuang sebagai "tak dikutip".
+_SUSPECT_ITEM = re.compile(r"^\s*[A-ZÀ-Ý][^,()]{0,60}?\s*,\s*(?:1[89]|20)\d{2}[a-z]?\b")
+_SUSPECT_NARASI = re.compile(r"(?<![\w])[A-ZÀ-Ý]\.?\s+(?:dkk\.|et al\.)\s*\(\s*(?:1[89]|20)\d{2}[a-z]?\s*\)")
+_BUKAN_SITASI = re.compile(r"^\s*(?:gambar|gbr|tabel|bab|lihat|fig(?:ure)?|table|bagian|halaman|hlm|pasal|ayat|surah|qs|hr)\b", re.I)
+
+
+def find_suspects(text: str) -> List[str]:
+    """Kurung/naratif bergaya sitasi (Nama..., tahun) yang TIDAK dikenali `extract_citations`."""
+    out: List[str] = []
+    for m in _PAREN.finditer(text):
+        for part in m.group(1).split(";"):
+            if _ITEM.match(part) or _BUKAN_SITASI.match(part):
+                continue
+            if _SUSPECT_ITEM.match(part):
+                out.append(f"({part.strip()})")
+    out.extend(m.group(0) for m in _SUSPECT_NARASI.finditer(text))
+    return out
+
 
 def _norm(s: str) -> str:
     s = unicodedata.normalize("NFKD", s)
@@ -31,12 +51,9 @@ def _norm(s: str) -> str:
 
 
 def _surname(author: str) -> str:
-    """'John Smith' -> 'smith'; 'Smith, John' -> 'smith'."""
-    author = author.strip()
-    if "," in author:
-        return _norm(author.split(",")[0])
-    parts = author.split()
-    return _norm(parts[-1]) if parts else ""
+    """'Raseena, P. M.' / 'John Smith' -> 'raseena' / 'smith' (kata terakhir nama keluarga, ternormalisasi)."""
+    family = family_of(author).split()
+    return _norm(family[-1]) if family else ""
 
 
 @dataclass(frozen=True)
@@ -60,21 +77,6 @@ def extract_citations(text: str) -> List[Citation]:
     return found
 
 
-_LEMBAGA = re.compile(
-    r"\b(badan|kementerian|kemenkes|kemendikbud|dinas|lembaga|pusat|universitas|institut|politeknik|sekolah tinggi|"
-    r"organisasi|asosiasi|komisi|dewan|bank|perusahaan|pemerintah|republik|world|organization|association|ministry|"
-    r"institute|university|bureau|agency|commission|council|foundation|department|office)\b", re.I)
-
-
-def is_institution(name: str) -> bool:
-    """Penulis berupa lembaga ("Badan Pusat Statistik"): ditulis utuh, bukan 'Statistik, B. P.'.
-
-    Nama satu kata ("Wikipedia") selalu dianggap lembaga; nama multi-kata hanya bila memuat kata kunci lembaga.
-    """
-    parts = name.split()
-    return len(parts) == 1 or (len(parts) > 1 and bool(_LEMBAGA.search(name)))
-
-
 def citation_label(ref: ReferenceItem) -> str:
     """Bentuk sitasi in-text yang benar untuk sebuah referensi, mis. '(Smith & Jones, 2024)'."""
     names = [_surname_display(a) for a in ref.authors if a.strip()]
@@ -91,9 +93,9 @@ def citation_label(ref: ReferenceItem) -> str:
 
 def _surname_display(author: str) -> str:
     author = author.strip()
-    if is_institution(author):
+    if is_institution(author) and "," not in author:
         return author
-    return author.split(",")[0].strip() if "," in author else author.split()[-1]
+    return family_of(author)
 
 
 def _ref_keys(ref: ReferenceItem) -> Set[tuple]:
@@ -119,6 +121,12 @@ def content_text(contents: List[ContentItem]) -> str:
             if item.title_items:
                 parts.append(item.title_items)
             parts.extend(f"- {li}" for li in item.items)
+        elif isinstance(item, ContentTable):
+            if item.caption:
+                parts.append(item.caption)
+            if item.header:
+                parts.append(" | ".join(item.header))
+            parts.extend(" | ".join(row) for row in item.rows)
     return "\n".join(parts)
 
 
@@ -129,10 +137,21 @@ class CitationReport:
     used_refs: Set[int] = field(default_factory=set)  # indeks daftar_pustaka yang dikutip
     unused_refs: List[int] = field(default_factory=list)
     total_citations: int = 0
+    # judul sub-bab -> sitasi-mirip yang tak bisa diurai (tak diketahui sah/tidaknya): wajib diperiksa
+    suspect: Dict[str, List[str]] = field(default_factory=dict)
+    pruned_titles: List[str] = field(default_factory=list)  # diisi prune_unused_references
 
     @property
     def ok(self) -> bool:
-        return not self.invalid
+        return not self.invalid and not self.suspect
+
+    @property
+    def problems(self) -> Dict[str, List[str]]:
+        """Gabungan sitasi tidak sah + mencurigakan per sub-bab (bahan perbaikan)."""
+        merged: Dict[str, List[str]] = {k: list(v) for k, v in self.invalid.items()}
+        for k, v in self.suspect.items():
+            merged.setdefault(k, []).extend(x for x in v if x not in merged.get(k, []))
+        return merged
 
 
 def check_citations(makalah: Makalah, only: Optional[Set[str]] = None) -> CitationReport:
@@ -142,7 +161,11 @@ def check_citations(makalah: Makalah, only: Optional[Set[str]] = None) -> Citati
         for sub in bab.subbab:
             if only is not None and sub.judul not in only:
                 continue
-            for c in extract_citations(content_text(sub.content)):
+            teks = content_text(sub.content)
+            suspects = find_suspects(teks)
+            if suspects:
+                report.suspect[sub.judul] = suspects
+            for c in extract_citations(teks):
                 report.total_citations += 1
                 hit = [i for i, k in enumerate(keys) if (c.surname, c.year) in k]
                 if hit:
@@ -156,11 +179,14 @@ def check_citations(makalah: Makalah, only: Optional[Set[str]] = None) -> Citati
 def prune_unused_references(makalah: Makalah, report: CitationReport) -> int:
     """Buang referensi yang tidak pernah dikutip (aturan APA: pustaka = yang dikutip).
 
-    Aman: tidak melakukan apa-apa bila tidak satu pun sitasi cocok (mis. LLM tidak
-    memakai format APA), agar daftar pustaka tidak terhapus habis.
+    Aman: tidak melakukan apa-apa bila (a) tidak satu pun sitasi cocok (mis. LLM tidak memakai format APA),
+    atau (b) ada sitasi mencurigakan yang tak bisa diurai (`report.suspect`): referensi "tak terpakai" bisa
+    jadi justru sumbernya. Judul yang dibuang dicatat di `report.pruned_titles`.
     """
-    if not report.used_refs:
+    report.pruned_titles = []
+    if not report.used_refs or report.suspect:
         return 0
     before = len(makalah.daftar_pustaka)
+    report.pruned_titles = [r.title for i, r in enumerate(makalah.daftar_pustaka) if i not in report.used_refs]
     makalah.daftar_pustaka = [r for i, r in enumerate(makalah.daftar_pustaka) if i in report.used_refs]
     return before - len(makalah.daftar_pustaka)

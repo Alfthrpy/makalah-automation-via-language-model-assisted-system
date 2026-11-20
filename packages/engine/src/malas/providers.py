@@ -13,12 +13,12 @@ from urllib.parse import urlparse
 class Provider:
     id: str
     label: str
-    litellm_prefix: str  # awalan model untuk litellm/crewai
+    model_prefix: str  # awalan model crewAI 1.x (provider native: openrouter/ -> OpenAI-compatible, openai/ + base_url)
     key_url: str  # halaman resmi pembuatan key (tautan bantuan di UI)
     models: Tuple[str, ...] = ()  # saran di UI; pengguna tetap boleh mengetik model lain
     default_planner: str = ""
     default_writer: str = ""
-    base_url_env: Optional[str] = None  # env yang menyimpan base URL (bila bukan default litellm)
+    base_url_env: Optional[str] = None  # env yang menyimpan base URL (bila bukan default penyedia)
     fixed_base_url: Optional[str] = None
 
     @property
@@ -48,7 +48,7 @@ PROVIDERS: Dict[str, Provider] = {
     "openrouter": Provider(
         id="openrouter",
         label="OpenRouter",
-        litellm_prefix="openrouter/",
+        model_prefix="openrouter/",
         key_url="https://openrouter.ai/keys",
         models=(
             "deepseek/deepseek-v3.2",
@@ -66,7 +66,7 @@ PROVIDERS: Dict[str, Provider] = {
     "kenari": Provider(
         id="kenari",
         label="Kenari",
-        litellm_prefix="openai/",
+        model_prefix="openai/",
         key_url="https://kenari.id/en/docs/authentication",
         models=("step-3-7-flash:free",),
         fixed_base_url="https://kenari.id/v1",

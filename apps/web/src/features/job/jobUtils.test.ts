@@ -15,7 +15,7 @@ describe("jobUtils", () => {
     steps.input = { status: "done", detail: "" };
     steps.outline = { status: "running", detail: "" };
     const job = { ...base, status: "running", steps, log: [] } as unknown as Job;
-    expect(jobPct(job, FALLBACK_STEPS)).toBe(Math.round((1.5 / 7) * 100));
+    expect(jobPct(job, FALLBACK_STEPS)).toBe(Math.round((1.5 / FALLBACK_STEPS.length) * 100));
   });
   it("stepSeconds dan elapsedLabel", () => {
     expect(stepSeconds({ status: "done", detail: "", started_at: "2026-01-01T00:00:00Z", finished_at: "2026-01-01T00:02:48Z" })).toBe(168);

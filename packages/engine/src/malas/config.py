@@ -20,7 +20,7 @@ for _k, _v in (("OTEL_SDK_DISABLED", "true"), ("CREWAI_DISABLE_TELEMETRY", "true
 DEFAULT_MODEL = "gemini/gemini-2.5-flash-lite"
 ROLES = ("planner", "writer", "reviewer")
 
-# Prefix model litellm -> env var API key yang dikenali (salah satu cukup)
+# Prefix model crewAI -> env var API key yang dikenali (salah satu cukup)
 _KEY_ENV: Dict[str, List[str]] = {
     "gemini": ["GEMINI_API_KEY", "GOOGLE_API_KEY"],
     "openrouter": ["OPENROUTER_API_KEY"],
@@ -90,7 +90,7 @@ def get_llm(role: str = "default"):
         if prov is None or not prov.enabled:
             raise RuntimeError("Penyedia model tidak tersedia")
         return LLM(
-            model=prov.litellm_prefix + _runtime.model_for(role),
+            model=prov.model_prefix + _runtime.model_for(role),
             api_key=_runtime.api_key,
             base_url=prov.base_url,
         )
@@ -111,3 +111,44 @@ def describe() -> dict:
         "mock_default": _flag("MALAS_MOCK"),
         "fulltext": os.getenv("MALAS_FULLTEXT", "1") != "0",
     }
+
+
+# --- Enhancing Engine (docs/enhancing-engine.md §6.5) -------------------------------------
+ENHANCE_TIERS = ("off", "lite", "standard", "deep")
+
+
+_enhance_override: Optional[str] = None
+
+
+def set_enhance_override(value: Optional[str]) -> None:
+    """Tier untuk SATU job (web memilih per job; satu job pada satu waktu). None = kembali ke env MALAS_ENHANCE."""
+    global _enhance_override
+    _enhance_override = value if value in ENHANCE_TIERS else None
+
+
+def enhance_max() -> str:
+    """Batas atas tier yang boleh dipilih pengguna (operator: MALAS_ENHANCE_MAX, default deep)."""
+    v = os.getenv("MALAS_ENHANCE_MAX", "deep").strip().lower()
+    return v if v in ENHANCE_TIERS else "deep"
+
+
+def clamp_enhance(value: str) -> str:
+    """Tier hasil pilihan pengguna, dipotong ke batas operator."""
+    cap = ENHANCE_TIERS.index(enhance_max())
+    return ENHANCE_TIERS[min(ENHANCE_TIERS.index(value) if value in ENHANCE_TIERS else 1, cap)]
+
+
+def enhance_tier() -> str:
+    """Tier aktif: override per job, lalu MALAS_ENHANCE=off|lite|standard|deep (default lite: lint + konteks, tanpa LLM baru)."""
+    if _enhance_override is not None:
+        return _enhance_override
+    v = os.getenv("MALAS_ENHANCE", "lite").strip().lower()
+    return v if v in ENHANCE_TIERS else "lite"
+
+
+def enhance_budget() -> int:
+    """Batas token tahap LLM enhancing (MALAS_ENHANCE_MAX_TOKENS, default 40000)."""
+    try:
+        return max(0, int(os.getenv("MALAS_ENHANCE_MAX_TOKENS", "40000")))
+    except ValueError:
+        return 40000

@@ -1,0 +1,1020 @@
+{
+  "label": "baseline",
+  "tanggal": "2026-11-20 16:22:02",
+  "subbab": [
+    "1.1 Latar Belakang",
+    "2.1 Landasan Teori",
+    "2.2 Tinjauan Penelitian Terdahulu",
+    "2.3 Analisis dan Pembahasan",
+    "2.4 Studi Kasus",
+    "2.5 Tantangan dan Implikasi"
+  ],
+  "landmark_cites": 300,
+  "total_http": 54,
+  "total_cache_hits": 12,
+  "total_duration_s": 35.7,
+  "diagnostik": {
+    "crossref:raw": 0,
+    "doaj:raw": 0,
+    "err:api.crossref.org:exc": 15,
+    "err:doaj.org:exc": 15,
+    "openalex:raw": 288
+  },
+  "catatan": "rencana dari heuristic_plan (tanpa LLM); email kontak kosong; cache baru per run",
+  "judul": [
+    {
+      "judul": "Penerapan Gamifikasi untuk Meningkatkan Motivasi Belajar Bahasa Arab",
+      "plan": [
+        {
+          "section": "1.1 Latar Belakang",
+          "q_en": "",
+          "q_id": "Penerapan Gamifikasi untuk Meningkatkan Motivasi Belajar Bahasa Arab",
+          "indo": true
+        },
+        {
+          "section": "2.1 Landasan Teori",
+          "q_en": "",
+          "q_id": "Penerapan Gamifikasi untuk Meningkatkan Motivasi Belajar Bahasa Arab",
+          "indo": true
+        },
+        {
+          "section": "2.2 Tinjauan Penelitian Terdahulu",
+          "q_en": "",
+          "q_id": "Penerapan Gamifikasi untuk Meningkatkan Motivasi Belajar Bahasa Arab Tinjauan Terdahulu",
+          "indo": true
+        },
+        {
+          "section": "2.3 Analisis dan Pembahasan",
+          "q_en": "",
+          "q_id": "Penerapan Gamifikasi untuk Meningkatkan Motivasi Belajar Bahasa Arab",
+          "indo": true
+        },
+        {
+          "section": "2.4 Studi Kasus",
+          "q_en": "",
+          "q_id": "Penerapan Gamifikasi untuk Meningkatkan Motivasi Belajar Bahasa Arab",
+          "indo": true
+        },
+        {
+          "section": "2.5 Tantangan dan Implikasi",
+          "q_en": "",
+          "q_id": "Penerapan Gamifikasi untuk Meningkatkan Motivasi Belajar Bahasa Arab",
+          "indo": true
+        }
+      ],
+      "n_refs": 8,
+      "lang_id": 8,
+      "lang_known": 8,
+      "ratio_id_lang": 1.0,
+      "ratio_id_title": 1.0,
+      "landmark_count": 0,
+      "landmarks": [],
+      "year_min": 2024,
+      "year_max": 2026,
+      "by_source": {
+        "openalex": 8
+      },
+      "per_section": {
+        "1.1 Latar Belakang": 2,
+        "2.1 Landasan Teori": 2,
+        "2.2 Tinjauan Penelitian Terdahulu": 2,
+        "2.3 Analisis dan Pembahasan": 2,
+        "2.4 Studi Kasus": 2,
+        "2.5 Tantangan dan Implikasi": 2
+      },
+      "sections_without_refs": [],
+      "duration_s": 18.5,
+      "http": 34,
+      "cache_hits": 2,
+      "harapan_landmark": {
+        "Ryan & Deci 2000 (SDT)": false,
+        "Deterding dkk. 2011": false
+      },
+      "report_extra": {},
+      "refs": [
+        {
+          "year": 2024,
+          "cited_by": 0,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Gamifikasi Dalam Pembelajaran Bahasa Arab di Lembaga Pendidikan Indonesia",
+          "doi": "10.56633/nun.v4i2.1634",
+          "sections": [
+            "1.1 Latar Belakang",
+            "2.1 Landasan Teori"
+          ]
+        },
+        {
+          "year": 2026,
+          "cited_by": 3,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Gamifikasi dan Pengalaman Belajar Kosakata Bahasa Arab di Madrasah Ibtidaiyah",
+          "doi": "10.31004/obsesi.v10i1.8031",
+          "sections": [
+            "1.1 Latar Belakang",
+            "2.1 Landasan Teori"
+          ]
+        },
+        {
+          "year": 2025,
+          "cited_by": 0,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Gamifikasi Dalam Pembelajaran Bahasa Indonesia: Tinjauan Teoretis Terhadap Peningkatan Keterampilan Menulis Teks Deskripsi",
+          "doi": "10.71234/gjet.v1i3.68",
+          "sections": [
+            "2.2 Tinjauan Penelitian Terdahulu"
+          ]
+        },
+        {
+          "year": 2025,
+          "cited_by": 21,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Tinjauan Literatur: Integrasi Kecerdasan Buatan (AI) Dalam Pembelajaran Bahasa Arab",
+          "doi": "10.36057/jips.v9i1.718",
+          "sections": [
+            "2.2 Tinjauan Penelitian Terdahulu"
+          ]
+        },
+        {
+          "year": 2024,
+          "cited_by": 9,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Pendampingan Pembelajaran Bahasa Arab Melalui Game Edukatif Quizizz Di Sekolah MTsN 1 Kota Palangka Raya",
+          "doi": "10.59837/jpmba.v2i10.1697",
+          "sections": [
+            "2.3 Analisis dan Pembahasan",
+            "2.4 Studi Kasus"
+          ]
+        },
+        {
+          "year": 2024,
+          "cited_by": 48,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Menjadikan Pembelajaran Mufradat Menyenangkan: Strategi Inovatif Untuk Meningkatkan Motivasi Belajar Bahasa Arab di MI",
+          "doi": "10.35931/am.v8i4.4081",
+          "sections": [
+            "2.3 Analisis dan Pembahasan",
+            "2.4 Studi Kasus"
+          ]
+        },
+        {
+          "year": 2026,
+          "cited_by": 1,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "PENGARUH GAMIFIKASI ASESMEN FORMATIF TERHADAP MOTIVASI BELAJAR SISWA DALAM PEMBELAJARAN BAHASA ARAB SEBAGAI BAHASA ASING",
+          "doi": "10.29100/jipi.v11i2.7903",
+          "sections": [
+            "2.5 Tantangan dan Implikasi"
+          ]
+        },
+        {
+          "year": 2024,
+          "cited_by": 75,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Gamifikasi untuk meningkatkan motivasi belajar siswa di era digital",
+          "doi": "10.29210/07essr500200",
+          "sections": [
+            "2.5 Tantangan dan Implikasi"
+          ]
+        }
+      ]
+    },
+    {
+      "judul": "Pengaruh Media Sosial terhadap Kesehatan Mental Remaja",
+      "plan": [
+        {
+          "section": "1.1 Latar Belakang",
+          "q_en": "",
+          "q_id": "Pengaruh Media Sosial terhadap Kesehatan Mental Remaja",
+          "indo": true
+        },
+        {
+          "section": "2.1 Landasan Teori",
+          "q_en": "",
+          "q_id": "Pengaruh Media Sosial terhadap Kesehatan Mental Remaja",
+          "indo": true
+        },
+        {
+          "section": "2.2 Tinjauan Penelitian Terdahulu",
+          "q_en": "",
+          "q_id": "Pengaruh Media Sosial terhadap Kesehatan Mental Remaja Tinjauan Terdahulu",
+          "indo": true
+        },
+        {
+          "section": "2.3 Analisis dan Pembahasan",
+          "q_en": "",
+          "q_id": "Pengaruh Media Sosial terhadap Kesehatan Mental Remaja",
+          "indo": true
+        },
+        {
+          "section": "2.4 Studi Kasus",
+          "q_en": "",
+          "q_id": "Pengaruh Media Sosial terhadap Kesehatan Mental Remaja",
+          "indo": true
+        },
+        {
+          "section": "2.5 Tantangan dan Implikasi",
+          "q_en": "",
+          "q_id": "Pengaruh Media Sosial terhadap Kesehatan Mental Remaja",
+          "indo": true
+        }
+      ],
+      "n_refs": 8,
+      "lang_id": 8,
+      "lang_known": 8,
+      "ratio_id_lang": 1.0,
+      "ratio_id_title": 0.875,
+      "landmark_count": 0,
+      "landmarks": [],
+      "year_min": 2023,
+      "year_max": 2026,
+      "by_source": {
+        "openalex": 8
+      },
+      "per_section": {
+        "1.1 Latar Belakang": 2,
+        "2.1 Landasan Teori": 2,
+        "2.2 Tinjauan Penelitian Terdahulu": 2,
+        "2.3 Analisis dan Pembahasan": 2,
+        "2.4 Studi Kasus": 2,
+        "2.5 Tantangan dan Implikasi": 2
+      },
+      "sections_without_refs": [],
+      "duration_s": 1.7,
+      "http": 4,
+      "cache_hits": 2,
+      "harapan_landmark": {},
+      "report_extra": {},
+      "refs": [
+        {
+          "year": 2024,
+          "cited_by": 6,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Menyelidiki Pengaruh Media Sosial terhadap Kesehatan Mental Remaja denga Pendekatan Psikologi Perkembangan",
+          "doi": "10.58812/jpkws.v2i02.1327",
+          "sections": [
+            "1.1 Latar Belakang",
+            "2.1 Landasan Teori"
+          ]
+        },
+        {
+          "year": 2026,
+          "cited_by": 0,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "ANALISIS PENGARUH MEDIA SOSIAL TERHADAP KESEHATAN MENTAL REMAJA",
+          "doi": "10.70248/jdaics.v3i2.2458",
+          "sections": [
+            "1.1 Latar Belakang",
+            "2.1 Landasan Teori"
+          ]
+        },
+        {
+          "year": 2025,
+          "cited_by": 40,
+          "language": "id",
+          "id_by_title": false,
+          "source": "openalex",
+          "title": "Dampak Penggunaan Media Sosial \"Brain Rot\" terhadap Kesehatan Mental Remaja",
+          "doi": "10.59188/jurnalsostech.v5i3.32020",
+          "sections": [
+            "2.2 Tinjauan Penelitian Terdahulu"
+          ]
+        },
+        {
+          "year": 2025,
+          "cited_by": 0,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "PERMAINAN PAPAN EDUKASI PADA SIKAP REMAJA TERHADAP KESEHATAN MENTAL: TINJAUAN LITERATUR",
+          "doi": "10.31004/jkt.v6i4.51476",
+          "sections": [
+            "2.2 Tinjauan Penelitian Terdahulu"
+          ]
+        },
+        {
+          "year": 2023,
+          "cited_by": 63,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Pengaruh Media Sosial Terhadap Kesehatan Mental Remaja",
+          "doi": "10.56832/mudabbir.v3i2.370",
+          "sections": [
+            "2.3 Analisis dan Pembahasan",
+            "2.4 Studi Kasus"
+          ]
+        },
+        {
+          "year": 2025,
+          "cited_by": 4,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "PENGARUH MEDIA SOSIAL TERHADAP KESEHATAN MENTAL REMAJA",
+          "doi": "10.35965/ijlf.v7i2.6273",
+          "sections": [
+            "2.3 Analisis dan Pembahasan",
+            "2.4 Studi Kasus"
+          ]
+        },
+        {
+          "year": 2026,
+          "cited_by": 0,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Pengaruh Media Sosial Terhadap Kesehatan Mental Remaja",
+          "doi": "10.5281/zenodo.19813139",
+          "sections": [
+            "2.5 Tantangan dan Implikasi"
+          ]
+        },
+        {
+          "year": 2024,
+          "cited_by": 2,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "PENGARUH MEDIA SOSIAL TERHADAP KESEHATAN MENTAL REMAJA: STUDI LITERATUR SISTEMATIS",
+          "doi": "10.70031/jkb.v7i2.96",
+          "sections": [
+            "2.5 Tantangan dan Implikasi"
+          ]
+        }
+      ]
+    },
+    {
+      "judul": "Analisis Hukum Pidana terhadap Tindak Pidana Korupsi di Indonesia",
+      "plan": [
+        {
+          "section": "1.1 Latar Belakang",
+          "q_en": "",
+          "q_id": "Analisis Hukum Pidana terhadap Tindak Pidana Korupsi di Indonesia",
+          "indo": true
+        },
+        {
+          "section": "2.1 Landasan Teori",
+          "q_en": "",
+          "q_id": "Analisis Hukum Pidana terhadap Tindak Pidana Korupsi di Indonesia",
+          "indo": true
+        },
+        {
+          "section": "2.2 Tinjauan Penelitian Terdahulu",
+          "q_en": "",
+          "q_id": "Analisis Hukum Pidana terhadap Tindak Pidana Korupsi di Indonesia Tinjauan Terdahulu",
+          "indo": true
+        },
+        {
+          "section": "2.3 Analisis dan Pembahasan",
+          "q_en": "",
+          "q_id": "Analisis Hukum Pidana terhadap Tindak Pidana Korupsi di Indonesia",
+          "indo": true
+        },
+        {
+          "section": "2.4 Studi Kasus",
+          "q_en": "",
+          "q_id": "Analisis Hukum Pidana terhadap Tindak Pidana Korupsi di Indonesia",
+          "indo": true
+        },
+        {
+          "section": "2.5 Tantangan dan Implikasi",
+          "q_en": "",
+          "q_id": "Analisis Hukum Pidana terhadap Tindak Pidana Korupsi di Indonesia",
+          "indo": true
+        }
+      ],
+      "n_refs": 8,
+      "lang_id": 8,
+      "lang_known": 8,
+      "ratio_id_lang": 1.0,
+      "ratio_id_title": 1.0,
+      "landmark_count": 0,
+      "landmarks": [],
+      "year_min": 2019,
+      "year_max": 2026,
+      "by_source": {
+        "openalex": 8
+      },
+      "per_section": {
+        "1.1 Latar Belakang": 2,
+        "2.1 Landasan Teori": 2,
+        "2.2 Tinjauan Penelitian Terdahulu": 2,
+        "2.3 Analisis dan Pembahasan": 2,
+        "2.4 Studi Kasus": 2,
+        "2.5 Tantangan dan Implikasi": 2
+      },
+      "sections_without_refs": [],
+      "duration_s": 1.4,
+      "http": 4,
+      "cache_hits": 2,
+      "harapan_landmark": {},
+      "report_extra": {},
+      "refs": [
+        {
+          "year": 2026,
+          "cited_by": 0,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Analisis Faktor Sosial-Budaya dan Kelembagaan dalam Implementasi Hukum Pidana terhadap Tindak Pidana Korupsi di Indonesia",
+          "doi": "10.70292/pchukumsosial.v4i1.292",
+          "sections": [
+            "1.1 Latar Belakang",
+            "2.1 Landasan Teori"
+          ]
+        },
+        {
+          "year": 2025,
+          "cited_by": 3,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Analisis Sosiologi Hukum terhadap Kebijakan Amnesti pada Tindak Pidana Korupsi di Indonesia",
+          "doi": "10.31004/riggs.v4i4.4045",
+          "sections": [
+            "1.1 Latar Belakang",
+            "2.1 Landasan Teori"
+          ]
+        },
+        {
+          "year": 2019,
+          "cited_by": 3,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Tinjauan Hukum Pidana Islam terhadap Tindak Pidana Order Fiktif pada Driver Grab Indonesia",
+          "doi": null,
+          "sections": [
+            "2.2 Tinjauan Penelitian Terdahulu"
+          ]
+        },
+        {
+          "year": 2026,
+          "cited_by": 0,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Tinjauan Hukum terhadap Pertanggungjawaban Pidana Korporasi Dalam Tindak Pidana Korupsi",
+          "doi": "10.31004/riggs.v5i2.12685",
+          "sections": [
+            "2.2 Tinjauan Penelitian Terdahulu"
+          ]
+        },
+        {
+          "year": 2026,
+          "cited_by": 9,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Penegakan Hukum Pidana terhadap Tindak Pidana Korupsi di Indonesia",
+          "doi": "10.60153/jomlas.3i2.259",
+          "sections": [
+            "2.3 Analisis dan Pembahasan",
+            "2.4 Studi Kasus"
+          ]
+        },
+        {
+          "year": 2020,
+          "cited_by": 12,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "URGENSI ANCAMAN HUKUMAN PIDANA MATI PADA PELAKU TINDAK PIDANA KORUPSI (ANALISIS YURIDIS NORMATIF TERHADAP KEBIJAKAN HUKUM PIDANA/PENAL POLICY SANKSI PIDANA MATI DI INDONESIA)",
+          "doi": "10.29406/rj.v3i1.2101",
+          "sections": [
+            "2.3 Analisis dan Pembahasan",
+            "2.4 Studi Kasus"
+          ]
+        },
+        {
+          "year": 2026,
+          "cited_by": 0,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Efektivitas Penegakan Hukum Terhadap Tindak Pidana Korupsi di Indonesia: Analisis Yuridis Terhadap UU No. 31 Tahun 1999 Jo. UU No. 20 Tahun 2001",
+          "doi": "10.70292/pchukumsosial.v4i1.332",
+          "sections": [
+            "2.5 Tantangan dan Implikasi"
+          ]
+        },
+        {
+          "year": 2023,
+          "cited_by": 0,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Analisis Yuridis Penegakan Hukum terhadap Pelaku Tindak Pidana Korupsi di Indonesia",
+          "doi": "10.25139/lex.v7i1.11765",
+          "sections": [
+            "2.5 Tantangan dan Implikasi"
+          ]
+        }
+      ]
+    },
+    {
+      "judul": "Penerapan Machine Learning untuk Deteksi Penipuan Transaksi Keuangan",
+      "plan": [
+        {
+          "section": "1.1 Latar Belakang",
+          "q_en": "",
+          "q_id": "Penerapan Machine Learning untuk Deteksi Penipuan Transaksi Keuangan",
+          "indo": true
+        },
+        {
+          "section": "2.1 Landasan Teori",
+          "q_en": "",
+          "q_id": "Penerapan Machine Learning untuk Deteksi Penipuan Transaksi Keuangan",
+          "indo": true
+        },
+        {
+          "section": "2.2 Tinjauan Penelitian Terdahulu",
+          "q_en": "",
+          "q_id": "Penerapan Machine Learning untuk Deteksi Penipuan Transaksi Keuangan Tinjauan Terdahulu",
+          "indo": true
+        },
+        {
+          "section": "2.3 Analisis dan Pembahasan",
+          "q_en": "",
+          "q_id": "Penerapan Machine Learning untuk Deteksi Penipuan Transaksi Keuangan",
+          "indo": true
+        },
+        {
+          "section": "2.4 Studi Kasus",
+          "q_en": "",
+          "q_id": "Penerapan Machine Learning untuk Deteksi Penipuan Transaksi Keuangan",
+          "indo": true
+        },
+        {
+          "section": "2.5 Tantangan dan Implikasi",
+          "q_en": "",
+          "q_id": "Penerapan Machine Learning untuk Deteksi Penipuan Transaksi Keuangan",
+          "indo": true
+        }
+      ],
+      "n_refs": 7,
+      "lang_id": 7,
+      "lang_known": 7,
+      "ratio_id_lang": 1.0,
+      "ratio_id_title": 0.714,
+      "landmark_count": 0,
+      "landmarks": [],
+      "year_min": 2024,
+      "year_max": 2026,
+      "by_source": {
+        "openalex": 7
+      },
+      "per_section": {
+        "1.1 Latar Belakang": 2,
+        "2.1 Landasan Teori": 2,
+        "2.2 Tinjauan Penelitian Terdahulu": 2,
+        "2.3 Analisis dan Pembahasan": 2,
+        "2.4 Studi Kasus": 2,
+        "2.5 Tantangan dan Implikasi": 2
+      },
+      "sections_without_refs": [],
+      "duration_s": 1.4,
+      "http": 4,
+      "cache_hits": 2,
+      "harapan_landmark": {},
+      "report_extra": {},
+      "refs": [
+        {
+          "year": 2024,
+          "cited_by": 19,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "DETEKSI ANOMALI MENGGUNAKAN ENSEMBLE LEARNING DAN RANDOM OVERSAMPLING PADA PENIPUAN TRANSAKSI KEUANGAN",
+          "doi": "10.23960/jitet.v12i3.4910",
+          "sections": [
+            "1.1 Latar Belakang",
+            "2.1 Landasan Teori"
+          ]
+        },
+        {
+          "year": 2026,
+          "cited_by": 0,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "DETEKSI PENIPUAN KARTU KREDIT DENGAN MACHINE LEARNING DAN VISUALISASI INTERAKTIF BERBASIS STREAMLIT",
+          "doi": "10.26798/jiko.v10i2.2709",
+          "sections": [
+            "1.1 Latar Belakang",
+            "2.1 Landasan Teori"
+          ]
+        },
+        {
+          "year": 2026,
+          "cited_by": 0,
+          "language": "id",
+          "id_by_title": false,
+          "source": "openalex",
+          "title": "Implementasi Algoritma Neural Network untuk Deteksi Penipuan Transaksi Kartu Kredit",
+          "doi": "10.22441/fifo.2026.v18i1.008",
+          "sections": [
+            "2.2 Tinjauan Penelitian Terdahulu",
+            "2.4 Studi Kasus"
+          ]
+        },
+        {
+          "year": 2026,
+          "cited_by": 2,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "PENERAPAN DETEKSI ANOMALI MENGGUNAKAN MODEL ISOLATION FOREST UNTUK ANALISIS FRAUD PADA TRANSAKSI KEUANGAN AKUNTANSI",
+          "doi": "10.36040/jati.v10i3.18334",
+          "sections": [
+            "2.2 Tinjauan Penelitian Terdahulu",
+            "2.3 Analisis dan Pembahasan"
+          ]
+        },
+        {
+          "year": 2025,
+          "cited_by": 0,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Penerapan Algoritma Decision Tree Dalam Deteksi Fraud Transaksi Kartu Kredit",
+          "doi": "10.35889/progresif.v21i2.2751",
+          "sections": [
+            "2.3 Analisis dan Pembahasan",
+            "2.4 Studi Kasus"
+          ]
+        },
+        {
+          "year": 2024,
+          "cited_by": 33,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Penggunaan Algoritma Support Vector Machine (SVM) Untuk Deteksi Penipuan pada Transaksi Online",
+          "doi": "10.33395/jmp.v13i2.14186",
+          "sections": [
+            "2.5 Tantangan dan Implikasi"
+          ]
+        },
+        {
+          "year": 2024,
+          "cited_by": 6,
+          "language": "id",
+          "id_by_title": false,
+          "source": "openalex",
+          "title": "DETEKSI PENIPUAN KARTU KREDIT MENGGUNAKAN METODE RANDOM FOREST",
+          "doi": "10.35145/joisie.v8i2.4064",
+          "sections": [
+            "2.5 Tantangan dan Implikasi"
+          ]
+        }
+      ]
+    },
+    {
+      "judul": "Strategi Pemasaran Digital untuk UMKM di Era Ekonomi Syariah",
+      "plan": [
+        {
+          "section": "1.1 Latar Belakang",
+          "q_en": "",
+          "q_id": "Strategi Pemasaran Digital untuk UMKM di Era Ekonomi Syariah",
+          "indo": true
+        },
+        {
+          "section": "2.1 Landasan Teori",
+          "q_en": "",
+          "q_id": "Strategi Pemasaran Digital untuk UMKM di Era Ekonomi Syariah",
+          "indo": true
+        },
+        {
+          "section": "2.2 Tinjauan Penelitian Terdahulu",
+          "q_en": "",
+          "q_id": "Strategi Pemasaran Digital untuk UMKM di Era Ekonomi Syariah Tinjauan Terdahulu",
+          "indo": true
+        },
+        {
+          "section": "2.3 Analisis dan Pembahasan",
+          "q_en": "",
+          "q_id": "Strategi Pemasaran Digital untuk UMKM di Era Ekonomi Syariah",
+          "indo": true
+        },
+        {
+          "section": "2.4 Studi Kasus",
+          "q_en": "",
+          "q_id": "Strategi Pemasaran Digital untuk UMKM di Era Ekonomi Syariah",
+          "indo": true
+        },
+        {
+          "section": "2.5 Tantangan dan Implikasi",
+          "q_en": "",
+          "q_id": "Strategi Pemasaran Digital untuk UMKM di Era Ekonomi Syariah",
+          "indo": true
+        }
+      ],
+      "n_refs": 8,
+      "lang_id": 8,
+      "lang_known": 8,
+      "ratio_id_lang": 1.0,
+      "ratio_id_title": 0.625,
+      "landmark_count": 0,
+      "landmarks": [],
+      "year_min": 2023,
+      "year_max": 2025,
+      "by_source": {
+        "openalex": 8
+      },
+      "per_section": {
+        "1.1 Latar Belakang": 2,
+        "2.1 Landasan Teori": 2,
+        "2.2 Tinjauan Penelitian Terdahulu": 2,
+        "2.3 Analisis dan Pembahasan": 2,
+        "2.4 Studi Kasus": 2,
+        "2.5 Tantangan dan Implikasi": 2
+      },
+      "sections_without_refs": [],
+      "duration_s": 1.4,
+      "http": 4,
+      "cache_hits": 2,
+      "harapan_landmark": {},
+      "report_extra": {},
+      "refs": [
+        {
+          "year": 2025,
+          "cited_by": 2,
+          "language": "id",
+          "id_by_title": false,
+          "source": "openalex",
+          "title": "Strategi Pengembangan Manajemen Bisnis Syariah Di Era Digital: Studi Literatur",
+          "doi": "10.31004/edp.v2i4.133",
+          "sections": [
+            "1.1 Latar Belakang",
+            "2.1 Landasan Teori"
+          ]
+        },
+        {
+          "year": 2024,
+          "cited_by": 4,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Strategi UMKM untuk Berdaya Saing dalam Ekosistem Ekonomi Syariah",
+          "doi": "10.31004/irje.v4i4.1663",
+          "sections": [
+            "1.1 Latar Belakang",
+            "2.1 Landasan Teori"
+          ]
+        },
+        {
+          "year": 2025,
+          "cited_by": 5,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Peran Strategis Sistem Informasi Bisnis dalam Sinkronisasi Pengelolaan Talenta dan Penguatan Branding UMKM di Era Ekonomi Digital",
+          "doi": "10.33395/jmp.v14i1.14809",
+          "sections": [
+            "2.2 Tinjauan Penelitian Terdahulu"
+          ]
+        },
+        {
+          "year": 2024,
+          "cited_by": 1,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Tinjauan literatur tantangan dan strategi pemasaran produk bank syariah dalam era digital",
+          "doi": null,
+          "sections": [
+            "2.2 Tinjauan Penelitian Terdahulu"
+          ]
+        },
+        {
+          "year": 2025,
+          "cited_by": 14,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Pelatihan Strategi Pemasaran Digital untuk Meningkatkan Daya Saing UMKM Desa Ngeper, Kabupaten Bojonegoro di Era Ekonomi Digital",
+          "doi": "10.70609/i-com.v5i2.7476",
+          "sections": [
+            "2.3 Analisis dan Pembahasan",
+            "2.4 Studi Kasus"
+          ]
+        },
+        {
+          "year": 2025,
+          "cited_by": 78,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Strategi Pemasaran yang Efektif untuk UMKM di Era Digital",
+          "doi": "10.58540/jipsi.v4i1.787",
+          "sections": [
+            "2.3 Analisis dan Pembahasan",
+            "2.4 Studi Kasus"
+          ]
+        },
+        {
+          "year": 2023,
+          "cited_by": 7,
+          "language": "id",
+          "id_by_title": false,
+          "source": "openalex",
+          "title": "Efektivitas Strategi Pemasaran Syariah Pada UMKM Pasca Pandemi",
+          "doi": "10.52166/adilla.v6i2.4600",
+          "sections": [
+            "2.5 Tantangan dan Implikasi"
+          ]
+        },
+        {
+          "year": 2023,
+          "cited_by": 70,
+          "language": "id",
+          "id_by_title": false,
+          "source": "openalex",
+          "title": "Efektivitas Strategi Pemasaran Digital Banking Bank Syariah Di Indonesia",
+          "doi": "10.36908/jimpa.v3i2.197",
+          "sections": [
+            "2.5 Tantangan dan Implikasi"
+          ]
+        }
+      ]
+    },
+    {
+      "judul": "Sejarah Kerajaan Majapahit dan Pengaruhnya terhadap Nusantara",
+      "plan": [
+        {
+          "section": "1.1 Latar Belakang",
+          "q_en": "",
+          "q_id": "Sejarah Kerajaan Majapahit dan Pengaruhnya terhadap Nusantara",
+          "indo": true
+        },
+        {
+          "section": "2.1 Landasan Teori",
+          "q_en": "",
+          "q_id": "Sejarah Kerajaan Majapahit dan Pengaruhnya terhadap Nusantara",
+          "indo": true
+        },
+        {
+          "section": "2.2 Tinjauan Penelitian Terdahulu",
+          "q_en": "",
+          "q_id": "Sejarah Kerajaan Majapahit dan Pengaruhnya terhadap Nusantara Tinjauan Terdahulu",
+          "indo": true
+        },
+        {
+          "section": "2.3 Analisis dan Pembahasan",
+          "q_en": "",
+          "q_id": "Sejarah Kerajaan Majapahit dan Pengaruhnya terhadap Nusantara",
+          "indo": true
+        },
+        {
+          "section": "2.4 Studi Kasus",
+          "q_en": "",
+          "q_id": "Sejarah Kerajaan Majapahit dan Pengaruhnya terhadap Nusantara",
+          "indo": true
+        },
+        {
+          "section": "2.5 Tantangan dan Implikasi",
+          "q_en": "",
+          "q_id": "Sejarah Kerajaan Majapahit dan Pengaruhnya terhadap Nusantara",
+          "indo": true
+        }
+      ],
+      "n_refs": 7,
+      "lang_id": 7,
+      "lang_known": 7,
+      "ratio_id_lang": 1.0,
+      "ratio_id_title": 0.857,
+      "landmark_count": 0,
+      "landmarks": [],
+      "year_min": 2018,
+      "year_max": 2026,
+      "by_source": {
+        "openalex": 7
+      },
+      "per_section": {
+        "1.1 Latar Belakang": 2,
+        "2.1 Landasan Teori": 2,
+        "2.2 Tinjauan Penelitian Terdahulu": 2,
+        "2.3 Analisis dan Pembahasan": 2,
+        "2.4 Studi Kasus": 2,
+        "2.5 Tantangan dan Implikasi": 1
+      },
+      "sections_without_refs": [],
+      "duration_s": 1.4,
+      "http": 4,
+      "cache_hits": 2,
+      "harapan_landmark": {},
+      "report_extra": {},
+      "refs": [
+        {
+          "year": 2026,
+          "cited_by": 0,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Kejayaan Kemaritiman Sriwijaya dan Kekuatan Politik Kerajaan Majapahit pada Masa Gajah Mada",
+          "doi": "10.56799/peshum.v5i4.16037",
+          "sections": [
+            "1.1 Latar Belakang",
+            "2.1 Landasan Teori"
+          ]
+        },
+        {
+          "year": 2026,
+          "cited_by": 0,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "SIKLUS PERADABAN NUSANTARA: ANALISIS HISTORIS-FILOSOFIS TEORI OSWALD SPENGLER TERHADAP DINAMIKA SEJARAH INDONESIA",
+          "doi": "10.30631/jambe.v8i1.204",
+          "sections": [
+            "1.1 Latar Belakang",
+            "2.1 Landasan Teori"
+          ]
+        },
+        {
+          "year": 2026,
+          "cited_by": 0,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Membaca Ulang Sejarah Kerajaan Siang: Sintesis Kajian Terdahulu di Pangkajene dan Kepulauan",
+          "doi": "10.59188/jurnalsosains.v6i4.32757",
+          "sections": [
+            "2.2 Tinjauan Penelitian Terdahulu"
+          ]
+        },
+        {
+          "year": 2018,
+          "cited_by": 0,
+          "language": "id",
+          "id_by_title": false,
+          "source": "openalex",
+          "title": "KONTRIBUSI SISTEM EKONOMI MAJAPAHIT TERHADAPPERUBAHAN PENGATURAN UNDANG-UNDANG NOMOR 5 TAHUN1999 TENTANG LARANGAN PRAKTIK MONOPOLI DANPERSAINGAN USAHA TIDAK SEHAT DI INDONESIA",
+          "doi": null,
+          "sections": [
+            "2.2 Tinjauan Penelitian Terdahulu"
+          ]
+        },
+        {
+          "year": 2024,
+          "cited_by": 10,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "Kejayaan Kerajaan Mataram Islam dan Pengaruhnya untuk Nusantara pada Masa Pemerintahan Sultan Agung Tahun 1613-1645 M",
+          "doi": "10.70424/insani.v2i2.121-138",
+          "sections": [
+            "2.3 Analisis dan Pembahasan",
+            "2.4 Studi Kasus"
+          ]
+        },
+        {
+          "year": 2023,
+          "cited_by": 10,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "MASUK DAN BERKEMBANG AGAMA HINDU DALAM PENGARUHNYA TERHADAP SISTEM KEPERCAYAAN MASYARAKAT NUSANTARA",
+          "doi": "10.32502/jdh.v3i1.6045",
+          "sections": [
+            "2.3 Analisis dan Pembahasan",
+            "2.4 Studi Kasus"
+          ]
+        },
+        {
+          "year": 2025,
+          "cited_by": 2,
+          "language": "id",
+          "id_by_title": true,
+          "source": "openalex",
+          "title": "PENINGGALAN-PENINGGALAN KERAJAAN SRIWIJAYA DI SUMATERA UTARA DAN PENGARUHNYA",
+          "doi": "10.31004/jrpp.v8i1.44057",
+          "sections": [
+            "2.5 Tantangan dan Implikasi"
+          ]
+        }
+      ]
+    }
+  ]
+}

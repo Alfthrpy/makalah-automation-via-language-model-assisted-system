@@ -44,6 +44,25 @@ def _doi_url(doi: Optional[str]) -> Optional[str]:
     return f"https://doi.org/{doi}" if doi else None
 
 
+def _str(v) -> Optional[str]:
+    """Nilai bibliografis (volume/issue) sebagai string bersih; kosong -> None."""
+    s = " ".join(str(v).split()) if v is not None else ""
+    return s or None
+
+
+def page_range(first=None, last=None) -> Optional[str]:
+    """Rentang halaman APA: "36–52" (en dash); satu halaman bila first == last atau last kosong.
+
+    `first` boleh berupa rentang utuh ("36-52", gaya Crossref/Europe PMC); tanda hubung diganti en dash.
+    """
+    a, b = _str(first), _str(last)
+    if a and not b and re.fullmatch(r"\w+\s*[-\u2010-\u2014]+\s*\w+", a):
+        a, b = (x.strip() for x in re.split(r"[-\u2010-\u2014]+", a, maxsplit=1))
+    if not a:
+        return b
+    return a if not b or a == b else f"{a}\u2013{b}"
+
+
 # --------------------------------------------------------------------------- OpenAlex
 def _inverted_abstract(inv) -> Optional[str]:
     if not isinstance(inv, dict) or not inv:
@@ -59,14 +78,25 @@ class OpenAlex:
     name = "openalex"
     URL = "https://api.openalex.org/works"
     SELECT = ("id,doi,title,publication_year,authorships,primary_location,best_oa_location,"
-              "abstract_inverted_index,cited_by_count,language,type")
+              "abstract_inverted_index,cited_by_count,language,type,biblio")
     SKIP_TYPES = {"paratext", "erratum", "dataset", "peer-review", "editorial", "letter", "retraction"}
 
     def search(self, http, query: str, lang: str, limit: int, year_min: int) -> List[Candidate]:
         flt = f"from_publication_date:{year_min}-01-01,is_retracted:false"
         if lang == "id":
             flt += ",language:id"
-        params = {"search": query, "filter": flt, "per-page": limit, "select": self.SELECT}
+        return self._fetch(http, {"search": query, "filter": flt, "per-page": limit})
+
+    def landmark_search(self, http, concept: str, limit: int) -> List[Candidate]:
+        """Karya dasar untuk satu konsep: konsep di judul/abstrak, TANPA batas tahun, urut jumlah kutipan."""
+        c = " ".join(re.sub(r"[^\w\s\-]", " ", concept).split())  # koma/titik dua merusak sintaks filter
+        if not c:
+            return []
+        flt = f"title_and_abstract.search:{c},is_retracted:false,type:article|book|review"
+        return self._fetch(http, {"filter": flt, "sort": "cited_by_count:desc", "per-page": limit})
+
+    def _fetch(self, http, params: dict) -> List[Candidate]:
+        params = dict(params, select=self.SELECT)
         if os.getenv("MALAS_OPENALEX_API_KEY"):
             params["api_key"] = os.environ["MALAS_OPENALEX_API_KEY"]
         if http.contact:
@@ -79,8 +109,10 @@ class OpenAlex:
             doi = normalize_doi(w.get("doi"))
             loc = w.get("primary_location") or {}
             best = w.get("best_oa_location") or {}
+            bib = w.get("biblio") or {}
             out.append(Candidate(
                 source=self.name, source_id=str(w.get("id") or ""), title=clean_text(w["title"]) or "",
+                kind="book" if w.get("type") == "book" else "article",
                 authors=[a["author"]["display_name"] for a in w.get("authorships", [])
                          if (a.get("author") or {}).get("display_name")][:8],
                 year=_year(w.get("publication_year")), doi=doi,
@@ -88,7 +120,8 @@ class OpenAlex:
                 abstract=_inverted_abstract(w.get("abstract_inverted_index")),
                 venue=(loc.get("source") or {}).get("display_name"),
                 language=w.get("language"), cited_by=int(w.get("cited_by_count") or 0),
-                oa_pdf_url=best.get("pdf_url"),
+                oa_pdf_url=best.get("pdf_url"), volume=_str(bib.get("volume")), issue=_str(bib.get("issue")),
+                pages=page_range(bib.get("first_page"), bib.get("last_page")),
             ))
         return out
 
@@ -102,7 +135,7 @@ class Crossref:
         params = {
             "query.bibliographic": query, "rows": limit,
             "filter": f"from-pub-date:{year_min},type:journal-article",
-            "select": "DOI,title,author,issued,container-title,abstract,URL,is-referenced-by-count",
+            "select": "DOI,title,author,issued,container-title,abstract,URL,is-referenced-by-count,volume,issue,page",
         }
         if http.contact:
             params["mailto"] = http.contact
@@ -115,14 +148,16 @@ class Crossref:
                 continue
             doi = normalize_doi(it.get("DOI"))
             parts = ((it.get("issued") or {}).get("date-parts") or [[None]])[0]
-            authors = [" ".join(x for x in (a.get("given"), a.get("family")) if x) or (a.get("name") or "")
-                       for a in it.get("author", [])][:8]
+            authors = [(f'{a["family"]}, {a["given"]}' if a.get("family") and a.get("given")
+                        else (a.get("family") or a.get("given") or a.get("name") or ""))
+                       for a in it.get("author", [])][:8]  # "Family, Given": informasi keluarga tidak hilang (names.py)
             out.append(Candidate(
                 source=self.name, source_id=doi or "", title=clean_text(titles[0]) or "",
                 authors=[a for a in authors if a], year=_year(parts[0] if parts else None), doi=doi,
                 url=_doi_url(doi) or it.get("URL"), abstract=clean_text(it.get("abstract")),
                 venue=(it.get("container-title") or [None])[0], language=None,
                 cited_by=int(it.get("is-referenced-by-count") or 0),
+                volume=_str(it.get("volume")), issue=_str(it.get("issue")), pages=page_range(it.get("page")),
             ))
         return out
 
@@ -160,13 +195,16 @@ class EuropePMC:
                     pdf = ft.get("url")
                     break
             pid = f"{r.get('source', '')}:{r.get('id', '')}"
+            ji = r.get("journalInfo") or {}  # resultType=core menaruh volume/issue di sini; "lite" di tingkat atas
             out.append(Candidate(
                 source=self.name, source_id=pid, title=clean_text(r["title"]) or "",
                 authors=[n for n in names if n][:8], year=_year(r.get("pubYear")), doi=doi,
                 url=_doi_url(doi) or (f"https://europepmc.org/article/{r.get('source')}/{r.get('id')}"),
                 abstract=clean_text(r.get("abstractText")), venue=r.get("journalTitle"),
                 language=(r.get("language") or "")[:2] or None, cited_by=int(r.get("citedByCount") or 0),
-                oa_pdf_url=pdf,
+                oa_pdf_url=pdf, volume=_str(r.get("journalVolume") or ji.get("volume")),
+                issue=_str(r.get("issue") or ji.get("issue")),
+                pages=page_range(r.get("pageInfo")),
             ))
         return out
 
@@ -313,6 +351,17 @@ class Fixture:
                 cited_by=i,
             ))
         return out
+
+
+    def landmark_search(self, http, concept: str, limit: int) -> List[Candidate]:
+        """Satu karya dasar palsu yang sangat banyak dikutip (menguji pass landmark tanpa jaringan)."""
+        h = int(hashlib.sha1(concept.encode()).hexdigest()[:6], 16)
+        return [Candidate(
+            source=self.name, source_id=f"fx-lm-{h}", title=f"Foundations of {concept}: a classic theory",
+            authors=["Klasik Fixture"], year=2000, doi=f"10.0000/fixture.lm.{h}",
+            abstract=f"A foundational account of {concept}. " * 2, venue="Journal of Fixture Classics",
+            language="en", cited_by=20000,
+        )][:limit]
 
 
 PROVIDERS: Dict[str, object] = {

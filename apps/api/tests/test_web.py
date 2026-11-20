@@ -224,7 +224,7 @@ def test_ringkasan_riwayat_memuat_progres_dan_posisi_antrean(make):
             break
         time.sleep(0.02)
     assert row["mata_kuliah"] == "Kecerdasan Buatan"
-    assert row["progress"] == {"done": 1, "total": 7}
+    assert row["progress"] == {"done": 1, "total": 8}  # + tahap "enhance"
     assert row["current_detail"] == "menyusun outline"
     assert row["queue_position"] is None
 
@@ -239,3 +239,59 @@ def test_ringkasan_riwayat_memuat_progres_dan_posisi_antrean(make):
     # B3: waktu per tahap
     st = done["steps"]["input"]
     assert st["started_at"] and st["finished_at"]
+
+
+# ------------------------------------------------------------------ tingkat pemeriksaan (enhance)
+def test_enhance_default_lite_dan_dipilih_per_job(make):
+    seen = {}
+
+    def runner(job, progress, out, runtime=None):
+        seen[job["id"]] = job["request"].get("enhance")
+        return fake_runner(job, progress, out)
+
+    client, _ = make(runner)
+    a = client.post("/api/jobs", json=VALID).json()["id"]
+    wait_for(client, a, {"done"})
+    assert seen[a] == "lite"
+    b = client.post("/api/jobs", json={**VALID, "enhance": "deep"}).json()
+    wait_for(client, b["id"], {"done"})
+    assert seen[b["id"]] == "deep" and b["request"]["enhance"] == "deep"
+    assert client.post("/api/jobs", json={**VALID, "enhance": "ngawur"}).status_code == 422
+
+
+def test_enhance_dipotong_ke_batas_operator_dan_tampil_di_config(make, monkeypatch):
+    monkeypatch.setenv("MALAS_ENHANCE_MAX", "lite")
+    seen = {}
+
+    def runner(job, progress, out, runtime=None):
+        seen["tier"] = job["request"].get("enhance")
+        return fake_runner(job, progress, out)
+
+    client, _ = make(runner)
+    assert client.get("/api/config").json()["enhance_max"] == "lite"
+    jid = client.post("/api/jobs", json={**VALID, "enhance": "deep"}).json()["id"]
+    wait_for(client, jid, {"done"})
+    assert seen["tier"] == "lite"
+
+
+def test_default_runner_memasang_dan_melepas_override_tier(tmp_path, monkeypatch):
+    from malas import config
+    from malas_api import jobs as jobs_mod
+
+    captured = {}
+
+    class FakeFlow:
+        usage, stats = {}, {}
+
+        def kickoff(self):
+            captured["tier"] = config.enhance_tier()
+            captured["input"] = dict(self.input_data)
+            Path_out.write_bytes(b"x")
+
+    Path_out = tmp_path / "o.docx"
+    import malas.main as main_mod
+    monkeypatch.setattr(main_mod, "MalasFlow", FakeFlow)
+    job = {"mock": True, "request": {"judul": "J", "enhance": "standard"}, "template_path": "t"}
+    jobs_mod.default_runner(job, lambda *a: None, Path_out, None)
+    assert captured["tier"] == "standard" and "enhance" not in captured["input"]  # bukan field Makalah
+    assert config.enhance_tier() == "lite"  # override dilepas

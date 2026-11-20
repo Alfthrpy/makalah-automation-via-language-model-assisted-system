@@ -1,13 +1,15 @@
 import os
-from crewai import Agent, Crew, Process, Task
-from crewai.project import CrewBase, agent, crew, task
-from crewai.agents.agent_builder.base_agent import BaseAgent
-from typing import List
 
+from crewai import Agent, Crew, Process, Task
+from crewai.agents.agent_builder.base_agent import BaseAgent
+from crewai.project import CrewBase, agent, crew, task
+from malas import refsearch
+from malas.config import enhance_tier, get_llm, is_mock
 from malas.crews.models.TaskOutput import SubBab
+from malas.enhance.guardrail import make_guardrail
 from malas.tolerant import TolerantConverter
-from malas.config import get_llm, is_mock
 from malas.tools.custom_tool import DuckDuckGoSearchTool
+
 # If you want to run a snippet of code before or after the crew starts,
 # you can use the @before_kickoff and @after_kickoff decorators
 # https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
@@ -17,11 +19,11 @@ search_tool = DuckDuckGoSearchTool()
 
 
 @CrewBase
-class WriteFormatCrew():
+class WriteFormatCrew:
     """WriteFormatCrew crew"""
 
-    agents: List[BaseAgent]
-    tasks: List[Task]
+    agents: list[BaseAgent]
+    tasks: list[Task]
 
     agents_config = "config/agents.yaml"
     tasks_config = "config/tasks.yaml"
@@ -43,13 +45,19 @@ class WriteFormatCrew():
     #     )
 
 
+    guard_ctx = None  # diisi MalasFlow sebelum tiap sub-bab: {"state", "judul", "report"}
+
     @task
     def write_content(self) -> Task:
+        gate = {}
+        if enhance_tier() in ("standard", "deep"):  # retry berbiaya LLM: hanya di tier yang memang menanggungnya
+            gate = {"guardrails": [make_guardrail(lambda: self.guard_ctx, max_retries=1)], "guardrail_max_retries": 1}
         return Task(
             config=self.tasks_config['write_content_task'], # type: ignore[index]
-            tools=[search_tool],
+            tools=[] if refsearch.enabled() else [search_tool],  # refsearch+full-text: tool tak perlu (loop token + sitasi liar)
             output_pydantic=SubBab,
             converter_cls=TolerantConverter,
+            **gate,
         )
 
     # @task

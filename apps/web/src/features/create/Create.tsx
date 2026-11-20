@@ -9,7 +9,7 @@ import { dateTimeLabel, resetCountdown } from "../../lib/format";
 import { useConfig, useCreateJob, useJobs, useKeys, useMe } from "../../lib/queries";
 import { isActive } from "../../lib/types";
 import { LogoManager } from "../../components/LogoManager";
-import { MAX_PENYUSUN, buildBody, emptyPenyusun, issuesToErrors, validatePaper, type FieldError, type PaperForm } from "../../lib/validation";
+import { ENHANCE_TIERS, MAX_PENYUSUN, asTier, buildBody, emptyPenyusun, issuesToErrors, validatePaper, type FieldError, type PaperForm } from "../../lib/validation";
 import { clearDraft, defaultForm, isBlank, loadDraft, newRid, providerNeedsModel, sampleForm, saveDraft, takeRefill } from "./formState";
 
 const F = t.form;
@@ -234,6 +234,14 @@ export default function Create() {
                   {(a) => <Input maxLength={120} value={form.dosen_pengampu} onChange={(e) => set("dosen_pengampu", e.target.value)} {...a} />}
                 </Field>
               </div>
+              <div className="grid2">
+                <Field id="subjek" label={f.subjek} optional>
+                  {(a) => <Input maxLength={120} placeholder={f.subjekPh} value={form.subjek} onChange={(e) => set("subjek", e.target.value)} {...a} />}
+                </Field>
+                <Field id="jenjang" label={f.jenjang} optional>
+                  {(a) => <Input maxLength={60} placeholder={f.jenjangPh} value={form.jenjang} onChange={(e) => set("jenjang", e.target.value)} {...a} />}
+                </Field>
+              </div>
             </Section>
 
             <Section n={2} id="penyusun" title={F.sec.penyusun} hint={F.secHint.penyusun}>
@@ -288,6 +296,13 @@ export default function Create() {
                     value: name, title: name, hint: F.templateHint(name, name === cfg.data?.default_template),
                     extra: <span className="tpl-thumb" aria-hidden="true"><i /><i /><i /><i /></span>,
                   }))} />
+              </fieldset>
+              <fieldset style={{ border: 0, padding: 0, margin: 0, display: "grid", gap: 8 }}>
+                <legend className="lbl" style={{ marginBottom: 4 }}>{f.enhance}</legend>
+                <p className="small muted" style={{ margin: 0 }}>{f.enhanceHint}</p>
+                <RadioCards name="enhance" value={form.enhance} onChange={(v) => set("enhance", asTier(v))}
+                  options={ENHANCE_TIERS.filter((tier) => ENHANCE_TIERS.indexOf(tier) <= ENHANCE_TIERS.indexOf(asTier(cfg.data?.enhance_max, "deep")))
+                    .map((tier) => ({ value: tier, title: f.enhanceTier[tier]?.title ?? tier, hint: f.enhanceTier[tier]?.hint ?? "" }))} />
               </fieldset>
               <CheckCard id="mock" checked={form.mock} onChange={(v) => set("mock", v)} title={f.mock} hint={f.mockHint} />
             </Section>

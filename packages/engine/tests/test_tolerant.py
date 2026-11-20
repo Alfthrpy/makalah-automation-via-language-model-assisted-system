@@ -91,3 +91,16 @@ def test_jalur_asli_crewai_memakai_converter_toleran_tanpa_llm():
     agent = SimpleNamespace(function_calling_llm=None, llm=SimpleNamespace(supports_function_calling=lambda: False))
     out = convert_to_model("Ini hanya paragraf biasa, bukan JSON.", SubBab, None, agent, TolerantConverter)
     assert isinstance(out, SubBab) and out.content[0].isi.startswith("Ini hanya paragraf")
+
+
+def test_parse_outline_membawa_scope_dan_rm_tanpa_menjadikannya_bab():
+    from malas.tolerant import parse_outline
+    out = parse_outline('{"subbabs": {"Bab 1": {"sections": ["1.1 Latar Belakang"]}}, '
+                        '"scope": {"jenis_makalah": "Kajian Pustaka", "subjek": "siswa MTs", "jenjang": "SMP"}, '
+                        '"research_questions": ["Bagaimana A?", "Bagaimana B?"]}')
+    assert list(out.subbabs) == ["Bab 1"]
+    assert out.scope.subjek == "siswa MTs" and out.scope.jenis_makalah == "kajian_pustaka"
+    assert out.research_questions == ["Bagaimana A?", "Bagaimana B?"]
+    # bentuk lama tanpa kunci tambahan tetap valid; kunci tambahan pada level atas bukan bab
+    lama = parse_outline('{"Bab 1": {"sections": ["1.1 A"]}, "research_questions": ["Q?"]}')
+    assert list(lama.subbabs) == ["Bab 1"] and lama.scope is None

@@ -24,14 +24,27 @@ from malas import checkpoint, paths
 from malas.citations import (
     check_citations, citation_label, content_text, prune_unused_references,
 )
-from malas.config import get_llm, is_mock
+from malas.config import enhance_budget, enhance_tier, get_llm, is_mock
+from malas.enhance import blueprint as bp_mod
+from malas.enhance import critic as cr_mod
+from malas.enhance import support as sp_mod
+from malas.enhance.patch import run_patches
+from malas.enhance import evidence as ev_mod
+from malas.enhance.autofix import apply_auto_fixes
+from malas.enhance.budget import Budget, estimate_tokens
+from malas.enhance.cache import KVCache
+from malas.enhance.tables import attach_synthesis_table
+from malas.enhance.lint import LintContext, lint_report_stats, run_lints
+from malas.enhance.models import Blueprint, Scope, score_findings
+from malas.enhance.context import build_context, one_line_refs, render_context, scope_text
 from malas.crews.finishing_crew.finishing_crews import run_citation_fix, run_kata_pengantar
 from malas.crews.models.TaskOutput import Bab, Makalah, Penyusun, SubBab
 from malas import refsearch
 from malas.crews.planner_crew.outline_crew import OutlineCrew
 from malas.crews.planner_crew.planner_crew import PlannerCrew
 from malas.crews.write_format_crew.write_format_crew import WriteFormatCrew
-from malas.docx_converter import DocxConverter
+from malas.docx_converter import DocxConverter, infer_kind
+from malas.template_check import MODE_GENERIC, detect_template_mode
 from malas.fulltext import FullTextStore
 
 DEFAULT_INPUT = str(paths.DEFAULT_INPUT)
@@ -98,13 +111,31 @@ class MalasFlow(Flow[Makalah]):
     @contextmanager
     def _stage(self, step: str):
         self._emit(step, "running")
+        self._cur_stage = step
         try:
             yield
         except Exception as e:
             # Detail di UI cukup nama jenis error; pesan ramah dibuat web/jobs.py, traceback ada di konsol server.
             self._emit(step, "error", e.__class__.__name__)
             raise
+        finally:
+            self._cur_stage = ""
         self._emit(step, "done")
+
+    def _tally(self, calls: int, prompt: int, completion: int, total: int, stage: str = "") -> None:
+        """Tambahkan pemakaian ke total DAN ke rincian per tahap (stats['usage_by_stage']) untuk benchmark biaya."""
+        self._ensure_counters()
+        self.usage["calls"] += calls
+        self.usage["prompt"] += prompt
+        self.usage["completion"] += completion
+        self.usage["total"] += total
+        key = stage or getattr(self, "_cur_stage", "") or "lain"
+        row = self.stats.setdefault("usage_by_stage", {}).setdefault(
+            key, {"calls": 0, "prompt": 0, "completion": 0, "total": 0})
+        row["calls"] += calls
+        row["prompt"] += prompt
+        row["completion"] += completion
+        row["total"] += total
 
     def _ensure_counters(self) -> None:
         if not hasattr(self, "usage"):
@@ -126,10 +157,8 @@ class MalasFlow(Flow[Makalah]):
         u = getattr(crew_output, "token_usage", None)
         if u is None:
             return
-        self.usage["calls"] += int(getattr(u, "successful_requests", 0) or 0)
-        self.usage["prompt"] += int(getattr(u, "prompt_tokens", 0) or 0)
-        self.usage["completion"] += int(getattr(u, "completion_tokens", 0) or 0)
-        self.usage["total"] += int(getattr(u, "total_tokens", 0) or 0)
+        self._tally(int(getattr(u, "successful_requests", 0) or 0), int(getattr(u, "prompt_tokens", 0) or 0),
+                    int(getattr(u, "completion_tokens", 0) or 0), int(getattr(u, "total_tokens", 0) or 0))
 
     # --- tahap ---------------------------------------------------------------------
     @start()
@@ -155,6 +184,7 @@ class MalasFlow(Flow[Makalah]):
                 restored = Makalah.model_validate(ck["state"])
                 self.state.bab = restored.bab
                 self.state.daftar_pustaka = restored.daftar_pustaka
+                self.state.blueprint, self.state.evidence = restored.blueprint, restored.evidence
                 self.usage.update(ck.get("usage") or {})
                 self.stats.update(ck.get("stats") or {})
                 m = ck["meta"]
@@ -165,6 +195,9 @@ class MalasFlow(Flow[Makalah]):
                     self.state.daftar_pustaka = self._search_refs()  # pencarian sebelumnya kosong; ulangi tanpa mengulang outline
                     self.stats["refs_found"] = len(self.state.daftar_pustaka)
                     self._save_checkpoint()
+                if m["done"] == 0:
+                    self._ensure_blueprint()  # no-op bila blueprint sudah ada
+                    self._save_checkpoint()
                 return
             use_refsearch = refsearch.enabled()
             if use_refsearch:
@@ -172,6 +205,7 @@ class MalasFlow(Flow[Makalah]):
                 self._add_usage(planner.crew().kickoff(inputs={
                     "judul_makalah": self.state.judul,
                     "mata_kuliah": self.state.mata_kuliah,
+                    **self._outline_specs(),
                 }))
                 outline_output = planner.tasks[0].output
                 references_output = None
@@ -184,6 +218,7 @@ class MalasFlow(Flow[Makalah]):
                 hasil = crew_instance.kickoff(inputs={
                     "judul_makalah": self.state.judul,
                     "mata_kuliah": self.state.mata_kuliah,
+                    **self._outline_specs(),
                 })
                 self._add_usage(hasil)
 
@@ -198,19 +233,93 @@ class MalasFlow(Flow[Makalah]):
                 if i >= len(roman_numerals):
                     break
                 bab_baru = Bab(judul=bab_title)
-                bab_baru.subbab = [SubBab(judul=t.strip()) for t in subbab_data.sections if t.strip()]
+                bab_baru.subbab = [SubBab(judul=t.strip(), kind=infer_kind(t)) for t in subbab_data.sections if t.strip()]
                 self.state.bab[roman_numerals[i]] = bab_baru
 
+            self._apply_outline_extras(outline_output.pydantic)
             if use_refsearch:
                 self.state.daftar_pustaka = self._search_refs()
             else:
                 self.state.daftar_pustaka = references_output.pydantic.references
             self.stats["subbab_count"] = sum(len(b.subbab) for b in self.state.bab.values())
             self.stats["refs_found"] = len(self.state.daftar_pustaka)
+            self._ensure_blueprint()
             print("🗺️ Outline dan daftar pustaka berhasil dibuat.")
             self._emit("outline", "info",
                        f"{self.stats['subbab_count']} sub-bab, {self.stats['refs_found']} referensi")
             self._save_checkpoint()  # outline = ± 5 menit kerja; jangan sampai hilang bila tahap berikutnya gagal
+
+    def _budget(self) -> Budget:
+        if not hasattr(self, "_enh_budget"):
+            self._enh_budget = Budget(enhance_budget())
+        return self._enh_budget
+
+    def _enh_call(self, stage: str, role: str = "planner"):
+        """Panggilan LLM langsung untuk tahap enhancing; token ditaksir (4 karakter ~ 1 token)."""
+        def call(prompt: str) -> str:
+            if is_mock():
+                out = {"enhance_blueprint": lambda: bp_mod.mock_response(self.state),
+                       "enhance_cards": lambda: ev_mod.mock_llm_response(prompt),
+                       "enhance_critic": lambda: cr_mod.mock_response(self.state),
+                       "enhance_support": lambda: sp_mod.mock_response()}.get(stage, lambda: "")()
+            else:
+                out = str(get_llm(role).call(prompt))
+            self._tally(1, estimate_tokens(prompt), estimate_tokens(out), estimate_tokens(prompt) + estimate_tokens(out),
+                        stage=stage)
+            return out
+        return call
+
+    def _outline_specs(self) -> dict:
+        """Spesifikasi Bab I/III untuk prompt outline: profil kajian pustaka (Manfaat, Metode, Saran) hanya bila
+        template mendukung loop generik; selain itu bentuk lama (3 + 1 sub-bab, indeks tetap)."""
+        luas = enhance_tier() != "off" and detect_template_mode(self.template_path) == MODE_GENERIC \
+            and self.state.jenis_makalah == "kajian_pustaka"
+        if luas:
+            return {"bab1_spec": '- WAJIB berisi 5 sub-bab: "1.1 Latar Belakang", "1.2 Rumusan Masalah", "1.3 Tujuan", '
+                                 '"1.4 Manfaat", dan "1.5 Metode Penulisan".',
+                    "bab3_spec": '- WAJIB berisi 2 sub-bab: "3.1 Kesimpulan" (sertakan keterbatasan kajian) dan "3.2 Saran".'}
+        return {"bab1_spec": '- WAJIB berisi HANYA 3 sub-bab: "1.1 Latar Belakang", "1.2 Rumusan Masalah", dan "1.3 Tujuan".',
+                "bab3_spec": '- WAJIB berisi HANYA 1 sub-bab: "3.1 Kesimpulan".'}
+
+    def _ensure_blueprint(self) -> None:
+        """Blueprint (S11) hanya pada tier standard/deep; gagal/anggaran habis = lanjut tanpa blueprint."""
+        if enhance_tier() not in ("standard", "deep"):
+            return
+        bp = bp_mod.build_blueprint(self.state, self._enh_call("enhance_blueprint"), self._budget(), is_fatal_error)
+        if bp is not None:
+            self.state.blueprint = bp
+            self.stats["blueprint"] = {"tugas": len(bp.subbab_tasks), "checklist": len(bp.domain_checklist)}
+        else:
+            self.stats["blueprint"] = None
+            self._emit("outline", "info", "blueprint dilewati (anggaran habis atau jawaban tak terbaca)")
+
+    def _build_evidence(self) -> None:
+        """Kartu bukti (S15) hanya pada tier deep: praproses regex + 1 panggilan murah per referensi, cache DOI."""
+        if enhance_tier() != "deep" or not self.state.daftar_pustaka:
+            return
+        report: dict = {}
+        cards = ev_mod.build_cards(self.state, getattr(self, "fulltext", None), self._enh_call("enhance_cards"),
+                                   self._budget(), cache=KVCache(), is_fatal=is_fatal_error, report=report)
+        self.state.evidence.update(cards)
+        self.stats["evidence"] = {"cards": len(self.state.evidence), **{k: v for k, v in report.items() if isinstance(v, int)}}
+        self._emit("fulltext", "info", f"{len(cards)} kartu bukti ({report.get('cached', 0)} dari cache)")
+        self._save_checkpoint()
+
+    def _apply_outline_extras(self, outline) -> None:
+        """Kerangka RM + lingkup hasil inferensi planner (tanpa panggilan LLM tambahan) -> Makalah.blueprint (parsial).
+
+        Lingkup hasil tebakan TIDAK dimasukkan ke prompt penulis (itu hanya dari isian pengguna): tebakan salah
+        (mis. "mahasiswa" padahal bukti siswa) justru akan memperparah subjek yang melenceng.
+        """
+        if enhance_tier() == "off" or self.state.blueprint is not None:
+            return
+        rqs = list(getattr(outline, "research_questions", None) or [])
+        sc = getattr(outline, "scope", None)
+        if rqs or sc:
+            self.state.blueprint = Blueprint(
+                scope=Scope(jenis_makalah=self.state.jenis_makalah, subjek=(sc.subjek if sc else ""),
+                            jenjang=(sc.jenjang if sc else "")),
+                research_questions=rqs)
 
     def _sections_needing_refs(self) -> list[str]:
         """Sub-bab yang butuh referensi: 1.1 Latar Belakang + semua sub-bab Bab 2 (sama seperti aturan lama)."""
@@ -229,10 +338,8 @@ class MalasFlow(Flow[Makalah]):
         def call(prompt: str) -> str:
             self._ensure_counters()
             out = str(get_llm("planner").call(prompt))
-            self.usage["calls"] += 1  # taksiran kasar (4 karakter ~ 1 token): panggilan langsung tidak melaporkan usage
-            self.usage["prompt"] += len(prompt) // 4
-            self.usage["completion"] += len(out) // 4
-            self.usage["total"] += (len(prompt) + len(out)) // 4
+            # taksiran kasar (4 karakter ~ 1 token): panggilan langsung tidak melaporkan usage
+            self._tally(1, len(prompt) // 4, len(out) // 4, (len(prompt) + len(out)) // 4)
             return out
 
         if is_mock():
@@ -258,8 +365,10 @@ class MalasFlow(Flow[Makalah]):
         """
         store = self.fulltext
         semua = [(i, r) for i, r in enumerate(self.state.daftar_pustaka) if r.link]
+        fallback = False
         if any(r.sections for _, r in semua):  # hasil refsearch: tiap sub-bab hanya menerima referensinya sendiri
             milik = [(i, r) for i, r in semua if subbab_judul in r.sections]
+            fallback = not milik
             semua = milik or semua[:3]  # sub-bab tanpa referensi sendiri (mis. 1.2/3.1): beberapa yang umum
         punya_teks = [i for i, r in semua if i in store.texts]
         jatah = _env_int("MALAS_FULLTEXT_CHARS", 3000) // max(len(punya_teks), 1)
@@ -276,7 +385,15 @@ class MalasFlow(Flow[Makalah]):
             kutipan = store.passages(i, ref, f"{subbab_judul} {self.state.judul}", jatah) if i in store.texts else []
             if kutipan:
                 item["kutipan"] = kutipan
+            card = self.state.evidence.get(ev_mod.ref_key_of(ref)) if self.state.evidence else None
+            if card is not None and ev_mod.informative(card):  # kartu ringkas menggantikan abstrak + kutipan panjang
+                item["kartu"] = ev_mod.card_brief(card)
+                item.pop("excerpt", None)
+                if kutipan:
+                    item["kutipan"] = [kutipan[0][:400]]
             hasil.append(item)
+        if fallback and enhance_tier() != "off":  # 1 baris per sumber: cukup untuk merujuk, tanpa mengulang angka/kutipan
+            return one_line_refs(hasil)
         return hasil
 
     def _write_subbab(self, crew, writer, inputs: dict, judul: str):
@@ -310,6 +427,7 @@ class MalasFlow(Flow[Makalah]):
         if os.getenv("MALAS_FULLTEXT", "1") == "0" or (is_mock() and refsearch.enabled()):  # mock: tanpa jaringan
             print("⏭️  Full-text referensi dimatikan (MALAS_FULLTEXT=0).")
             self._emit("fulltext", "skipped", "dimatikan (MALAS_FULLTEXT=0)")
+            self._build_evidence()  # kartu dari abstrak saja
             return
         with self._stage("fulltext"):
             total = len(self.state.daftar_pustaka)
@@ -317,11 +435,13 @@ class MalasFlow(Flow[Makalah]):
             self.stats["fulltext_ok"], self.stats["fulltext_total"] = berhasil, total
             print(f"📄 Full-text berhasil diambil: {berhasil}/{total} referensi (sisanya memakai abstrak).")
             self._emit("fulltext", "info", f"{berhasil}/{total} referensi berhasil (sisanya memakai abstrak)")
+            self._build_evidence()
 
     @listen(fetch_fulltexts)
     def fill_subbab_content(self):
         """Mengisi konten untuk setiap sub-bab secara sekuensial."""
         with self._stage("tulis"):
+            self._guard_report: list = []
             writer = WriteFormatCrew()
             crew_instance = writer.crew()
             generated_contents = {}
@@ -338,14 +458,17 @@ class MalasFlow(Flow[Makalah]):
                     print(f"\n✍️ Mengerjakan: {bab.judul} - {subbab.judul}")
                     self._emit("tulis", "info", f"{nomor}/{total} · {subbab.judul}")
 
-                    # 1. Siapkan konteks dari konten sub-bab sebelumnya
-                    formatted_previous_content = ""
-                    if subbab_index > 0:
-                        previous_subbab = bab.subbab[subbab_index - 1]
-                        if previous_subbab.judul in generated_contents:
-                            header = f"Konten dari Sub-Bab sebelumnya '{previous_subbab.judul}':"
-                            full_content_str = content_text(generated_contents[previous_subbab.judul])
-                            formatted_previous_content = f"{header}\n{full_content_str}"
+                    # 1. Siapkan konteks: ringkasan SELURUH makalah yang sudah ditulis (ContextPack); tier "off" = perilaku lama
+                    if enhance_tier() == "off":
+                        formatted_previous_content = ""
+                        if subbab_index > 0:
+                            previous_subbab = bab.subbab[subbab_index - 1]
+                            if previous_subbab.judul in generated_contents:
+                                header = f"Konten dari Sub-Bab sebelumnya '{previous_subbab.judul}':"
+                                full_content_str = content_text(generated_contents[previous_subbab.judul])
+                                formatted_previous_content = f"{header}\n{full_content_str}"
+                    else:
+                        formatted_previous_content = render_context(build_context(self.state, subbab, bab_key))
 
                     # 2. Jalankan crew untuk menghasilkan konten sub-bab saat ini
                     inputs = {
@@ -355,13 +478,20 @@ class MalasFlow(Flow[Makalah]):
                         "references": self._references_for(subbab.judul),
                         "judul_makalah": self.state.judul,
                         "mata_kuliah": self.state.mata_kuliah,
+                        "lingkup": scope_text(self.state),
                     }
                     # 3. Tulis (dengan 1x ulang bila gagal/kosong), lalu simpan checkpoint
+                    writer.guard_ctx = {"state": self.state, "judul": subbab.judul, "report": self._guard_report}
                     new_content = self._write_subbab(crew_instance, writer, inputs, subbab.judul)
                     subbab.content = new_content
                     generated_contents[subbab.judul] = new_content
                     self._save_checkpoint()
 
+            if self._guard_report:
+                self.stats["guardrail_unresolved"] = len(self._guard_report)
+            if enhance_tier() == "deep" and attach_synthesis_table(self.state):
+                print("📊 Tabel sintesis studi ditambahkan dari kartu bukti.")
+                self._save_checkpoint()
             print("\n✅ Semua konten sub-bab telah diisi.")
 
     @listen(fill_subbab_content)
@@ -369,16 +499,16 @@ class MalasFlow(Flow[Makalah]):
         """Cek sitasi in-text vs daftar pustaka; perbaiki sub-bab bermasalah (1x), buang pustaka tak terpakai."""
         with self._stage("sitasi"):
             report = check_citations(self.state)
-            awal = len(report.invalid)
-            print(f"\n🔎 Sitasi ditemukan: {report.total_citations}; sub-bab dengan sitasi tidak sah: {awal}")
+            awal = len(report.problems)  # tidak sah + mencurigakan (tak terurai), per sub-bab
+            print(f"\n🔎 Sitasi ditemukan: {report.total_citations}; sub-bab dengan sitasi bermasalah: {awal}")
 
-            if report.invalid:
+            if report.problems:
                 refs = [
                     {"sitasi": citation_label(r), "title": r.title, "authors": r.authors, "year": r.year}
                     for r in self.state.daftar_pustaka
                 ]
                 subbab_by_title = {sb.judul: sb for bab in self.state.bab.values() for sb in bab.subbab}
-                for judul, tidak_valid in report.invalid.items():
+                for judul, tidak_valid in report.problems.items():
                     print(f"🛠️  Memperbaiki sitasi di {judul}: {tidak_valid}")
                     self._emit("sitasi", "info", f"memperbaiki sitasi di {judul}")
                     perbaikan = run_citation_fix({
@@ -392,24 +522,83 @@ class MalasFlow(Flow[Makalah]):
                         subbab_by_title[judul].content = perbaikan.content
 
                 report = check_citations(self.state)
-                for judul, tidak_valid in report.invalid.items():
-                    print(f"⚠️  Masih ada sitasi tidak sah di {judul}: {tidak_valid} (periksa manual)")
+                for judul, tidak_valid in report.problems.items():
+                    print(f"⚠️  Masih ada sitasi bermasalah di {judul}: {tidak_valid} (periksa manual)")
 
             dibuang = prune_unused_references(self.state, report)
             if dibuang:
-                print(f"🧹 {dibuang} referensi tidak dikutip dibuang dari daftar pustaka.")
+                print(f"🧹 {dibuang} referensi tidak dikutip dibuang dari daftar pustaka: {report.pruned_titles}")
+            elif report.suspect:
+                print("⚠️  Ada sitasi yang tidak bisa diurai; daftar pustaka TIDAK dipangkas agar sumbernya tidak hilang.")
             self.stats.update(
                 citations_total=report.total_citations,
                 citations_invalid_before=awal,
                 citations_invalid_after=len(report.invalid),
+                citations_suspect=sum(len(v) for v in report.suspect.values()),
                 refs_final=len(self.state.daftar_pustaka),
                 refs_pruned=dibuang,
+                refs_pruned_titles=list(report.pruned_titles),
             )
             self._emit("sitasi", "info",
-                       f"{report.total_citations} sitasi · {len(report.invalid)} sub-bab masih bermasalah · "
+                       f"{report.total_citations} sitasi · {len(report.problems)} sub-bab masih bermasalah · "
                        f"{dibuang} referensi tak terpakai dibuang")
 
     @listen(verify_citations)
+    def enhance_quality(self):
+        """Cek mutu deterministik (0 token): temuan lint + perbaikan otomatis yang aman. Laporan = temuan, bukan jaminan."""
+        tier = enhance_tier()
+        if tier == "off":
+            self._emit("enhance", "skipped", "dimatikan (MALAS_ENHANCE=off)")
+            return
+        with self._stage("enhance"):
+            ctx = LintContext(source="state", profile=self.state.jenis_makalah)
+            before = run_lints(self.state, tier=tier, ctx=ctx)
+            fixed, remaining, n_fix = apply_auto_fixes(self.state, ctx)
+            if n_fix:
+                for key, bab in fixed.bab.items():  # hanya isi sub-bab yang berubah; judul/kunci state tetap
+                    for sb_old, sb_new in zip(self.state.bab[key].subbab, bab.subbab):
+                        sb_old.content = sb_new.content
+            extra: list = []
+            if tier in ("standard", "deep"):
+                extra = self._llm_enhance(remaining)
+                remaining = run_lints(self.state, tier=tier, ctx=ctx) if self._patched else remaining
+            self.state.quality = sorted(remaining + [f for f in extra if f not in remaining], key=lambda f: (
+                {"blocker": 0, "major": 1, "minor": 2, "info": 3}[f.severity], f.where.subbab or ""))
+            remaining = self.state.quality
+            qs = lint_report_stats(remaining)
+            qs.update(score_before=score_findings(before), auto_fixed=n_fix)
+            self.stats["quality"] = qs
+            self.stats["quality_findings"] = [
+                {"rule_id": f.rule_id, "severity": f.severity, "subbab": f.where.subbab or "", "message": f.message}
+                for f in remaining if f.severity in ("blocker", "major")][:30]
+            print(f"🧪 Cek mutu: {qs['total']} temuan ({qs['by_severity']['blocker']} blocker, "
+                  f"{qs['by_severity']['major']} major); {n_fix} perbaikan otomatis.")
+            self._emit("enhance", "info",
+                       f"{qs['total']} temuan ({qs['by_severity']['blocker']} blocker, {qs['by_severity']['major']} mayor) "
+                       f"· {n_fix} perbaikan otomatis")
+            self._save_checkpoint()
+
+    def _llm_enhance(self, lint_findings: list) -> list:
+        """Kritik (1 panggilan) + cek dukungan-sumber (deep) + tambalan terarah; semua berbatas anggaran token."""
+        self._patched = False
+        budget, tier = self._budget(), enhance_tier()
+        critic = cr_mod.run_critic(self.state, lint_findings, self._enh_call("enhance_critic"), budget, is_fatal_error)
+        support = sp_mod.run_support_check(self.state, self._enh_call("enhance_support"), budget, is_fatal_error) \
+            if tier == "deep" else []
+        found = lint_findings + critic + support
+        rep = run_patches(self.state, found, self._enh_call("enhance_patch", role="writer"), budget, 3, is_fatal_error)
+        self._patched = bool(rep.accepted)
+        self.stats["enhance"] = {"critic": len(critic), "support": len(support), "patched": rep.accepted,
+                                 "patch_rejected": rep.rejected, "patch_skipped_budget": rep.skipped_budget,
+                                 "tokens_spent": budget.spent, "budget": budget.limit}
+        if budget.exhausted:
+            self.stats["enhance_skipped"] = "anggaran token enhancing habis"
+            self._emit("enhance", "info", "sebagian tahap LLM dilewati: anggaran token enhancing habis")
+        if self._patched:
+            self._save_checkpoint()
+        return critic + support
+
+    @listen(enhance_quality)
     def write_kata_pengantar(self):
         """Tulis Kata Pengantar dari data makalah."""
         with self._stage("pengantar"):
@@ -436,6 +625,7 @@ class MalasFlow(Flow[Makalah]):
             converter = DocxConverter(self.template_path, self.output_path,
                                       logo_path=self.logo_path, neutral_logo=self.neutral_logo)
             self.result_path = converter.convert(self.state)
+            self.stats["logo_placeholder"] = bool(getattr(converter, "logo_placeholder", False))
             print(f"🎉 Makalah berhasil dibuat: {self.result_path}")
 
 

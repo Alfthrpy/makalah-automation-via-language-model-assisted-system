@@ -7,8 +7,8 @@ write_content_task:
     1. Untuk Bab 2, WAJIB gunakan referensi yang telah disediakan.
     2. Setiap referensi punya field "excerpt" berisi abstract/ringkasan asli sumbernya - gunakan
        excerpt itu sebagai dasar konten yang anda tulis, jangan hanya menyebut judulnya saja.
-       Jika excerpt kosong/tidak tersedia untuk suatu referensi, gunakan DuckDuckGo
-       Search Tool untuk melengkapi konteksnya.
+       Jika excerpt kosong/tidak tersedia untuk suatu referensi, gunakan alat pencarian bila tersedia;
+       bila tidak, jangan mengarang angka atau klaim untuk sumber itu.
     2b. Jika sebuah referensi punya field "kutipan" (potongan teks asli dari isi paper, bahasa Inggris),
        prioritaskan kutipan itu sebagai sumber fakta, data, dan istilah; parafrasekan ke Bahasa Indonesia,
        jangan menyalin mentah, dan jangan menambahkan klaim yang tidak ada di kutipan/excerpt.
@@ -19,8 +19,18 @@ write_content_task:
     4. Pastikan setiap bagian mengalir secara logis ke bagian berikutnya.
     5. Gunakan bahasa Indonesia formal yang sesuai untuk karya ilmiah.
     6. output berupa content lengkap untuk subab {subbab_now} pada bab {bab_now} saja.
+    7. Khusus sub-bab "Rumusan Masalah", "Tujuan", "Manfaat", dan "Saran": keluarkan HANYA butir bernomor (satu butir per baris,
+       format "1) ..."), tanpa kalimat pengantar dan tanpa paragraf penjelasan di akhir. Jumlah butir
+       Tujuan sama dengan jumlah butir Rumusan Masalah dan saling berpasangan.
 
-    subab sebelumnya : 
+    8. Bagian "konteks makalah" di bawah adalah RINGKASAN sub-bab lain. Jangan mengulang angka/statistik yang
+       sudah dibahas di sana: cukup rujuk ("sebagaimana pada 2.3"). Bila menulis Kesimpulan, jawab SETIAP rumusan
+       masalah satu per satu berdasarkan ringkasan hasil Bab II.
+    9. Samakan kekuatan bahasa dengan kekuatan bukti: studi tanpa kelompok kontrol, kualitatif, atau survei tidak
+       boleh dikatakan "membuktikan"/"menyebabkan"; sebut keterbatasan studi bila relevan. Bedakan hasil belajar,
+       persepsi, dan motivasi. Lingkup makalah: {lingkup}. Jangan menyebut populasi/subjek di luar bukti.
+
+    konteks makalah (ringkasan) :
     {previous_subab_contents}
     referensi yang disediakan :
     {references}
