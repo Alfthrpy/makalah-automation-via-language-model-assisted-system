@@ -53,6 +53,17 @@ def wait_for(client, jid, want, timeout=5.0):
     raise AssertionError("timeout")
 
 
+def eventually(cond, timeout=5.0, what="kondisi"):
+    """Tunggu pembersihan yang SENGAJA terjadi sesaat SETELAH status job berubah (key dibuang di `finally`, checkpoint
+    dihapus setelah status tersimpan agar resume tidak hilang bila proses mati). Menuntutnya seketika = balapan antar thread."""
+    end = time.time() + timeout
+    while time.time() < end:
+        if cond():
+            return
+        time.sleep(0.02)
+    raise AssertionError(f"{what} tidak terpenuhi dalam {timeout} dtk")
+
+
 def all_files_text(root):
     out = []
     for dp, _, fs in os.walk(root):
@@ -73,7 +84,7 @@ def test_key_tidak_ada_di_disk_respons_maupun_riwayat(make, tmp_path):
     for body in (client.get(f"/api/jobs/{jid}").text, client.get("/api/jobs").text, client.get("/api/config").text):
         assert KEY not in body
     assert KEY not in all_files_text(tmp_path)  # ...tetapi tidak ada satu byte pun di disk
-    assert len(m.vault) == 0 and not m._pending_runtime  # dan sudah dibuang dari memori
+    eventually(lambda: len(m.vault) == 0 and not m._pending_runtime, what="brankas kosong")  # dan dibuang dari memori
 
 
 def test_runtime_repr_tidak_menampilkan_key():
@@ -160,7 +171,7 @@ def test_vault_kosong_setelah_gagal(make):
     client, m = make(boom)
     jid = client.post("/api/jobs", json=BYOK).json()["id"]
     wait_for(client, jid, {"error"})
-    assert len(m.vault) == 0 and not m._pending_runtime
+    eventually(lambda: len(m.vault) == 0 and not m._pending_runtime, what="brankas kosong")
 
 
 def test_vault_kosong_setelah_batal_dan_hapus(make):
@@ -180,7 +191,7 @@ def test_vault_kosong_setelah_batal_dan_hapus(make):
     assert len(m.vault) == 1 and b not in m._pending_runtime
     gate.set()
     wait_for(client, a, {"done"})
-    assert len(m.vault) == 0
+    eventually(lambda: len(m.vault) == 0, what="brankas kosong")
 
 
 def test_shutdown_membuang_key_yang_menunggu(make):
