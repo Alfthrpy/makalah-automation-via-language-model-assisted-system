@@ -23,6 +23,7 @@ LLM tidak pernah menulis judul/penulis/tahun/DOI: semuanya berasal dari respons 
 | `MALAS_CONTACT_EMAIL` | email kontak: Crossref polite pool, Unpaywall, User-Agent. **Sangat disarankan** |
 | `MALAS_OPENALEX_API_KEY` | key OpenAlex (diwajibkan sejak ±Feb 2026 menurut riset; belum diverifikasi langsung) |
 | `MALAS_REF_YEAR_MIN` | tahun terlama (default: tahun ini − 10) |
+| `MALAS_REF_LLM_RERANK=1` | (opsional, default mati) 1 panggilan LLM murah per sub-bab: LLM hanya memilih ID dari 6 kandidat teratas; gagal/tak terbaca = urutan deterministik. ±800 token masuk per sub-bab. Belum diuji dengan LLM sungguhan |
 | `MALAS_REFSEARCH_CACHE` | folder cache sqlite (default `.cache/refsearch`, TTL 14 hari) |
 
 ## Membuktikan bahwa pendekatan ini jalan (butuh internet)
@@ -40,10 +41,10 @@ LLM tidak pernah menulis judul/penulis/tahun/DOI: semuanya berasal dari respons 
    Bandingkan: token total, durasi, jumlah referensi nyata (klik DOI), hit-rate full-text, relevansi (baca manual).
 
 ## Belum ada (rencana)
-Pencarian web umum (ddgs/Brave) dengan allowlist domain, regulasi (JDIH BPK), rerank LLM berbasis ID, CORE, embedding lokal.
+Pencarian web umum (ddgs/Brave) dengan allowlist domain, regulasi (JDIH BPK), CORE, embedding lokal. (Rerank LLM berbasis ID sudah ada, default mati.)
 
 ## Hasil uji NYATA (GitHub Actions, 2026-11-20, tanpa key & tanpa LLM; rencana query dari heuristik)
-Workflow sementara `.github/workflows/refsearch-probe.yml` (jalan otomatis saat file itu diubah; boleh dihapus).
+Dijalankan lewat workflow CI sementara `refsearch-probe.yml` (sudah dihapus; ada di riwayat git commit `b3d7aea`, bisa dipulihkan: `git show b3d7aea:.github/workflows/refsearch-probe.yml`).
 - 8 topik lintas bidang (hukum pidana, tafsir, fisioterapi, akuntansi syariah, Majapahit, K-pop, ML, pajak UMKM):
   **32/32 sub-bab mendapat >=2 referensi**, abstrak 100%, PDF open-access diketahui 97%, **full-text berhasil 78%**.
 - ~9-11 request HTTP dan 2-7 detik per topik (pencarian saja). Semua 7 API terjangkau tanpa key.

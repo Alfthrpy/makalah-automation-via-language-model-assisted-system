@@ -4,7 +4,7 @@ import os
 import time
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 from malas.config import is_mock
 from malas.crews.models.TaskOutput import ReferenceItem
@@ -12,6 +12,7 @@ from malas.refsearch.http import HttpClient
 from malas.refsearch.models import Candidate, SectionQuery
 from malas.refsearch.providers import FALLBACK_PROVIDERS, PROVIDERS, providers_for
 from malas.refsearch.rank import choose, ckey, dedupe, is_valid, score
+from malas.refsearch.select_llm import rerank as llm_rerank
 
 log = logging.getLogger("malas.refsearch")
 PER_QUERY = 8
@@ -81,6 +82,7 @@ def search_references(
     year_min: Optional[int] = None,
     max_reuse: int = 2,
     workers: int = 4,
+    rerank: Optional[Callable[[str], str]] = None,
 ) -> Tuple[List[ReferenceItem], Dict]:
     """Kembalikan (referensi, laporan). Tidak pernah raise: kasus terburuk -> ([], laporan kosong)."""
     year_min = year_min or default_year_min()
@@ -102,6 +104,8 @@ def search_references(
     chosen: Dict[str, Candidate] = {}
     order: List[str] = []
     for sq, cands in zip(plan, ranked):
+        if rerank is not None and cands:
+            cands = llm_rerank(sq, judul, cands, k, rerank)  # LLM hanya memilih ID; gagal = urutan semula
         picked = choose(cands, k, used, max_reuse)
         report["per_section"][sq.section] = len(picked)
         if not picked:

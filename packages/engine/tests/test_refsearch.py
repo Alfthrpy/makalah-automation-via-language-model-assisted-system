@@ -416,3 +416,42 @@ def test_penulis_lembaga_multikata_label_apa_dan_sitasi_cocok():
         ContentText(isi="UMKM tumbuh (Badan Pusat Statistik, 2023) dan menurut Badan Pusat Statistik (2023) naik.")])])})
     rep = check_citations(mk)
     assert rep.ok and rep.total_citations == 2
+
+
+# --------------------------------------------------------------------------- rerank LLM (berbasis ID)
+def _kandidat(n):
+    return [cand(f"Kajian nomor {i} tentang sistem rekomendasi kolaboratif", doi=f"10.1001/r{i}",
+                 abstract="sistem rekomendasi kolaboratif") for i in range(n)]
+
+
+def test_rerank_memilih_id_dan_membuang_id_asing():
+    from malas.refsearch.select_llm import parse_ids, rerank
+    sq = SectionQuery("2.1 X", q_id="sistem rekomendasi")
+    cs = _kandidat(5)
+    hasil = rerank(sq, "Judul", cs, 2, lambda p: '{"ids": ["c4", "c99", "c4", "x", "c2"]}')
+    assert [c.doi for c in hasil[:2]] == ["10.1001/r3", "10.1001/r1"] and len(hasil) == 5
+    assert parse_ids('{"ids": ["c1", 3]}', 5) == [0, 2]
+    assert parse_ids("bukan json", 5) is None and parse_ids('{"ids": "c1"}', 5) is None
+
+
+def test_rerank_gagal_kembali_ke_urutan_semula():
+    from malas.refsearch.select_llm import rerank
+    sq = SectionQuery("2.1 X", q_id="sistem rekomendasi")
+    cs = _kandidat(5)
+    def boom(_): raise RuntimeError("quota")
+    for call in (boom, lambda p: "ngawur", lambda p: '{"ids": []}', lambda p: '{"ids": ["c77"]}'):
+        assert [c.doi for c in rerank(sq, "J", cs, 2, call)] == [c.doi for c in cs]
+    # kandidat <= k: LLM tidak dipanggil
+    dipanggil = []
+    rerank(sq, "J", cs[:2], 2, lambda p: dipanggil.append(p) or "{}")
+    assert dipanggil == []
+
+
+def test_search_references_dengan_rerank_memakai_pilihan_llm_tanpa_mengarang():
+    c = client([("openalex.org", Resp(200, _oa_page(6))), ("crossref.org", Resp(200, {"message": {"items": []}}))])
+    plan = heuristic_plan("Sistem Rekomendasi Kolaboratif", ["2.1 Landasan Teori"])
+    prompts = []
+    refs, _ = search_references(plan, "Sistem Rekomendasi Kolaboratif", c, k=2, year_min=2015,
+                                rerank=lambda p: (prompts.append(p), '{"ids": ["c5", "c6"]}')[1])
+    assert len(prompts) == 1 and "2.1 Landasan Teori" in prompts[0]
+    assert len(refs) == 2 and all(r.doi and r.doi.startswith("10.1001/t") for r in refs)  # DOI dari API, bukan LLM

@@ -235,7 +235,9 @@ class MalasFlow(Flow[Makalah]):
             plan = refsearch.heuristic_plan(self.state.judul, sections)
         else:
             plan = refsearch.llm_plan(self.state.judul, self.state.mata_kuliah, sections, call)
-        refs, report = refsearch.search_references(plan, self.state.judul, client)
+        rerank = call if (os.getenv("MALAS_REF_LLM_RERANK", "").strip().lower() in {"1", "true", "yes", "on"}
+                          and not is_mock()) else None
+        refs, report = refsearch.search_references(plan, self.state.judul, client, rerank=rerank)
         self.stats["refs_by_source"] = report.get("by_source", {})
         self.stats["subbab_without_refs"] = len(report.get("sections_without_refs", []))
         self.stats["refsearch_http_calls"] = report.get("http_calls", 0)
