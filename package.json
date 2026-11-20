@@ -10,5 +10,9 @@
     "build:web": "pnpm --filter web build",
     "test:web": "pnpm --filter web test",
     "typecheck:web": "pnpm --filter web typecheck"
+  },
+  "dependencies": {
+    "@neon/config": "^1.14.4",
+    "@neon/env": "^2.1.7"
   }
 }

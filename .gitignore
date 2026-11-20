@@ -21,3 +21,4 @@ dist/
 *.docx
 !packages/engine/src/malas/templates/*.docx
 ~$*
+.neon
