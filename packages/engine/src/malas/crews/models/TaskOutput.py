@@ -19,6 +19,13 @@ class ReferenceItem(BaseModel):
         default=None,
         description="Abstract/ringkasan singkat dari sumber, diambil langsung dari hasil pencarian (bukan full-text).",
     )
+    # --- metadata dari pencarian deterministik (refsearch); semua opsional agar checkpoint lama tetap valid ---
+    doi: Optional[str] = None
+    source: Optional[str] = None  # openalex | crossref | europepmc | arxiv | doaj | ...
+    source_id: Optional[str] = None
+    oa_pdf_url: Optional[str] = None  # URL PDF open-access bila sudah diketahui dari sumber
+    venue: Optional[str] = None
+    sections: List[str] = Field(default_factory=list, description="Judul sub-bab yang memakai referensi ini.")
 
 class References(BaseModel):
     references: List[ReferenceItem] = []

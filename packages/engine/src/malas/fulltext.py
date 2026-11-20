@@ -8,6 +8,7 @@ Alur:  link referensi -> URL PDF open-access -> teks (cache di disk) -> potongan
 import hashlib
 import io
 import math
+import os
 import re
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
@@ -30,8 +31,21 @@ _STOP = set(
 
 
 # --------------------------------------------------------------------------- resolusi URL
-def resolve_pdf_url(link: str, get_json: Callable[[str], Optional[dict]]) -> Optional[Tuple[str, str]]:
-    """Kembalikan (jenis, url) dengan jenis 'pdf' atau 'html', atau None bila tidak bisa."""
+def resolve_pdf_url(
+    link: str,
+    get_json: Callable[[str], Optional[dict]],
+    oa_pdf_url: Optional[str] = None,
+    doi: Optional[str] = None,
+    email: Optional[str] = None,
+    landing: bool = False,
+) -> Optional[Tuple[str, str]]:
+    """Kembalikan (jenis, url) dengan jenis 'pdf' atau 'html', atau None bila tidak bisa.
+
+    Urutan: PDF OA dari sumber pencarian -> arXiv -> .pdf langsung -> Unpaywall (bila ada email)
+    -> Semantic Scholar openAccessPdf -> HTML.
+    """
+    if oa_pdf_url:
+        return "pdf", oa_pdf_url
     if not link:
         return None
     m = re.search(r"arxiv\.org/(?:abs|pdf)/([^\s?#]+?)(?:\.pdf)?$", link)
@@ -39,17 +53,39 @@ def resolve_pdf_url(link: str, get_json: Callable[[str], Optional[dict]]) -> Opt
         return "pdf", f"https://arxiv.org/pdf/{m.group(1)}"
     if link.lower().split("?")[0].endswith(".pdf"):
         return "pdf", link
+    if not doi and "doi.org/" in link:
+        doi = link.split("doi.org/", 1)[1]
+    if doi and email:
+        data = get_json(f"https://api.unpaywall.org/v2/{doi}?email={email}") or {}
+        pdf = (data.get("best_oa_location") or {}).get("url_for_pdf")
+        if pdf:
+            return "pdf", pdf
     api = "https://api.semanticscholar.org/graph/v1/paper/{}?fields=openAccessPdf"
     ident = None
-    if "doi.org/" in link:
-        ident = "DOI:" + link.split("doi.org/", 1)[1]
+    if doi:
+        ident = "DOI:" + doi
     elif "semanticscholar.org/paper/" in link:
         ident = link.rstrip("/").rsplit("/", 1)[1]
     if ident:
         data = get_json(api.format(ident)) or {}
         pdf = (data.get("openAccessPdf") or {}).get("url")
-        return ("pdf", pdf) if pdf else None
+        return ("pdf", pdf) if pdf else (("landing", link) if landing else None)
     return "html", link
+
+
+_META_PDF = re.compile(r'<meta[^>]+name=["\']citation_pdf_url["\'][^>]+content=["\']([^"\']+)["\']', re.I)
+_META_PDF_REV = re.compile(r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+name=["\']citation_pdf_url["\']', re.I)
+
+
+def find_meta_pdf(page_html: str) -> Optional[str]:
+    """URL PDF dari <meta name="citation_pdf_url"> (standar Google Scholar; dipakai hampir semua OJS).
+
+    OJS sering memberi /article/view/X/Y (viewer HTML); versi /article/download/X/Y adalah PDF-nya.
+    """
+    m = _META_PDF.search(page_html or "") or _META_PDF_REV.search(page_html or "")
+    if not m:
+        return None
+    return re.sub(r"/article/view/(\d+)/(\d+)", r"/article/download/\1/\2", m.group(1).strip())
 
 
 def _default_get(url: str, **kw) -> requests.Response:
@@ -96,7 +132,14 @@ def fetch_fulltext(
 
     text = None
     try:
-        target = resolve_pdf_url(ref.link, get_json)
+        email = os.getenv("MALAS_CONTACT_EMAIL") or None
+        target = resolve_pdf_url(ref.link, get_json, getattr(ref, "oa_pdf_url", None), getattr(ref, "doi", None), email,
+                                 landing=bool(getattr(ref, "doi", None)))
+        if target and target[0] == "landing":
+            # DOI tanpa PDF OA di sumber manapun: coba halaman artikelnya (jurnal OJS menaruh meta citation_pdf_url)
+            r = get(target[1])
+            pdf = find_meta_pdf(r.text) if r.ok else None
+            target = ("pdf", pdf) if pdf else None
         if target:
             kind, url = target
             r = get(url)
@@ -106,7 +149,13 @@ def fetch_fulltext(
                 elif kind == "html":
                     import trafilatura
 
-                    text = _clean(trafilatura.extract(r.text) or "")
+                    pdf = find_meta_pdf(r.text)
+                    if pdf:
+                        r2 = get(pdf)
+                        if r2.ok and len(r2.content) <= MAX_PDF_BYTES and r2.content[:5] == b"%PDF-":
+                            text = extract_pdf_text(r2.content)
+                    if not text:
+                        text = _clean(trafilatura.extract(r.text) or "")
     except Exception:
         text = None
 

@@ -24,8 +24,11 @@ from malas import checkpoint, paths
 from malas.citations import (
     check_citations, citation_label, content_text, prune_unused_references,
 )
+from malas.config import get_llm, is_mock
 from malas.crews.finishing_crew.finishing_crews import run_citation_fix, run_kata_pengantar
 from malas.crews.models.TaskOutput import Bab, Makalah, Penyusun, SubBab
+from malas import refsearch
+from malas.crews.planner_crew.outline_crew import OutlineCrew
 from malas.crews.planner_crew.planner_crew import PlannerCrew
 from malas.crews.write_format_crew.write_format_crew import WriteFormatCrew
 from malas.docx_converter import DocxConverter
@@ -159,19 +162,31 @@ class MalasFlow(Flow[Makalah]):
                 self._emit("outline", "info",
                            f"memakai hasil sebelumnya ({m['done']}/{m['total']} sub-bab sudah ditulis)")
                 return
-            planner = PlannerCrew()
-            crew_instance = planner.crew()
+            use_refsearch = refsearch.enabled()
+            if use_refsearch:
+                planner = OutlineCrew()
+                self._add_usage(planner.crew().kickoff(inputs={
+                    "judul_makalah": self.state.judul,
+                    "mata_kuliah": self.state.mata_kuliah,
+                }))
+                outline_output = planner.tasks[0].output
+                references_output = None
+                if not (outline_output and outline_output.pydantic):
+                    raise RuntimeError("Planner tidak menghasilkan outline yang valid (output bukan JSON sesuai skema)")
+            else:
+                planner = PlannerCrew()
+                crew_instance = planner.crew()
 
-            hasil = crew_instance.kickoff(inputs={
-                "judul_makalah": self.state.judul,
-                "mata_kuliah": self.state.mata_kuliah,
-            })
-            self._add_usage(hasil)
+                hasil = crew_instance.kickoff(inputs={
+                    "judul_makalah": self.state.judul,
+                    "mata_kuliah": self.state.mata_kuliah,
+                })
+                self._add_usage(hasil)
 
-            outline_output = planner.tasks[0].output
-            references_output = planner.tasks[1].output
-            if not (outline_output and outline_output.pydantic and references_output and references_output.pydantic):
-                raise RuntimeError("Planner tidak menghasilkan outline/referensi yang valid (output bukan JSON sesuai skema)")
+                outline_output = planner.tasks[0].output
+                references_output = planner.tasks[1].output
+                if not (outline_output and outline_output.pydantic and references_output and references_output.pydantic):
+                    raise RuntimeError("Planner tidak menghasilkan outline/referensi yang valid (output bukan JSON sesuai skema)")
 
             # Proses output menjadi struktur Bab dan SubBab
             roman_numerals = ["I", "II", "III", "IV", "V"]
@@ -182,7 +197,10 @@ class MalasFlow(Flow[Makalah]):
                 bab_baru.subbab = [SubBab(judul=t.strip()) for t in subbab_data.sections if t.strip()]
                 self.state.bab[roman_numerals[i]] = bab_baru
 
-            self.state.daftar_pustaka = references_output.pydantic.references
+            if use_refsearch:
+                self.state.daftar_pustaka = self._search_refs()
+            else:
+                self.state.daftar_pustaka = references_output.pydantic.references
             self.stats["subbab_count"] = sum(len(b.subbab) for b in self.state.bab.values())
             self.stats["refs_found"] = len(self.state.daftar_pustaka)
             print("🗺️ Outline dan daftar pustaka berhasil dibuat.")
@@ -190,18 +208,55 @@ class MalasFlow(Flow[Makalah]):
                        f"{self.stats['subbab_count']} sub-bab, {self.stats['refs_found']} referensi")
             self._save_checkpoint()  # outline = ± 5 menit kerja; jangan sampai hilang bila tahap berikutnya gagal
 
+    def _sections_needing_refs(self) -> list[str]:
+        """Sub-bab yang butuh referensi: 1.1 Latar Belakang + semua sub-bab Bab 2 (sama seperti aturan lama)."""
+        out = []
+        for key, bab in self.state.bab.items():
+            for sb in bab.subbab:
+                if key == "II" or "latar belakang" in sb.judul.lower():
+                    out.append(sb.judul)
+        return out
+
+    def _search_refs(self) -> list:
+        """Cari referensi dengan kode deterministik (OpenAlex/Crossref/...). 1 panggilan LLM murah untuk query; gagal = heuristik."""
+        sections = self._sections_needing_refs()
+        client = refsearch.make_client()
+
+        def call(prompt: str) -> str:
+            self._ensure_counters()
+            out = str(get_llm("planner").call(prompt))
+            self.usage["calls"] += 1  # taksiran kasar (4 karakter ~ 1 token): panggilan langsung tidak melaporkan usage
+            self.usage["prompt"] += len(prompt) // 4
+            self.usage["completion"] += len(out) // 4
+            self.usage["total"] += (len(prompt) + len(out)) // 4
+            return out
+
+        if is_mock():
+            plan = refsearch.heuristic_plan(self.state.judul, sections)
+        else:
+            plan = refsearch.llm_plan(self.state.judul, self.state.mata_kuliah, sections, call)
+        refs, report = refsearch.search_references(plan, self.state.judul, client)
+        self.stats["refs_by_source"] = report.get("by_source", {})
+        self.stats["subbab_without_refs"] = len(report.get("sections_without_refs", []))
+        self.stats["refsearch_http_calls"] = report.get("http_calls", 0)
+        for s in report.get("sections_without_refs", []):
+            print(f"⚠️  Tidak ada referensi ditemukan untuk: {s}")
+        return refs
+
     def _references_for(self, subbab_judul: str) -> list[dict]:
         """Referensi untuk prompt Writer: abstrak + (jika ada) beberapa kutipan full-text relevan.
 
         Total kutipan dibatasi MALAS_FULLTEXT_CHARS (default 3000 karakter ~ 750 token) per sub-bab.
         """
         store = self.fulltext
-        punya_teks = [i for i, r in enumerate(self.state.daftar_pustaka) if r.link and i in store.texts]
+        semua = [(i, r) for i, r in enumerate(self.state.daftar_pustaka) if r.link]
+        if any(r.sections for _, r in semua):  # hasil refsearch: tiap sub-bab hanya menerima referensinya sendiri
+            milik = [(i, r) for i, r in semua if subbab_judul in r.sections]
+            semua = milik or semua[:3]  # sub-bab tanpa referensi sendiri (mis. 1.2/3.1): beberapa yang umum
+        punya_teks = [i for i, r in semua if i in store.texts]
         jatah = _env_int("MALAS_FULLTEXT_CHARS", 3000) // max(len(punya_teks), 1)
         hasil = []
-        for i, ref in enumerate(self.state.daftar_pustaka):
-            if not ref.link:
-                continue
+        for i, ref in semua:
             item = {
                 "sitasi": citation_label(ref),
                 "title": ref.title,
