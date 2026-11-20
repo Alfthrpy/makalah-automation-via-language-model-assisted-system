@@ -1,6 +1,6 @@
 # Frontend MALAS di Netlify. Panduan: DEPLOY.md
-# GANTI `GANTI-SPACE.hf.space` di bawah dengan host Space kamu (Space > menu ⋯ > "Embed this Space" > Direct URL,
-# bentuk: https://<pemilik>-<nama-space>.hf.space). Netlify tidak mengizinkan variabel env di redirect.
+# Host backend di bawah = Space HF kamu (bentuk https://<pemilik>-<nama-space>.hf.space). Bila Space diganti, edit di sini:
+# Netlify tidak mengizinkan variabel env di redirect.
 
 [build]
   command = "pnpm install --frozen-lockfile && pnpm --filter web build"
@@ -15,7 +15,7 @@
 # /api/* diteruskan (proxy, bukan redirect) ke backend: browser hanya bicara ke satu origin -> tanpa CORS.
 [[redirects]]
   from = "/api/*"
-  to = "https://GANTI-SPACE.hf.space/api/:splat"
+  to = "https://petanihandal-stegano-f5-dmcss-api.hf.space/api/:splat"
   status = 200
   force = true
 
@@ -33,10 +33,11 @@
     X-Frame-Options = "DENY"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains"
-    # CSP untuk Clerk (daftar mengikuti dokumentasi Clerk; BELUM diuji dengan instance Clerk asli).
+    # CSP untuk Clerk. Diuji dengan instance dev asli (formulir masuk render, 0 pelanggaran CSP di halaman /masuk);
+    # alur setelah login (profil, avatar) dan captcha belum diuji.
     # Instance dev: *.clerk.accounts.dev. Produksi: ganti/tambahkan domain Frontend API Clerk (mis. https://clerk.domainmu.com).
     # 'unsafe-inline' hanya untuk gaya (Clerk menyuntikkan <style>); skrip tidak inline.
-    Content-Security-Policy = "default-src 'self'; script-src 'self' https://*.clerk.accounts.dev https://challenges.cloudflare.com; connect-src 'self' https://*.clerk.accounts.dev https://clerk-telemetry.com; img-src 'self' data: https://img.clerk.com; style-src 'self' 'unsafe-inline'; font-src 'self'; worker-src 'self' blob:; frame-src https://challenges.cloudflare.com; form-action 'self'; base-uri 'none'; frame-ancestors 'none'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' https://*.clerk.accounts.dev https://cdn.protect.clerk.com https://challenges.cloudflare.com; connect-src 'self' https://*.clerk.accounts.dev https://clerk-telemetry.com; img-src 'self' data: https://img.clerk.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; worker-src 'self' blob:; frame-src https://challenges.cloudflare.com; form-action 'self'; base-uri 'none'; frame-ancestors 'none'"
 
 # Aset ber-hash dari Vite boleh di-cache selamanya; index.html harus selalu segar.
 [[headers]]

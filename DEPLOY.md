@@ -12,8 +12,7 @@ Browser ──> Netlify (apps/web, statis)
 ```
 
 > **Status uji (jujur):** image Docker, bundel Space, dan seluruh tes berjalan di sandbox pengembangan. Yang BELUM pernah dicoba
-> dengan layanan asli (tidak ada akun/kredensial di sandbox): Neon (latensi cold-start, PgBouncer), Clerk (format `iss`/`azp`
-> instance nyata, CSP), R2 (hanya diuji dengan klien S3 palsu), Netlify, dan HF Space. Ikuti bagian **Verifikasi** di tiap langkah.
+> dengan layanan asli (tidak ada akun/kredensial di sandbox): Neon (latensi cold-start, PgBouncer), Clerk (login sungguhan, `azp` pada token nyata; JWKS dan CSP halaman /masuk sudah dicek dengan instance dev), R2 (hanya diuji dengan klien S3 palsu), Netlify, dan HF Space. Ikuti bagian **Verifikasi** di tiap langkah.
 > Batas free tier semua layanan berubah-ubah: cek halaman harga masing-masing sebelum mengandalkannya.
 
 ## 0. Yang sudah ada di repo
@@ -63,7 +62,7 @@ Browser ──> Netlify (apps/web, statis)
 Catatan HF Space: Space gratis **tidur** setelah tidak aktif (bangun ± puluhan detik), disk **ephemeral** (itulah mengapa riwayat dan hasil ada di Neon/R2), dan job yang sedang berjalan terputus bila Space restart: statusnya jadi "Terhenti" dan bisa dilanjutkan dari checkpoint (otomatis bila pengguna memilih menyimpan key).
 
 ## 4. Netlify (web)
-1. Edit `netlify.toml`: ganti `GANTI-SPACE.hf.space` dengan host Space (bentuk `<pemilik>-<nama>.hf.space`), commit.
+1. `netlify.toml` sudah menunjuk ke Space `PetaniHandal/stegano-f5-dmcss-api` (`petanihandal-stegano-f5-dmcss-api.hf.space`). Bila Space diganti, edit host di bagian redirect `/api/*` lalu commit.
 2. Netlify: **Add new site > Import from Git**, pilih repo/branch. Build command dan folder publish sudah di `netlify.toml`.
 3. **Site configuration > Environment variables**: `VITE_CLERK_PUBLISHABLE_KEY` = publishable key Clerk. (`VITE_AUTH_MODE=clerk` sudah di `netlify.toml`.) **Jangan** menaruh secret di variabel `VITE_*`: semuanya terbaca publik.
 4. Setelah URL situs diketahui, isi `CLERK_AUTHORIZED_PARTIES` di Space dengan URL itu, dan tambahkan domain situs di dashboard Clerk bila diminta.
