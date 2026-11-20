@@ -8,6 +8,7 @@ dependencies = [
     "crewai[tools]>=0.193.2,<1.0.0",
     "docxtpl>=0.20.0",
     "duckduckgo-search>=8.1.1",
+    "pillow>=10.1",
     "langchain-community>=0.4.2",
     "pypdf>=5.0",
     "python-dotenv>=1.0",

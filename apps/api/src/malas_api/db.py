@@ -110,6 +110,16 @@ class UserApiKey(Base):
     updated_at: Mapped[datetime] = mapped_column(UtcDateTime, default=utcnow)
 
 
+class UserLogo(Base):
+    """Logo kampus/sekolah milik pengguna (PNG ternormalisasi oleh malas.logo). Satu per pengguna; dihapus oleh pengguna."""
+
+    __tablename__ = "user_logos"
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    content: Mapped[bytes] = mapped_column(LargeBinary)
+    size: Mapped[int] = mapped_column(Integer)
+    updated_at: Mapped[datetime] = mapped_column(UtcDateTime, default=utcnow)
+
+
 class Usage(Base):
     """Pemakaian harian per pengguna (untuk kuota). `day` = tanggal lokal (zona kuota) 'YYYY-MM-DD'."""
 

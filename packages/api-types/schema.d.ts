@@ -108,6 +108,25 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/logo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Logo */
+        get: operations["get_logo_api_logo_get"];
+        /** Put Logo */
+        put: operations["put_logo_api_logo_put"];
+        post?: never;
+        /** Delete Logo */
+        delete: operations["delete_logo_api_logo_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/me": {
         parameters: {
             query?: never;
@@ -164,6 +183,8 @@ export interface components {
             } | null;
             /** Providers */
             providers: components["schemas"]["ProviderInfo"][];
+            /** Retention Hours */
+            retention_hours?: number | null;
             /** Server Key Available */
             server_key_available: boolean;
             /** Steps */
@@ -243,6 +264,8 @@ export interface components {
             /** Title */
             title: string;
             usage?: components["schemas"]["JobUsage"] | null;
+            /** Use Logo */
+            use_logo?: boolean | null;
         };
         /** JobRequest */
         JobRequest: {
@@ -309,6 +332,11 @@ export interface components {
              * @default
              */
             universitas: string;
+            /**
+             * Use Logo
+             * @default false
+             */
+            use_logo: boolean;
             /**
              * Use Saved Key
              * @default false
@@ -428,10 +456,18 @@ export interface components {
             /** T */
             t: string;
         };
+        /** LogoOut */
+        LogoOut: {
+            /** Size */
+            size: number;
+            /** Updated At */
+            updated_at?: string | null;
+        };
         /** MeOut */
         MeOut: {
             /** Id */
             id?: string | null;
+            logo?: components["schemas"]["LogoOut"] | null;
             /**
              * Mode
              * @enum {string}
@@ -781,6 +817,73 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_logo_api_logo_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/png": unknown;
+                };
+            };
+            /** @description Belum ada logo */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    put_logo_api_logo_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LogoOut"];
+                };
+            };
+        };
+    };
+    delete_logo_api_logo_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResultOut"];
                 };
             };
         };

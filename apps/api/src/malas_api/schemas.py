@@ -118,6 +118,7 @@ class JobOut(_Out):
     usage: JobUsage | None = None
     stats: JobStats | None = None
     quota_day: str | None = None
+    use_logo: bool | None = None
     auto_resumed: bool | None = None
     queue_position: int | None = None
 
@@ -159,6 +160,7 @@ class ConfigOut(_Out):
     auth: AuthInfo
     daily_quota: int | None = None
     key_storage: bool
+    retention_hours: float | None = None
     year: int
 
 
@@ -169,10 +171,16 @@ class Quota(_Out):
     resets_at: str
 
 
+class LogoOut(_Out):
+    size: int
+    updated_at: str | None = None
+
+
 class MeOut(_Out):
     id: str | None = None
     mode: Literal["clerk", "anonymous"]
     quota: Quota | None = None
+    logo: LogoOut | None = None
 
 
 class SavedKey(_Out):

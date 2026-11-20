@@ -2,12 +2,14 @@
 import os
 import re
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Dict, Optional
 
 from docxtpl import DocxTemplate
 from jinja2 import Environment
 
 from malas.crews.models.TaskOutput import Makalah
+from malas.logo import apply_logo, normalize_logo
 
 _BULAN = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli",
           "Agustus", "September", "Oktober", "November", "Desember"]
@@ -144,7 +146,8 @@ class DocxConverter:
     converter.convert(makalah_state)
     """
 
-    def __init__(self, template_path: str, output_path: Optional[str] = None):
+    def __init__(self, template_path: str, output_path: Optional[str] = None,
+                 logo_path: Optional[str] = None, neutral_logo: bool = False):
         """
         Parameters
         ----------
@@ -152,12 +155,18 @@ class DocxConverter:
             Path to the .docx template file.
         output_path : Optional[str]
             Path to save the rendered .docx file. If not provided, will auto-generate one.
+        logo_path : Optional[str]
+            PNG/JPEG logo kampus/sekolah untuk sampul (divalidasi dan dinormalkan oleh malas.logo).
+        neutral_logo : bool
+            Tanpa logo_path: True = ganti logo bawaan template dengan penanda netral "LOGO"; False = biarkan.
         """
         if not os.path.exists(template_path):
             raise FileNotFoundError(f"Template not found at: {template_path}")
 
         self.template_path = template_path
         self.output_path = output_path or self._default_output_path()
+        self.logo_path = logo_path
+        self.neutral_logo = neutral_logo
         self.jinja_env = Environment(trim_blocks=True, lstrip_blocks=True)
 
 
@@ -205,6 +214,9 @@ class DocxConverter:
                 os.makedirs(output_dir, exist_ok=True)
 
             doc.save(self.output_path)
+
+            logo_png = normalize_logo(Path(self.logo_path).read_bytes()) if self.logo_path else None
+            apply_logo(self.output_path, logo_png, self.neutral_logo)
 
             return self.output_path
 

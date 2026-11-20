@@ -145,7 +145,7 @@ Backend B1-B4 sebaiknya masuk sebelum M3 agar dasbor tidak perlu workaround.
 | 5 | "Mode uji gratis" jadi chip hero lagi? | Tidak; cukup di "Yang perlu kamu tahu" dan FAQ |
 | 6 | Kepanjangan di halaman Masuk/Daftar | Tidak |
 | 7 | Label template ramah + pratinjau | Tampilkan nama berkas dulu (B6 menyusul bila diminta) |
-| 8 | Lama simpan riwayat/.docx | Ikuti `MALAS_WEB_RETENTION_HOURS` (6 jam di hosting); tampilkan keterangan "dihapus otomatis" tanpa hitung mundur |
+| 8 | Lama simpan riwayat/.docx | Ikuti `MALAS_WEB_RETENTION_HOURS` (48 jam di hosting sejak 2026-11-20; sebelumnya 6); tampilkan keterangan "dihapus otomatis" tanpa hitung mundur |
 | 9 | Key tersimpan kedaluwarsa otomatis | Belum |
 | 10 | Notifikasi selesai (email/browser) | Belum (Fase 6) |
 | 11 | Kuota final | 3/hari (`MALAS_DAILY_QUOTA`), selalu tampil di header |

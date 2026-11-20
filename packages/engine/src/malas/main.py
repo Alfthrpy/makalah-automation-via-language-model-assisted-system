@@ -81,6 +81,8 @@ class MalasFlow(Flow[Makalah]):
     input_path: str = DEFAULT_INPUT
     template_path: str = DEFAULT_TEMPLATE
     output_path: str | None = None
+    logo_path: str | None = None  # logo sampul (PNG/JPEG); None = logo bawaan template (atau penanda netral bila neutral_logo)
+    neutral_logo: bool = False
     progress: Optional[ProgressCallback] = None
     checkpoint_path: Optional[Path] = None  # tulis checkpoint di sini (None = nonaktif)
     resume: bool = False  # True = pakai checkpoint yang sudah ada
@@ -368,7 +370,8 @@ class MalasFlow(Flow[Makalah]):
         """Langkah akhir: Konversi state akhir ke format DOCX."""
         with self._stage("docx"):
             print("\n🏁 Finalisasi flow, menyimpan hasil ke file DOCX...")
-            converter = DocxConverter(self.template_path, self.output_path)
+            converter = DocxConverter(self.template_path, self.output_path,
+                                      logo_path=self.logo_path, neutral_logo=self.neutral_logo)
             self.result_path = converter.convert(self.state)
             print(f"🎉 Makalah berhasil dibuat: {self.result_path}")
 
@@ -378,10 +381,12 @@ def kickoff():
     parser.add_argument("--input", default=DEFAULT_INPUT, help="File YAML data makalah")
     parser.add_argument("--template", default=DEFAULT_TEMPLATE, help="Template .docx")
     parser.add_argument("--output", default=None, help="Path file .docx hasil (default: output/makalah_<waktu>.docx)")
+    parser.add_argument("--logo", default=None, help="Logo kampus/sekolah untuk sampul (PNG/JPEG)")
     args = parser.parse_args()
 
     flow = MalasFlow()
     flow.input_path, flow.template_path, flow.output_path = args.input, args.template, args.output
+    flow.logo_path = args.logo
     flow.kickoff()
     u = getattr(flow, "usage", None)
     if u and u["total"]:

@@ -1,11 +1,13 @@
 /** Teks Ketentuan Layanan dan Kebijakan Privasi.
  *
  *  Isinya HARUS mengikuti perilaku sistem yang sebenarnya. Fakta di bawah diambil dari kode (per 2026-11-20):
- *  - retensi: job selesai/gagal dihapus 6 jam setelah selesai (JobManager.purge, mode hosting);
+ *  - retensi: job selesai/gagal dihapus 48 jam setelah selesai (JobManager.purge; default di app.py DEFAULT_RETENTION_HOURS, mode hosting);
  *  - yang dikirim ke penyedia LLM: judul, mata kuliah, tahun, kota, NAMA dosen dan penyusun (kata pengantar), plus
  *    konten yang disusun; NIM, kelas, universitas, fakultas, jurusan tidak dikirim (packages/engine crews/*.yaml);
  *  - pencarian referensi: Crossref, Semantic Scholar, arXiv (tools/custom_tool.py, fulltext.py);
  *  - tabel `users` hanya menyimpan id Clerk; tabel `usage` menyimpan kuota harian (id pengguna, tanggal, jumlah);
+ *  - logo kampus/sekolah: satu per akun di tabel user_logos (PNG ternormalisasi), disimpan sampai pengguna menghapusnya,
+ *    tidak dikirim ke penyedia LLM, hanya ditanam ke .docx;
  *  - API key: hanya di memori selama job; penyimpanan terenkripsi hanya bila fitur diaktifkan dan dipilih pengguna.
  *  Bila perilaku itu berubah (mis. analitik ditambahkan, retensi diubah), perbarui teks ini dan LEGAL_UPDATED. */
 
@@ -94,7 +96,7 @@ export const TERMS: LegalDoc = {
       title: "Hasil dan hak",
       blocks: [
         "Isian yang kamu masukkan dan berkas hasilnya adalah milikmu; kami tidak mengklaim hak atas makalahmu. Karena hasilnya dibuat model bahasa, isinya bisa mirip dengan keluaran lain. Soal hak cipta, lisensi sumber, dan pengakuan penggunaan AI, kamu sendiri yang bertanggung jawab.",
-        "Kamu menyatakan punya hak untuk memasukkan data yang kamu isi.",
+        "Kamu menyatakan punya hak untuk memasukkan data yang kamu isi, termasuk logo kampus atau sekolah yang kamu unggah. Pakai hanya logo yang memang boleh kamu pakai; MALAS tidak memeriksa kepemilikannya dan tidak menyiratkan dukungan dari institusi mana pun.",
       ],
     },
     {
@@ -103,7 +105,7 @@ export const TERMS: LegalDoc = {
       blocks: [
         [
           "MALAS gratis dan berjalan di layanan gratis, jadi server bisa tidur atau restart sewaktu-waktu. Makalah yang sedang diproses bisa terputus; kamu bisa melanjutkannya dari titik terakhir.",
-          "Riwayat dan berkas dihapus otomatis 6 jam setelah makalah selesai. Unduh segera.",
+          "Riwayat dan berkas dihapus otomatis 48 jam setelah makalah selesai. Unduh segera.",
           "Layanan diberikan apa adanya, tanpa jaminan apa pun.",
         ],
       ],
@@ -141,7 +143,7 @@ export const PRIVACY: LegalDoc = {
       title: "Ringkasan",
       blocks: [
         [
-          "Makalah dan riwayatmu dihapus otomatis 6 jam setelah selesai.",
+          "Makalah dan riwayatmu dihapus otomatis 48 jam setelah selesai.",
           "API key tidak ditulis ke disk, log, maupun basis data (kecuali kamu memilih menyimpannya, lihat bagian API key).",
           "Isi yang dikirim ke model bahasa melewati penyedia yang kamu pilih lewat key-mu sendiri (bagian Pihak yang menerima data).",
           "Kami tidak menjual datamu dan tidak memasang iklan. Situs ini tidak memakai pelacak iklan atau analitik pihak ketiga.",
@@ -155,6 +157,7 @@ export const PRIVACY: LegalDoc = {
         [
           "Akun: dikelola Clerk (mis. email, nama, metode masuk, sesi). Di basis data MALAS hanya tersimpan id pengguna dari Clerk.",
           "Isian makalah: judul, mata kuliah, nama dosen, nama dan NIM penyusun, kelas, universitas, fakultas, jurusan, kota, tahun, dan template yang dipilih.",
+          "Logo (opsional): gambar kampus atau sekolah yang kamu unggah, disimpan satu per akun sebagai PNG yang sudah dibersihkan (metadata gambar dibuang) sampai kamu menghapusnya.",
           "Hasil: berkas .docx, log tahap proses, statistik pemakaian (jumlah panggilan dan token), serta pesan error bila gagal.",
           "Kuota: id pengguna, tanggal, dan jumlah makalah nyata hari itu. Catatan kuota ini tidak ikut terhapus otomatis bersama riwayat makalah.",
           "Teknis: log dasar server oleh penyedia hosting (permintaan dan galat). Isi makalahmu tidak dicetak ke log aplikasi.",
@@ -179,6 +182,7 @@ export const PRIVACY: LegalDoc = {
       blocks: [
         [
           "Penyedia model bahasa pilihanmu (OpenRouter atau Kenari): menerima key-mu dan isi yang dikirim ke model, yaitu judul, mata kuliah, tahun, kota, nama dosen dan nama penyusun (untuk kata pengantar), serta bagian makalah yang sedang disusun. NIM, kelas, universitas, fakultas, dan jurusan tidak dikirim. Penyedia itu punya kebijakan sendiri.",
+          "Logo yang kamu unggah tidak dikirim ke penyedia model bahasa maupun layanan lain; ia hanya disimpan di basis data kami dan ditanam ke berkas .docx-mu.",
           "Layanan pencarian literatur (Crossref, Semantic Scholar, arXiv): menerima kata kunci yang diturunkan dari judulmu untuk mencari referensi.",
           "Clerk: mengelola akun dan login.",
           "Neon (basis data), Hugging Face (server API), dan Netlify (situs web): menyimpan atau meneruskan data yang disebut di atas sebagai penyedia infrastruktur.",
@@ -191,8 +195,9 @@ export const PRIVACY: LegalDoc = {
       title: "Berapa lama disimpan dan cara menghapus",
       blocks: [
         [
-          "Makalah, berkas, dan log dihapus otomatis 6 jam setelah selesai atau gagal. Kamu juga bisa menghapusnya sendiri dari dasbor kapan saja.",
+          "Makalah, berkas, dan log dihapus otomatis 48 jam setelah selesai atau gagal. Kamu juga bisa menghapusnya sendiri dari dasbor kapan saja.",
           "Makalah yang masih mengantre atau berjalan tidak dihapus sampai selesai.",
+          "Logo tersimpan sampai kamu menghapusnya (di halaman Buat makalah atau Pengaturan). Menghapus akun juga menghapusnya.",
           "Catatan kuota harian disimpan lebih lama. Untuk menghapusnya, atau menghapus akunmu, hubungi kami lewat kontak di bawah.",
         ],
       ],

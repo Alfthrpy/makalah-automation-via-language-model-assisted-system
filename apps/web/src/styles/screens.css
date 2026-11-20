@@ -198,3 +198,11 @@ dialog::backdrop { background: var(--scrim); }
 .legal section ul { padding-left: 1.25em; list-style: disc; }
 .legal section li + li { margin-top: var(--sp-2); }
 .legal section li::marker { color: var(--accent); }
+
+/* ---- logo kampus/sekolah ---- */
+.logo-box { display: grid; gap: var(--sp-3); }
+.logo-row { display: flex; flex-wrap: wrap; gap: var(--sp-4); align-items: center; }
+.logo-preview { width: 72px; height: 72px; flex: none; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); display: grid; place-items: center; overflow: hidden; }
+.logo-preview img { display: block; width: 72px; height: 72px; object-fit: contain; }
+.logo-empty { color: var(--muted); display: grid; place-items: center; }
+.logo-actions { display: grid; gap: var(--sp-2); flex: 1; min-width: 200px; }
