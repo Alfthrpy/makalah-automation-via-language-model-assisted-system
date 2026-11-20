@@ -1,6 +1,6 @@
 # Frontend MALAS di Netlify. Panduan: DEPLOY.md
-# GANTI `GANTI-SPACE.hf.space` di bawah dengan host Space kamu (Space > menu ⋯ > "Embed this Space" > Direct URL,
-# bentuk: https://<pemilik>-<nama-space>.hf.space). Netlify tidak mengizinkan variabel env di redirect.
+# Host backend di bawah = Space HF kamu (bentuk https://<pemilik>-<nama-space>.hf.space). Bila Space diganti, edit di sini:
+# Netlify tidak mengizinkan variabel env di redirect.
 
 [build]
   command = "pnpm install --frozen-lockfile && pnpm --filter web build"
@@ -15,7 +15,7 @@
 # /api/* diteruskan (proxy, bukan redirect) ke backend: browser hanya bicara ke satu origin -> tanpa CORS.
 [[redirects]]
   from = "/api/*"
-  to = "https://GANTI-SPACE.hf.space/api/:splat"
+  to = "https://petanihandal-stegano-f5-dmcss-api.hf.space/api/:splat"
   status = 200
   force = true
 

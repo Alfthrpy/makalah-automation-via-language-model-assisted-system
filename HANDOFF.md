@@ -82,7 +82,7 @@ dengan data dir milik `postgres` (mis. `/var/tmp/pgdata-malas`, port 54329, `-A 
 - [x] **Fase 5: Deploy + CI** (kode & konfigurasi selesai; BELUM dideploy ke layanan asli).
   - `apps/api/Dockerfile`: port 7860 (`PORT`), uid 1000, `MALAS_FULLTEXT=1`; user dibuat sebelum `uv sync` (hindari `chown -R` yang menggandakan layer). **Dibuild dan dijalankan sungguhan di sandbox** (3,76 GB; `/healthz` ok, `hosted:true`, boto3 ada, folder tulis ok). Build di sandbox butuh CA proxy sandbox (salinan Dockerfile sementara + `--build-context ca=/root/.ccr`); di CI/HF tidak perlu.
   - `deploy/hf-space/{README.md,bundle.sh}` + `.github/workflows/deploy-hf.yml`: bundel sub-set repo (Dockerfile di root + front-matter HF `sdk: docker, app_port: 7860`) di-push ke Space; butuh secret `HF_TOKEN` + variable `HF_SPACE`, dilewati bila variable kosong. `bundle.sh` diuji (1,4 MB); workflow-nya BELUM pernah jalan.
-  - `netlify.toml`: build pnpm, proxy `/api/*` -> `https://GANTI-SPACE.hf.space` (HARUS diedit; Netlify tak mengizinkan env di redirect), fallback SPA, header keamanan + CSP untuk Clerk (BELUM diuji dengan Clerk asli; `index.html` build tanpa skrip inline).
+  - `netlify.toml`: build pnpm, proxy `/api/*` -> `https://petanihandal-stegano-f5-dmcss-api.hf.space` (host Space asli; Netlify tak mengizinkan env di redirect), fallback SPA, header keamanan + CSP untuk Clerk (BELUM diuji dengan Clerk asli; `index.html` build tanpa skrip inline).
   - `.github/workflows/ci.yml`: pytest SQLite, pytest apps/api di Postgres 16 (service), web typecheck+test+build, build image + smoke test. Ruff hanya pada berkas baru/dirapikan (daftar eksplisit di ci.yml; tambahkan berkas bila dirapikan). BELUM pernah jalan di GitHub Actions.
   - `S3Storage` + `storage_from_env()` (R2): aktif bila keempat `R2_*` terisi, sebagian terisi = error saat start. Diuji dengan klien S3 palsu (`test_storage.py`); R2 asli belum dicoba. `boto3` jadi dependensi apps/api (impor lambat).
   - `DEPLOY.md` ditulis ulang (Neon, Clerk, HF Space, Netlify, R2, troubleshooting); `render.yaml` dihapus; README disesuaikan (UI web di :5173, API tidak lagi melayani HTML).
@@ -187,13 +187,20 @@ Jalankan e2e: `uv run malas-web` + `pnpm --filter web dev`, lalu `NODE_PATH=$(np
 **Belum dikerjakan:** B6 (label template ramah), bundle size/code-splitting lanjutan (layar sudah `lazy`), tes komponen dengan MSW (tes saat ini: fungsi murni + e2e).
 Catatan: tes `test_ringkasan_riwayat_memuat_progres_dan_posisi_antrean` pernah flaky (race menunggu `current_detail`); sudah diperbaiki.
 
+## Status deploy (2026-11-20)
+- **HF Space LIVE:** `PetaniHandal/stegano-f5-dmcss-api` (`https://petanihandal-stegano-f5-dmcss-api.hf.space`), Docker, RUNNING, mode hosting/BYOK + login Clerk. Isi lama (proyek steganografi) DITIMPA atas persetujuan pemilik; commit lama tetap ada di History Space. Nama Space tidak cocok dengan isinya; boleh di-rename (lalu perbarui host di `netlify.toml`).
+- **Variabel Space:** `CLERK_ISSUER=https://moral-camel-3719.clerk.accounts.dev`, `MALAS_AUTH_REQUIRED=1`, `MALAS_DAILY_QUOTA=3`. **Secret:** `DATABASE_URL` (pooled) dan `DATABASE_URL_DIRECT` ke Neon project `malas` (branch production, role `neondb_owner`; password sudah direset karena sempat bocor di chat). Belum ada `CLERK_AUTHORIZED_PARTIES` (menunggu URL Netlify) dan `MALAS_SECRET_KEY` (fitur simpan-key mati).
+- Belum terbukti: koneksi Neon end-to-end (log hanya menunjukkan server naik; Space tidak crash), `/api/config` dari luar (hf.space tidak terjangkau dari sandbox).
+- Netlify BELUM dibuat: pemilik membuatnya sendiri dari UI (import repo, env `VITE_CLERK_PUBLISHABLE_KEY`).
+- Catatan sandbox: environment `makalah-malas` menyimpan credential HF dan Neon (proxy menyuntikkan); hapus bila tak dipakai. Token HF lama yang sempat tertempel di chat harus dicabut.
+
 ## Langkah berikutnya (mulai di sini)
 Semua kode dan konfigurasi selesai. Yang tersisa HANYA yang butuh akun/kredensial milik pemilik; kerjakan berurutan mengikuti `DEPLOY.md` dan verifikasi tiap langkah:
 1. Push ke GitHub dan lihat CI hijau (pertama kali dijalankan; perbaiki bila ada beda lingkungan). Perlu `main`/PR agar workflow berjalan.
 2. Neon (DATABASE_URL pooled + direct) -> uji migrasi + latensi cold-start + PgBouncer.
 3. Clerk: instance dev `moral-camel-3719` (publishable key publik; Frontend API `https://moral-camel-3719.clerk.accounts.dev`). SUDAH diuji dari sandbox: JWKS asli dimuat oleh `Authenticator` (1 kunci RS256, kid cocok; token kid-asli-tanda-tangan-palsu ditolak `InvalidSignatureError`, kid asing `PyJWKClientError`), `<SignIn/>` render di web mode Clerk dengan CSP dari `netlify.toml` (0 pelanggaran setelah menambah `font-src data:` dan `script-src https://cdn.protect.clerk.com`), teks sudah Indonesia (`@clerk/localizations` idID). BELUM: login sungguhan (butuh akun uji), `getToken` + `azp` pada token nyata, `openUserProfile`, avatar `img.clerk.com`/captcha (host itu tidak terjangkau dari sandbox), panggilan lanjutan skrip Clerk Protect. Isi `CLERK_ISSUER` HARUS sama dengan Frontend API URL di dashboard.
 4. HF Space (secret `HF_TOKEN`, variable `HF_SPACE`) -> jalankan workflow deploy; cek `/healthz`.
-5. Netlify: ganti `GANTI-SPACE.hf.space` di `netlify.toml`, isi `VITE_CLERK_PUBLISHABLE_KEY`; cek Console (pelanggaran CSP Clerk), header `Authorization`/`Host` lewat proxy.
+5. Netlify: (host Space di `netlify.toml` sudah benar) isi `VITE_CLERK_PUBLISHABLE_KEY`; cek Console (pelanggaran CSP Clerk), header `Authorization`/`Host` lewat proxy.
 6. (Opsional) R2.
 Yang dibutuhkan dari pemilik (via env/secret, JANGAN di chat): akun/token untuk langkah di atas.
 

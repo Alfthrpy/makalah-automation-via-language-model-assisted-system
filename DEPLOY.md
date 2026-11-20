@@ -62,7 +62,7 @@ Browser ──> Netlify (apps/web, statis)
 Catatan HF Space: Space gratis **tidur** setelah tidak aktif (bangun ± puluhan detik), disk **ephemeral** (itulah mengapa riwayat dan hasil ada di Neon/R2), dan job yang sedang berjalan terputus bila Space restart: statusnya jadi "Terhenti" dan bisa dilanjutkan dari checkpoint (otomatis bila pengguna memilih menyimpan key).
 
 ## 4. Netlify (web)
-1. Edit `netlify.toml`: ganti `GANTI-SPACE.hf.space` dengan host Space (bentuk `<pemilik>-<nama>.hf.space`), commit.
+1. `netlify.toml` sudah menunjuk ke Space `PetaniHandal/stegano-f5-dmcss-api` (`petanihandal-stegano-f5-dmcss-api.hf.space`). Bila Space diganti, edit host di bagian redirect `/api/*` lalu commit.
 2. Netlify: **Add new site > Import from Git**, pilih repo/branch. Build command dan folder publish sudah di `netlify.toml`.
 3. **Site configuration > Environment variables**: `VITE_CLERK_PUBLISHABLE_KEY` = publishable key Clerk. (`VITE_AUTH_MODE=clerk` sudah di `netlify.toml`.) **Jangan** menaruh secret di variabel `VITE_*`: semuanya terbaca publik.
 4. Setelah URL situs diketahui, isi `CLERK_AUTHORIZED_PARTIES` di Space dengan URL itu, dan tambahkan domain situs di dashboard Clerk bila diminta.
