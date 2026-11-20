@@ -43,6 +43,20 @@ LLM tidak pernah menulis judul/penulis/tahun/DOI: semuanya berasal dari respons 
 Pencarian web umum (ddgs/Brave) dengan allowlist domain, regulasi (JDIH BPK), rerank LLM berbasis ID, CORE, embedding lokal.
 Penulis lembaga multi-kata (mis. "Badan Pusat Statistik") belum dikenali sitasi in-text (`citations.py` mengambil kata terakhir).
 
-## Belum terverifikasi (tes memakai fixture, bukan API sungguhan)
-Bentuk respons tiap provider ditulis dari dokumentasi publik. Nama parameter key OpenAlex (`api_key`), filter
-`language:id`, dan limit tiap layanan perlu dicek dengan menjalankan perintah no. 1 di atas.
+## Hasil uji NYATA (GitHub Actions, 2026-11-20, tanpa key & tanpa LLM; rencana query dari heuristik)
+Workflow sementara `.github/workflows/refsearch-probe.yml` (jalan otomatis saat file itu diubah; boleh dihapus).
+- 8 topik lintas bidang (hukum pidana, tafsir, fisioterapi, akuntansi syariah, Majapahit, K-pop, ML, pajak UMKM):
+  **32/32 sub-bab mendapat >=2 referensi**, abstrak 100%, PDF open-access diketahui 97%, **full-text berhasil 78%**.
+- ~9-11 request HTTP dan 2-7 detik per topik (pencarian saja). Semua 7 API terjangkau tanpa key.
+- OpenAlex tanpa key: kuota gratis bersama US$0,10/hari per IP; key gratis US$1/hari (param `api_key` terkonfirmasi).
+- Bug yang ditemukan lewat uji nyata dan sudah diperbaiki: Crossref menolak `select=...language...` (HTTP 400) dan kena 429
+  tanpa jeda cukup; hasil berupa `Cover.pdf` repositori kampus.
+- Latensi: Crossref 4-6 dtk, Europe PMC sampai ~29 dtk (timeout bacanya dinaikkan ke 40 dtk).
+
+## Belum terverifikasi / keterbatasan
+- Rencana query dari LLM (`llm_plan`, EN+ID, bidang) belum diuji nyata; hasil di atas adalah batas bawah (heuristik).
+- Relevansi bukan 100%: mis. topik Majapahit masih menyertakan 1 artikel Sriwijaya. Tanpa query Inggris, topik teknis
+  (ML) hanya mendapat jurnal berbahasa Indonesia.
+- Europe PMC/arXiv/Wikipedia/Open Library belum terpakai di uji karena topik uji tidak memicunya (butuh `bidang` dari LLM
+  atau kasus tanpa hasil akademik).
+- Perbandingan langsung dengan jalur lama (agen LLM) butuh API key LLM; belum dijalankan.
