@@ -16,7 +16,7 @@ describe("headHtml / applyPage", () => {
   it("meng-escape atribut dan JSON-LD, serta memuat canonical + OG + Twitter", () => {
     const h = headHtml(p);
     expect(h).toContain("<title>Judul &quot;uji&quot; &lt;b&gt;</title>");
-    expect(h).toContain('<link rel="canonical" href="https://malas-app.netlify.app/panduan/x" />');
+    expect(h).toContain('<link rel="canonical" href="https://malas.alfthrpy.my.id/panduan/x" />');
     expect(h).toContain('property="og:type" content="article"');
     expect(h).toContain('name="twitter:title"');
     expect(h).not.toContain("</script><script>"); // JSON-LD tidak bisa menutup skripnya sendiri
@@ -47,8 +47,8 @@ describe("sitemap & redirects", () => {
   ];
   it("sitemap memuat halaman terindeks dengan lastmod dan membuang noindex", () => {
     const x = sitemapXml(pages);
-    expect(x).toContain("<loc>https://malas-app.netlify.app/</loc>");
-    expect(x).toContain("<loc>https://malas-app.netlify.app/panduan/x</loc><lastmod>2026-11-20</lastmod>");
+    expect(x).toContain("<loc>https://malas.alfthrpy.my.id/</loc>");
+    expect(x).toContain("<loc>https://malas.alfthrpy.my.id/panduan/x</loc><lastmod>2026-11-20</lastmod>");
     expect(x).not.toContain("/masuk");
   });
   it("_redirects melayani tiap halaman prerender persis di URL-nya", () => {
