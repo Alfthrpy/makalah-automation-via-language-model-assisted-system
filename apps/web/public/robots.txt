@@ -4,4 +4,6 @@ Disallow: /dasbor
 Disallow: /buat
 Disallow: /job/
 Disallow: /pengaturan
+Disallow: /masuk
+Disallow: /daftar
 Sitemap: https://malas-app.netlify.app/sitemap.xml

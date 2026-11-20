@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { PRIVACY_DESCRIPTION, TERMS_DESCRIPTION } from "../../seo/site";
+import { useSeo } from "../../seo/useSeo";
 import { LEGAL_UPDATED, PRIVACY, TERMS, type Block, type LegalDoc } from "../legal/content";
 
 const DOCS: Record<"terms" | "privacy", LegalDoc> = { terms: TERMS, privacy: PRIVACY };
@@ -25,7 +26,7 @@ function BlockView({ block }: { block: Block }) {
 /** Ketentuan Layanan / Kebijakan Privasi. Teksnya di ../legal/content.ts (harus sejalan dengan perilaku sistem). */
 export default function Legal({ doc }: { doc: "terms" | "privacy" }) {
   const d = DOCS[doc];
-  useEffect(() => { document.title = `${d.title} · MALAS`; return () => { document.title = "MALAS"; }; }, [d.title]);
+  useSeo({ title: d.title, description: doc === "terms" ? TERMS_DESCRIPTION : PRIVACY_DESCRIPTION, path: doc === "terms" ? "/ketentuan" : "/privasi" });
   return (
     <main className="screen" id="main">
       <div className="wrap legal">

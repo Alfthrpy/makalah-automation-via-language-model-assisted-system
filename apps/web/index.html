@@ -7,8 +7,12 @@
     <meta name="description" content="MALAS (Makalah Automation via Language-model Assisted System): bantu susun draf makalah, kamu yang cek dan finalkan." />
     <meta name="theme-color" content="#2c3a9e" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <!-- Pratinjau saat dibagikan. URL absolut (og:image wajib absolut): ganti malas-app.netlify.app bila domain berubah
-         (juga di public/robots.txt dan public/sitemap.xml). -->
+    <!-- Blok di bawah ini DIGANTI per halaman saat build oleh scripts/prerender.mjs (meta, canonical, Open Graph, JSON-LD).
+         Isi di sini = bawaan untuk dev dan rute tanpa prerender. URL absolut (og:image wajib absolut): domain di src/seo/site.ts. -->
+    <!--seo:start-->
+    <title>MALAS: Penyusun Draf Makalah, Referensi Bisa Dicek</title>
+    <meta name="description" content="Susun draf makalah .docx dari judul: sitasi APA, daftar pustaka, referensi dari database jurnal yang bisa dicek. Mode uji gratis tanpa API key." />
+    <link rel="canonical" href="https://malas-app.netlify.app/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="MALAS" />
     <meta property="og:locale" content="id_ID" />
@@ -20,7 +24,17 @@
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="MALAS: Kamu mager, MALAS yang gerak. Penyusun draf makalah." />
     <meta name="twitter:card" content="summary_large_image" />
-    <title>MALAS</title>
+    <!--seo:end-->
+    <style>
+      /* Konten statis untuk crawler; hilang begitu React termuat. Dibuat rapi agar tidak terasa "rusak" di jaringan lambat. */
+      .seo-static { max-width: 720px; margin: 0 auto; padding: 24px 20px 48px; font: 16px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f3b; }
+      .seo-static h1 { font-size: 1.9rem; line-height: 1.2; margin: 8px 0 12px; }
+      .seo-static h2 { font-size: 1.3rem; margin: 28px 0 8px; }
+      .seo-static h3 { font-size: 1.05rem; margin: 16px 0 4px; }
+      .seo-static a { color: #2c3a9e; }
+      .seo-static pre { white-space: pre-wrap; background: #f1f2fa; padding: 12px; border-radius: 8px; }
+      @media (prefers-color-scheme: dark) { .seo-static { color: #e8e9f5; } .seo-static a { color: #aeb6ff; } .seo-static pre { background: #1d2140; } }
+    </style>
   </head>
   <body>
     <div id="root"></div>

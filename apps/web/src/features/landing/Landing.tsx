@@ -8,6 +8,8 @@ import { useAuthState } from "../../lib/auth";
 import { MotionButton, MotionProvider, useMotion, useSeenOnce } from "./motion";
 import { buildPreview } from "./preview";
 import { StepsSection } from "./Steps";
+import { LANDING_DESCRIPTION, LANDING_TITLE } from "../../seo/site";
+import { useSeo } from "../../seo/useSeo";
 
 const L = t.landing;
 
@@ -250,6 +252,7 @@ function Footer() {
       <div className="wrap foot-in">
         <span className="foot-brand">{L.footer.copy} <b>{t.brand.name}</b> · <span className="muted">{t.brand.full}</span></span>
         <nav aria-label={L.footer.legal}>
+          <a href="/panduan">Panduan</a>
           <a href="/ketentuan">{L.footer.terms}</a>
           <a href="/privasi">{L.footer.privacy}</a>
         </nav>
@@ -279,6 +282,7 @@ function LandingBody() {
 export default function Landing() {
   const auth = useAuthState();
   const quiet = useCallback(() => {}, []);
+  useSeo({ title: LANDING_TITLE, description: LANDING_DESCRIPTION, path: "/" });
   if (auth.ready && auth.signedIn) return <Navigate to="/dasbor" replace />;
   return <MotionProvider onPause={quiet}><LandingBody /></MotionProvider>;
 }
