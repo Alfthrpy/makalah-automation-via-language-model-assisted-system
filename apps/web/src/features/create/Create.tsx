@@ -234,6 +234,14 @@ export default function Create() {
                   {(a) => <Input maxLength={120} value={form.dosen_pengampu} onChange={(e) => set("dosen_pengampu", e.target.value)} {...a} />}
                 </Field>
               </div>
+              <div className="grid2">
+                <Field id="subjek" label={f.subjek} optional>
+                  {(a) => <Input maxLength={120} placeholder={f.subjekPh} value={form.subjek} onChange={(e) => set("subjek", e.target.value)} {...a} />}
+                </Field>
+                <Field id="jenjang" label={f.jenjang} optional>
+                  {(a) => <Input maxLength={60} placeholder={f.jenjangPh} value={form.jenjang} onChange={(e) => set("jenjang", e.target.value)} {...a} />}
+                </Field>
+              </div>
             </Section>
 
             <Section n={2} id="penyusun" title={F.sec.penyusun} hint={F.secHint.penyusun}>

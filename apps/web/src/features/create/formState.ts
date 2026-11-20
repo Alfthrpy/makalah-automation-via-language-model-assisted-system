@@ -12,6 +12,8 @@ export const SAMPLE: Omit<PaperForm, "template" | "mock" | "provider" | "keySour
   judul: "Penerapan Gamifikasi untuk Meningkatkan Motivasi Belajar Bahasa Arab",
   mata_kuliah: "Teknologi Pembelajaran PAI",
   dosen_pengampu: "Dr. Siti Nurhaliza, M.Pd.",
+  subjek: "siswa madrasah",
+  jenjang: "MTs",
   universitas: "Islam Cendekia Nusantara",
   fakultas: "Ilmu Tarbiyah dan Keguruan",
   jurusan: "Pendidikan Agama Islam",
@@ -23,7 +25,7 @@ export const SAMPLE: Omit<PaperForm, "template" | "mock" | "provider" | "keySour
 
 export function defaultForm(o: { year?: number; template?: string; provider?: string } = {}): PaperForm {
   return {
-    judul: "", mata_kuliah: "", dosen_pengampu: "", penyusun: [emptyPenyusun(newRid())],
+    judul: "", mata_kuliah: "", dosen_pengampu: "", subjek: "", jenjang: "", penyusun: [emptyPenyusun(newRid())],
     universitas: "", fakultas: "", jurusan: "", kota: "", kelas: "", tahun: String(o.year ?? new Date().getFullYear()),
     template: o.template ?? "", mock: false, provider: o.provider ?? "openrouter", keySource: "saved",
     api_key: "", save_key: false, model_planner: "", model_writer: "",
@@ -58,6 +60,7 @@ export function loadDraft(base: PaperForm): PaperForm | null {
     return {
       ...base,
       judul: str(d.judul, ""), mata_kuliah: str(d.mata_kuliah, ""), dosen_pengampu: str(d.dosen_pengampu, ""),
+      subjek: str(d.subjek, ""), jenjang: str(d.jenjang, ""),
       universitas: str(d.universitas, ""), fakultas: str(d.fakultas, ""), jurusan: str(d.jurusan, ""),
       kota: str(d.kota, ""), kelas: str(d.kelas, ""), tahun: str(d.tahun, base.tahun),
       template: str(d.template, base.template), mock: d.mock === true, provider: str(d.provider, base.provider),
@@ -82,6 +85,7 @@ export function takeRefill(base: PaperForm): PaperForm | null {
     return {
       ...base,
       judul: r.judul ?? "", mata_kuliah: r.mata_kuliah ?? "", dosen_pengampu: r.dosen_pengampu ?? "",
+      subjek: r.subjek ?? "", jenjang: r.jenjang ?? "",
       universitas: r.universitas ?? "", fakultas: r.fakultas ?? "", jurusan: r.jurusan ?? "", kota: r.kota ?? "", kelas: r.kelas ?? "",
       tahun: r.tahun ?? base.tahun,
       penyusun: (r.penyusun?.length ? r.penyusun : [{ nama: "" }]).slice(0, MAX_PENYUSUN).map((p) => ({ rid: newRid(), nama: p.nama ?? "", nim: p.nim ?? "" })),

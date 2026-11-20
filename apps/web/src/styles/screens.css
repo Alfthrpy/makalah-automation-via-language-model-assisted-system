@@ -124,6 +124,8 @@
 .stats div { background: var(--surface); padding: 12px 14px; display: grid; gap: 2px; }
 .stats b { font-family: var(--font-display); font-size: var(--fs-xl); font-weight: 700; font-variant-numeric: tabular-nums; }
 .stats span { font-size: var(--fs-xs); color: var(--muted); }
+.quality-note { display: grid; gap: 6px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
+.quality-note h3 { margin: 0; }
 .side-card { display: grid; gap: var(--sp-4); }
 .resume-meter { display: grid; grid-auto-flow: column; gap: 3px; }
 .resume-meter i { height: 8px; border-radius: 2px; background: var(--ok); }
