@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1080">
+<title>MALAS Promo Vertikal</title>
+<!--
+  Video promo vertikal MALAS (1080x1920, 30 fps, tanpa audio).
+  Deterministik: seluruh tampilan dihitung dari waktu t lewat window.renderFrame(tMs).
+  ?play=1  -> pratinjau realtime (loop)
+  ?t=12.3  -> tampilkan satu bingkai pada detik tertentu
+  Font self-host di ./fonts (tanpa internet).
+-->
+<style>
+@font-face{font-family:"Bricolage";src:url(fonts/bricolage-grotesque-latin-wght-normal.woff2) format("woff2");font-weight:200 800;font-display:block}
+@font-face{font-family:"Jakarta";src:url(fonts/plus-jakarta-sans-latin-600-normal.woff2) format("woff2");font-weight:600;font-display:block}
+@font-face{font-family:"Jakarta";src:url(fonts/plus-jakarta-sans-latin-700-normal.woff2) format("woff2");font-weight:700;font-display:block}
+@font-face{font-family:"Jakarta";src:url(fonts/plus-jakarta-sans-latin-800-normal.woff2) format("woff2");font-weight:800;font-display:block}
+@font-face{font-family:"JBMono";src:url(fonts/jetbrains-mono-latin-500-normal.woff2) format("woff2");font-weight:500;font-display:block}
+@font-face{font-family:"JBMono";src:url(fonts/jetbrains-mono-latin-700-normal.woff2) format("woff2");font-weight:700;font-display:block}
+
+/* token merek (mode terang dari apps/web/src/styles/tokens.css) */
+:root{
+  --bg:#f4f5f8; --surface:#ffffff; --surface-2:#eceef4; --ink:#161a2c; --muted:#545b73;
+  --line:#d9dce6; --line-strong:#b9bed0; --accent:#2c3a9e; --accent-soft:#e5e8fa; --on-accent:#ffffff;
+  --mark:#ffe55c; --mark-ink:#1d1a05; --margin-red:#e0607a; --rule:#cfd8f0; --ok:#14703a; --ok-soft:#e1f3e7;
+  --night:#0f1220; --night-accent:#a3aeff; --night-ok:#61d08f;
+}
+html,body{margin:0;padding:0;background:#000}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden;background:var(--bg);
+  font-family:"Jakarta",system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+.scene{position:absolute;inset:0;display:none;overflow:hidden}
+.light{background:var(--bg)} .blue{background:var(--accent);color:var(--on-accent)} .night{background:var(--night);color:#fff}
+.in{position:absolute;inset:0;transform-origin:520px 900px}
+
+/* headline kinetik */
+.hd{position:absolute;left:72px;width:888px;margin:0;font-family:"Bricolage";font-weight:800;
+  letter-spacing:-.04em;line-height:.98;color:var(--ink)}
+.blue .hd,.night .hd{color:#fff}
+.w{display:inline-block;position:relative}
+.wi{display:inline-block;position:relative;z-index:1;transform-origin:50% 80%}
+.acc .wi{color:var(--accent)} .night .acc .wi{color:var(--night-accent)}
+.mk .wi{color:var(--mark-ink)}
+.hlb{position:absolute;left:-.07em;right:-.07em;top:.14em;bottom:.02em;background:var(--mark);
+  transform-origin:0 50%;transform:scaleX(0);border-radius:.06em;z-index:0}
+
+/* jendela browser + tab */
+.win{position:absolute;background:var(--surface);border:4px solid var(--ink);border-radius:30px;overflow:hidden;
+  box-shadow:0 18px 0 -4px rgba(22,26,44,.14)}
+.tabs{position:relative;height:96px;background:var(--surface-2);border-bottom:4px solid var(--ink)}
+.tab{position:absolute;top:18px;height:78px;background:#fff;border:3px solid var(--line-strong);border-bottom:none;
+  border-radius:16px 16px 0 0;overflow:hidden;white-space:nowrap;font:600 25px "Jakarta";color:var(--muted);
+  display:flex;align-items:center;gap:10px;padding:0 0 0 12px;box-sizing:border-box;transform-origin:50% 100%}
+.tab .fav{flex:none;width:24px;height:30px;border-radius:5px;background:var(--margin-red)}
+.tab.docx .fav{background:var(--accent)}
+.tab.docx{color:var(--ink);font-weight:700}
+.wbody{position:absolute;left:0;right:0;top:100px;bottom:0;
+  background:repeating-linear-gradient(#fff 0 66px,var(--rule) 66px 69px)}
+.wbody .mline{position:absolute;left:96px;top:0;bottom:0;width:4px;background:var(--margin-red);opacity:.8}
+.caret{position:absolute;left:126px;top:36px;width:10px;height:92px;background:var(--accent);border-radius:3px}
+.wc{position:absolute;left:126px;bottom:26px;font:700 34px "JBMono";color:var(--muted);background:#fff;padding:4px 10px;border-radius:8px}
+.mono{font-family:"JBMono"}
+
+/* kartu umum */
+.card{position:absolute;background:var(--surface);border:4px solid var(--ink);border-radius:30px;box-sizing:border-box;
+  box-shadow:0 16px 0 -4px rgba(22,26,44,.14)}
+.bar{position:absolute;height:26px;border-radius:13px;background:var(--line);transform-origin:0 50%}
+.bar.ink{background:var(--ink);height:32px;border-radius:16px}
+.btn{position:absolute;display:flex;align-items:center;justify-content:center;gap:18px;border-radius:999px;
+  font-family:"Bricolage";font-weight:800;letter-spacing:-.02em;box-sizing:border-box}
+.chip{position:absolute;display:flex;align-items:center;gap:14px;border-radius:999px;font:800 46px "Jakarta";
+  padding:18px 34px;white-space:nowrap}
+
+/* maskot (turunan Mascot.tsx) */
+.masc{position:absolute;overflow:visible}
+.masc .o{stroke:var(--ink);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.masc .sheet{fill:var(--surface)} .masc .nf{fill:none}
+.masc .margin{stroke:var(--margin-red);stroke-width:3;stroke-linecap:round}
+.masc .cheek{fill:var(--margin-red);opacity:.45}
+.masc .hl{fill:var(--mark)}
+.masc .eye{fill:var(--ink)}
+.masc .z{fill:none;stroke:var(--accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.blue .masc .z{stroke:#fff}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script>
+(function(){
+"use strict";
+const TOTAL = 23.2;                 // detik; 696 bingkai @30fps
+const stage = document.getElementById('stage');
+
+/* ---------- utilitas waktu & easing (murni) ---------- */
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const P=(t,a,d)=>clamp((t-a)/d);
+const lerp=(a,b,x)=>a+(b-a)*x;
+const outCubic=x=>1-Math.pow(1-x,3);
+const inCubic=x=>x*x*x;
+const outExpo=x=>x>=1?1:1-Math.pow(2,-10*x);
+const inOutCubic=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const outBack=(x,s=1.9)=>{const c=s+1;return 1+c*Math.pow(x-1,3)+s*Math.pow(x-1,2);};
+const blink=(t,hz=2.2)=>Math.floor(t*hz*2)%2===0;      // kursor kedip deterministik
+function tf(el,o){
+  const x=o.x||0,y=o.y||0,r=o.r||0,s=o.s===undefined?1:o.s;
+  const sx=o.sx===undefined?s:o.sx, sy=o.sy===undefined?s:o.sy;
+  el.style.transform=`translate(${x.toFixed(2)}px,${y.toFixed(2)}px) rotate(${r.toFixed(3)}deg) scale(${sx.toFixed(4)},${sy.toFixed(4)})`;
+  if(o.o!==undefined) el.style.opacity=clamp(o.o).toFixed(3);
+}
+const $=(sel,root=stage)=>root.querySelector(sel);
+const $$=(sel,root=stage)=>Array.from(root.querySelectorAll(sel));
+
+/* ---------- pembangun markup ---------- */
+// *kata* = biru tinta (aksen), _kata_ = stabilo (kata kunci/sitasi)
+function H(s){
+  return s.split(' ').map(w=>{
+    let cls='w', hl='';
+    if(w.startsWith('*')){w=w.replace(/\*/g,'');cls+=' acc';}
+    if(/^_/.test(w)){w=w.replace(/_/g,'');cls+=' mk';hl='<span class="hlb"></span>';}
+    return `<span class="${cls}">${hl}<span class="wi">${w}</span></span>`;
+  }).join(' ');
+}
+const TICK='M86 94l4 4 8-8';
+function mascot(id,cls=''){
+  return `<svg class="masc ${cls}" id="${id}" viewBox="-14 -34 156 156" aria-hidden="true">
+  <g class="pose"><g class="breathe">
+    <path class="sheet o" d="M34 14h46l16 16v62a10 10 0 0 1-10 10H34a10 10 0 0 1-10-10V24a10 10 0 0 1 10-10z"/>
+    <path class="o nf" d="M80 14v10a6 6 0 0 0 6 6h10"/>
+    <path class="margin" d="M38 18v80"/>
+    <g class="face"><path class="eyesC o nf" d="M52 50q5 6 10 0M70 50q5 6 10 0"/>
+    <g class="eyesO"><ellipse class="eye" cx="57" cy="51" rx="3.6" ry="4.4"/><ellipse class="eye" cx="75" cy="51" rx="3.6" ry="4.4"/></g>
+    <path class="mouth o nf" d="M60 62q6 5 12 0"/>
+    <ellipse class="cheek" cx="52" cy="62" rx="4" ry="2"/><ellipse class="cheek" cx="80" cy="62" rx="4" ry="2"/></g>
+    <rect class="hl" x="46" y="76" width="40" height="8" rx="2"/>
+    <path class="o nf" d="M48 92h22"/>
+  </g></g>
+  <g class="zz"><path class="z z1" d="M102 24h12l-12 12h12"/><path class="z z2" d="M116 4h8l-8 8h8"/></g>
+  <g class="bang"><path class="o nf" d="M118 -4v14" style="stroke-width:5"/><circle cx="118" cy="20" r="3" fill="var(--ink)"/></g>
+</svg>`;
+}
+// st: {open 0..1, lie 0..1 (rebahan), jump px, squash, t (untuk napas/zz), z 0..1, bang 0..1}
+function setMascot(svg,st){
+  const t=st.t||0, lie=st.lie||0, open=st.open||0;
+  const br=1+0.03*Math.sin(t*Math.PI*2/1.6);
+  const sq=st.squash||1;
+  const pose=$('.pose',svg), b=$('.breathe',svg);
+  // rebahan: berputar 90deg searah jarum jam di sekitar titik bawah-kanan, lalu turun ke lantai
+  const ang=90*lie;
+  pose.setAttribute('transform',`translate(0 ${(-(st.jump||0)+lie*8).toFixed(2)}) rotate(${ang.toFixed(2)} 60 58)`);
+  b.setAttribute('transform',`translate(60 102) scale(${(1/Math.sqrt(sq)).toFixed(4)} ${(br*sq).toFixed(4)}) translate(-60 -102)`);
+  // wajah tetap tegak saat rebahan (diputar balik), supaya tetap terbaca "tidur"
+  $('.face',svg).setAttribute('transform',`rotate(${(-ang).toFixed(2)} 66 56)`);
+  const eo=$('.eyesO',svg), ec=$('.eyesC',svg);
+  if(open>0.06){eo.style.display='';ec.style.display='none';$$('.eye',svg).forEach(e=>e.setAttribute('ry',(4.4*open).toFixed(2)));}
+  else{eo.style.display='none';ec.style.display='';}
+  const z=st.z===undefined?1:st.z;
+  $$('.z',svg).forEach((zz,i)=>{
+    const ph=((t*0.8+i*0.5)%1+1)%1;
+    zz.setAttribute('transform',`translate(${(ph*6+(lie?-4:0)).toFixed(2)} ${(-ph*14+(lie?14:0)).toFixed(2)})`);
+    zz.style.opacity=(z*Math.sin(Math.PI*ph)).toFixed(3);
+  });
+  const bang=$('.bang',svg); const bg=st.bang||0;
+  bang.style.opacity=bg>0.01?1:0;
+  bang.setAttribute('transform',`translate(118 20) scale(${bg.toFixed(3)}) translate(-118 -20)`);
+}
+const TABN=14;
+function tabsMarkup(){
+  let s='';
+  for(let i=0;i<TABN;i++) s+=`<div class="tab"><span class="fav"></span>jurnal-${String(i+1).padStart(2,'0')}.pdf</div>`;
+  return s+`<div class="tab docx"><span class="fav"></span>draf-makalah.docx</div>`;
+}
+function layoutTabs(win,pres,docxP){
+  const tabs=$$('.tab',win), W=win.clientWidth-16;
+  const all=pres.concat([docxP]);
+  const sum=all.reduce((a,b)=>a+b,0);
+  const base=Math.min(300,W/Math.max(sum,1));
+  let x=8;
+  tabs.forEach((tab,i)=>{
+    const p=all[i], w=base*p;
+    tab.style.left=x.toFixed(2)+'px';
+    tab.style.width=Math.max(0,w-4).toFixed(2)+'px';
+    tab.style.display=p>0.01?'flex':'none';
+    tab.style.transform=`scaleY(${clamp(p*1.4,0,1.15).toFixed(3)})`;
+    x+=w;
+  });
+}
+
+/* ---------- adegan ---------- */
+const scenes=[];
+function scene(id,cls,start,end,html,fn,opts={}){
+  const el=document.createElement('section');
+  el.className='scene '+cls; el.id=id;
+  el.innerHTML=`<div class="in">${html}</div>`;
+  stage.appendChild(el);
+  scenes.push({id,el,start,end,fn,punch:opts.punch!==false});
+}
+function kin(root,lt,start=0,stag=0.065,dur=0.42){
+  const ws=$$('.wi',root);
+  ws.forEach((w,i)=>{
+    const x=P(lt,start+i*stag,dur), e=outBack(x,2.1);
+    tf(w,{y:(1-e)*110,s:lerp(.55,1,e),r:(1-e)*-9,o:x*3});
+  });
+  $$('.hlb',root).forEach(h=>{
+    // stabilo mulai bersama katanya sendiri: teks gelap tidak sempat tampil tanpa latar di adegan biru
+    const i=ws.indexOf(h.nextElementSibling);
+    const x=outExpo(P(lt,start+i*stag,0.3));
+    h.style.transform=`scaleX(${x.toFixed(4)})`;
+  });
+}
+const WIN_HTML=(id)=>`<div class="win" id="${id}" style="left:72px;top:280px;width:888px;height:640px">
+  <div class="tabs">${tabsMarkup()}</div>
+  <div class="wbody"><div class="mline"></div><div class="caret"></div><div class="wc">Kata: 0</div><div class="outl"></div></div></div>`;
+
+/* S1 HOOK 0.0-1.8: tab jurnal bertambah, dokumen kosong */
+scene('s1','light',0,1.8,
+  WIN_HTML('w1')+
+  `<h1 class="hd" id="s1a" style="top:1000px;font-size:150px"><span id="s1n" style="color:var(--accent)">6</span> tab jurnal.</h1>
+   <h1 class="hd" id="s1b" style="top:1170px;font-size:200px"><span class="w"><span class="wi">0 kata.</span></span></h1>`,
+  (lt)=>{
+    const win=$('#w1');
+    const pres=[]; let n=0;
+    for(let i=0;i<TABN;i++){
+      const p=i<6?1:outBack(P(lt,(i-6)*0.055,0.2),2.4);
+      pres.push(p); if(p>0.5) n++;
+    }
+    layoutTabs(win,pres,0);
+    $('#s1n').textContent=String(Math.max(6,n));
+    const sl=P(lt,0.62,0.34);
+    tf($('#s1n'),{});
+    tf($('#s1b .wi'),{s:lerp(2.4,1,outBack(sl,1.6)),r:(1-outCubic(sl))*-6,o:sl*4});
+    const shake=lt>0.7?Math.sin((lt-0.7)*70)*22*Math.exp(-(lt-0.7)*9):0;
+    tf(win,{x:shake});
+    $('.caret',win).style.opacity=blink(lt)?1:0;
+    $('.outl',win).innerHTML='';
+    // pop kecil pada angka tiap kali tab baru muncul
+    const pk=n<TABN?1+0.08*Math.sin(Math.PI*((lt/0.055)%1)):1;
+    $('#s1n').style.display='inline-block';
+    $('#s1n').style.transform=`scale(${pk.toFixed(3)})`;
+    // dorongan kamera pelan menuju adegan berikut
+    tf($('#s1 .in'),{s:1+0.035*inCubic(P(lt,1.1,0.7))});
+  },{punch:false});
+
+/* S2 1.8-3.2: "Mager?" lalu melorot */
+scene('s2','night',1.8,3.2,
+  `<h1 class="hd" id="s2a" style="top:620px;font-size:250px;text-align:center">${'Mager?'.split('').map(c=>`<span class="w"><span class="wi">${c}</span></span>`).join('')}</h1>
+   <h1 class="hd" id="s2b" style="top:1000px;font-size:110px;text-align:center;color:var(--night-accent)">${H('Wajar kok.')}</h1>`,
+  (lt)=>{
+    $$('#s2a .wi').forEach((w,i)=>{
+      const x=P(lt,i*0.045,0.4), e=outBack(x,2.4);
+      tf(w,{y:(1-e)*-320,r:(1-e)*(i%2?14:-14),o:x*4});
+    });
+    const sag=outBack(P(lt,0.72,0.4),2.6);
+    tf($('#s2a'),{y:sag*36,sx:1+0.04*sag,sy:1-0.12*sag,r:-3*sag});
+    kin($('#s2b'),lt,0.55,0.08);
+  });
+
+/* S3 3.2-4.8: maskot bangun, "Kenalin, MALAS." */
+scene('s3','blue',3.2,4.8,
+  mascot('m3')+`<h1 class="hd" id="s3a" style="top:1060px;font-size:160px;text-align:center">${H('Kenalin, _MALAS._')}</h1>`,
+  (lt)=>{
+    const m=$('#m3'); m.style.left='180px'; m.style.top='330px'; m.style.width='680px';
+    const open=outBack(P(lt,0.32,0.14),2);
+    const jp=P(lt,0.5,0.36);
+    const pre=lt>0.4&&lt<0.5?1-0.12*Math.sin(Math.PI*P(lt,0.4,0.1)):1;
+    const land=lt>0.86?1-0.1*Math.sin(Math.PI*P(lt,0.86,0.14)):1;
+    setMascot(m,{t:lt,open,jump:Math.sin(Math.PI*jp)*26,squash:pre*land*(jp>0&&jp<1?1.06:1),z:1-P(lt,0.25,0.12),
+      bang:lt<0.32?0:outBack(P(lt,0.32,0.18),3)*(1-P(lt,1.0,0.15))});
+    kin($('#s3a'),lt,0.5,0.1);
+  });
+
+/* S4 4.8-6.8: ketik judul */
+const TITLE='Media Sosial & Minat Baca';
+scene('s4','light',4.8,6.8,
+  `<h1 class="hd" id="s4a" style="top:290px;font-size:150px">${H('Ketik *judulnya.*')}</h1>
+   <div class="card" id="s4c" style="left:72px;top:620px;width:888px;height:300px;padding:44px 48px">
+     <div style="font:800 64px/1.2 Jakarta;color:var(--ink)"><span id="s4t"></span><span id="s4k" style="display:inline-block;width:7px;height:70px;background:var(--accent);vertical-align:-10px;margin-left:4px;border-radius:2px"></span></div>
+   </div>
+   <div class="btn" id="s4b" style="left:560px;top:980px;width:400px;height:140px;background:var(--accent);color:#fff;font-size:72px">Susun
+     <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15M13 6l6 6-6 6"/></svg></div>
+   ${mascot('m4')}`,
+  (lt)=>{
+    const n=Math.round(P(lt,0.3,1.0)*TITLE.length);
+    $('#s4t').textContent=TITLE.slice(0,n);
+    $('#s4k').style.opacity=(n<TITLE.length||blink(lt))?1:0;
+    kin($('#s4a'),lt,0,0.08);
+    const cp=outBack(P(lt,0.08,0.4),1.6); tf($('#s4c'),{y:(1-cp)*120,o:cp*3});
+    const bp=outBack(P(lt,1.2,0.3),2.4);
+    const press=lt>1.6?1-0.1*Math.sin(Math.PI*P(lt,1.6,0.16)):1;
+    tf($('#s4b'),{s:bp*press,o:bp*3});
+    const m=$('#m4'); m.style.left='70px'; m.style.top='1060px'; m.style.width='380px';
+    const typing=lt>0.3&&lt<1.3;
+    setMascot(m,{t:lt,open:1,jump:typing?Math.abs(Math.sin(lt*22))*6:0,z:0});
+    tf(m,{r:typing?Math.sin(lt*11)*3:0});
+  });
+
+/* S5 6.8-8.4: pakai API key sendiri + Mode uji gratis */
+scene('s5','light',6.8,8.4,
+  `<h1 class="hd" id="s5a" style="top:290px;font-size:140px">${H('Pakai *API* *key-mu* sendiri.')}</h1>
+   <div class="card" id="s5c" style="left:72px;top:700px;width:888px;height:190px;display:flex;align-items:center;gap:26px;padding:0 44px">
+     <svg width="84" height="84" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="8" cy="15" r="4.5"/><path d="M11.2 11.8L20 3M16.5 6.5l3 3M14 9l2 2"/></svg>
+     <span id="s5k" style="font:700 58px JBMono;color:var(--ink);white-space:nowrap"></span>
+   </div>
+   ${mascot('m5')}<div class="chip" id="s5d" style="left:72px;top:980px;background:var(--accent-soft);color:var(--accent);border:4px solid var(--accent)">
+     <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>Mode uji: gratis</div>`,
+  (lt)=>{
+    kin($('#s5a'),lt,0,0.07);
+    const cp=outBack(P(lt,0.1,0.35),1.6); tf($('#s5c'),{y:(1-cp)*120,o:cp*3});
+    const pasted=lt>0.55;
+    $('#s5k').textContent=pasted?'sk-or-v1-••••••':'';
+    const fl=P(lt,0.55,0.35);
+    $('#s5c').style.background=pasted?`color-mix(in srgb, var(--mark) ${(60*(1-fl)).toFixed(1)}%, #fff)`:'#fff';
+    tf($('#s5k'),{s:pasted?lerp(1.25,1,outBack(fl,2)):1});
+    const dp=outBack(P(lt,0.9,0.35),2.4); tf($('#s5d'),{s:dp,o:dp*3});
+    const m=$('#m5'); m.style.left='520px'; m.style.top='1100px'; m.style.width='400px';
+    const nod=lt>0.6&&lt<1.0?Math.sin(Math.PI*P(lt,0.6,0.4))*10:0;
+    setMascot(m,{t:lt,open:1,jump:nod,z:0,bang:0});
+  });
+
+/* S6 8.4-10.6: outline tersusun, maskot rebahan lagi */
+function outlineMarkup(){
+  const babs=['I','II','III'], subs=[[560,470,520],[600,430,500],[520,580,380]];
+  let s='';
+  babs.forEach((b,i)=>{
+    const y=70+i*220;
+    s+=`<div class="bab" style="position:absolute;left:110px;top:${y}px;width:84px;height:84px;border-radius:50%;background:var(--accent);color:#fff;font:800 40px Bricolage;display:flex;align-items:center;justify-content:center">${b}</div>`;
+    s+=`<div class="bar ink" style="left:220px;top:${y+26}px;width:${[380,420,340][i]}px"></div>`;
+    subs[i].forEach((w,j)=>{ if(j<2) s+=`<div class="bar sub" style="left:220px;top:${y+96+j*48}px;width:${w-120}px"></div>`; });
+  });
+  return s;
+}
+scene('s6','light',8.4,10.6,
+  `<h1 class="hd" id="s6a" style="top:280px;font-size:124px">${H('*MALAS* nyusun outline.')}</h1>
+   <div class="card" id="s6c" style="left:96px;top:600px;width:800px;height:740px;overflow:hidden;
+     background:repeating-linear-gradient(#fff 0 64px,var(--rule) 64px 67px)">
+     <div style="position:absolute;left:76px;top:0;bottom:0;width:4px;background:var(--margin-red);opacity:.8"></div>
+     ${outlineMarkup()}
+   </div>
+   ${mascot('m6')}`,
+  (lt)=>{
+    kin($('#s6a'),lt,0,0.08);
+    const c=$('#s6c');
+    const cp=outBack(P(lt,0.05,0.4),1.5); tf(c,{y:(1-cp)*160,r:(1-cp)*3,o:cp*3});
+    $$('.bab',c).forEach((b,i)=>{const x=outBack(P(lt,0.35+i*0.38,0.3),2.6); tf(b,{s:x,o:x*3});});
+    $$('.bar',c).forEach((b,i)=>{
+      const g=Math.floor(i/3), k=i%3;
+      const x=outExpo(P(lt,0.42+g*0.38+k*0.07,0.35));
+      b.style.transform=`scaleX(${x.toFixed(4)})`;
+    });
+    const m=$('#m6'); m.style.left='560px'; m.style.top='1130px'; m.style.width='380px';
+    const lie=outBack(P(lt,0.25,0.45),1.8);
+    setMascot(m,{t:lt,open:1-P(lt,0.5,0.15),lie,z:P(lt,0.7,0.3)});
+  });
+
+/* S7 10.6-12.8: sitasi disorot stabilo, dicocokkan ke sumber */
+scene('s7','light',10.6,12.8,
+  `<h1 class="hd" id="s7a" style="top:280px;font-size:124px">${H('Sitasi dicek ke *sumber* *asli.*')}</h1>
+   <div class="card" id="s7c" style="left:72px;top:700px;width:888px;height:430px">
+     <div class="bar" style="left:56px;top:62px;width:760px"></div>
+     <div class="bar" style="left:56px;top:122px;width:700px"></div>
+     <div class="bar" style="left:56px;top:196px;width:150px"></div>
+     <div id="s7cit" style="position:absolute;left:226px;top:166px;font:800 62px Jakarta;color:var(--mark-ink);white-space:nowrap">
+       <span id="s7hl" style="position:absolute;left:-12px;right:-12px;top:4px;bottom:-2px;background:var(--mark);border-radius:8px;transform-origin:0 50%"></span>
+       <span style="position:relative">(Penulis, Tahun)</span></div>
+     <div class="bar" style="left:56px;top:276px;width:620px"></div>
+     <div class="bar" style="left:56px;top:336px;width:480px"></div>
+   </div>
+   <svg id="s7l" style="position:absolute;left:0;top:0;overflow:visible" width="1080" height="1920"><path d="M440 1080 C 440 1160, 560 1170, 560 1250" fill="none" stroke="var(--ink)" stroke-width="6" stroke-dasharray="14 14" stroke-linecap="round"/></svg>
+   <div class="card" id="s7s" style="left:300px;top:1250px;width:520px;height:230px">
+     <div style="position:absolute;left:40px;top:40px;width:110px;height:148px;border:4px solid var(--ink);border-radius:12px;background:var(--surface-2)"></div>
+     <div class="bar" style="left:180px;top:58px;width:280px;background:var(--ink)"></div>
+     <div class="bar" style="left:180px;top:112px;width:230px"></div>
+     <div class="bar" style="left:180px;top:160px;width:180px"></div>
+     <svg id="s7ok" width="120" height="120" viewBox="0 0 24 24" style="position:absolute;right:-44px;top:-44px;overflow:visible">
+       <circle cx="12" cy="12" r="11" fill="var(--ok)" stroke="var(--ink)" stroke-width="1.4"/><path d="M7 12.5l3.2 3.2L17 8.8" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+   </div>`,
+  (lt)=>{
+    kin($('#s7a'),lt,0,0.07);
+    const cp=outBack(P(lt,0.05,0.38),1.5); tf($('#s7c'),{y:(1-cp)*140,o:cp*3});
+    const ci=outBack(P(lt,0.35,0.3),2.2); tf($('#s7cit'),{s:lerp(.6,1,ci),o:ci*3});
+    $('#s7hl').style.transform=`scaleX(${outExpo(P(lt,0.62,0.4)).toFixed(4)})`;
+    const lp=P(lt,0.95,0.3); const path=$('#s7l path');
+    path.style.opacity=lp>0?1:0;
+    $('#s7l').style.clipPath=`inset(0 0 ${(1920-(1070+lp*190)).toFixed(1)}px 0)`;
+    const sp=outBack(P(lt,1.1,0.35),1.8); tf($('#s7s'),{y:(1-sp)*80,s:lerp(.8,1,sp),o:sp*3});
+    const ok=outBack(P(lt,1.4,0.3),3); tf($('#s7ok'),{s:ok,r:(1-ok)*-90});
+  });
+
+/* S8 12.8-14.8: jadi .docx, 10-30 menit */
+scene('s8','blue',12.8,14.8,
+  `<div id="s8f" style="position:absolute;left:330px;top:300px;width:380px;height:480px">
+     <svg width="380" height="480" viewBox="0 0 190 240" style="overflow:visible">
+       <path d="M18 4h112l52 52v164a16 16 0 0 1-16 16H18a16 16 0 0 1-16-16V20A16 16 0 0 1 18 4z" fill="#fff" stroke="var(--ink)" stroke-width="5" stroke-linejoin="round"/>
+       <path d="M130 4v36a16 16 0 0 0 16 16h36" fill="none" stroke="var(--ink)" stroke-width="5" stroke-linejoin="round"/>
+       <path d="M24 10v220" stroke="var(--margin-red)" stroke-width="4"/>
+       <rect x="40" y="72" width="80" height="12" rx="6" fill="var(--ink)"/>
+       <rect x="40" y="98" width="120" height="9" rx="4.5" fill="var(--line-strong)"/>
+       <rect x="40" y="118" width="104" height="9" rx="4.5" fill="var(--line-strong)"/>
+       <rect x="40" y="138" width="114" height="9" rx="4.5" fill="var(--line-strong)"/>
+       <rect x="-14" y="170" width="140" height="50" rx="12" fill="var(--ink)"/>
+       <text x="56" y="205" text-anchor="middle" font-family="JBMono" font-weight="700" font-size="30" fill="#fff">.docx</text>
+     </svg></div>
+   <h1 class="hd" id="s8a" style="top:880px;font-size:180px;text-align:center">${H('Jadi .docx.')}</h1>
+   <div class="chip" id="s8b" style="left:0;top:1110px;background:#fff;color:var(--accent);font-family:JBMono;font-weight:700;font-size:62px">
+     <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 7v5l3.5 2.5"/></svg>±10–30 menit</div>
+   <div id="s8c" style="position:absolute;left:72px;width:888px;top:1300px;text-align:center;font:700 50px Jakarta;color:rgba(255,255,255,.9)">pakai template kampus</div>`,
+  (lt)=>{
+    const fp=outBack(P(lt,0,0.5),1.7);
+    tf($('#s8f'),{y:(1-fp)*900,r:(1-fp)*16+Math.sin(lt*3)*1.2});
+    kin($('#s8a'),lt,0.3,0.1);
+    const ch=$('#s8b'); ch.style.left=(516-ch.offsetWidth/2).toFixed(0)+'px';
+    const bp=outBack(P(lt,0.7,0.35),2.4); tf(ch,{s:bp,o:bp*3});
+    const cp=P(lt,1.0,0.3); tf($('#s8c'),{y:(1-outCubic(cp))*40,o:cp});
+  });
+
+/* S9 14.8-16.4: hasilnya DRAF */
+scene('s9','light',14.8,16.4,
+  `<h1 class="hd" id="s9a" style="top:380px;font-size:150px;text-align:center">${H('Hasilnya')}</h1>
+   <div id="s9s" style="position:absolute;left:150px;top:600px;width:660px;height:330px;border:16px solid var(--accent);border-radius:34px;box-sizing:border-box;
+     display:flex;align-items:center;justify-content:center;font:800 240px/1 Bricolage;letter-spacing:-.03em;color:var(--accent)">DRAF</div>
+   <h1 class="hd" id="s9b" style="top:1070px;font-size:120px;text-align:center">${H('Baca &amp; cek *sendiri.*')}</h1>`,
+  (lt)=>{
+    kin($('#s9a'),lt,0,0.08);
+    const sp=P(lt,0.22,0.3), e=outBack(sp,1.4);
+    tf($('#s9s'),{s:lerp(2.2,1,e),r:lerp(-14,-5,outCubic(sp)),o:sp*5});
+    const sh=lt>0.45?Math.sin((lt-0.45)*80)*14*Math.exp(-(lt-0.45)*10):0;
+    tf($('#s9 .in'),{x:sh,y:sh*0.6});
+    kin($('#s9b'),lt,0.62,0.08);
+  },{punch:false});
+
+/* S10 16.4-17.8: aturan kampus */
+scene('s10','night',16.4,17.8,
+  `<svg id="s10i" width="200" height="200" viewBox="0 0 24 24" style="position:absolute;left:420px;top:380px;overflow:visible">
+     <path d="M12 2.5l8 3v6c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10v-6z" fill="none" stroke="var(--night-accent)" stroke-width="1.8" stroke-linejoin="round"/>
+     <path d="M8 12.2l2.8 2.8L16.2 9.6" fill="none" stroke="var(--night-ok)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+   <h1 class="hd" id="s10a" style="top:680px;font-size:150px;text-align:center">${H('Ikuti aturan *AI* *kampusmu.*')}</h1>`,
+  (lt)=>{
+    const ip=outBack(P(lt,0,0.4),2.2); tf($('#s10i'),{s:ip,r:(1-ip)*-30,o:ip*3});
+    kin($('#s10a'),lt,0.15,0.09);
+  });
+
+/* S11 17.8-19.6: tutup 14 tab jurnalnya */
+scene('s11','light',17.8,19.6,
+  WIN_HTML('w11')+`<h1 class="hd" id="s11a" style="top:1000px;font-size:150px">${H('Tutup *14* tab jurnalnya.')}</h1>`,
+  (lt)=>{
+    const win=$('#w11');
+    const pres=[];
+    for(let i=0;i<TABN;i++){
+      const st=0.3+(TABN-1-i)*0.05;
+      pres.push(1-outCubic(P(lt,st,0.14)));
+    }
+    const dp=outBack(P(lt,1.0,0.3),2.2);
+    layoutTabs(win,pres,dp);
+    const body=$('.wbody',win);
+    $('.caret',win).style.display='none';
+    $('.wc',win).style.display='none';
+    const o=$('.outl',win);
+    if(!o.children.length){
+      o.innerHTML=[['ink',300,70],['',560,140],['',480,205],['ink',360,300],['',600,370],['',420,435]]
+        .map(([c,w,y])=>`<div class="bar ${c}" style="left:126px;top:${y}px;width:${w}px"></div>`).join('');
+    }
+    $$('.bar',o).forEach((b,i)=>{b.style.transform=`scaleX(${outExpo(P(lt,1.1+i*0.06,0.35)).toFixed(4)})`;});
+    kin($('#s11a'),lt,0.05,0.08);
+  });
+
+/* S12 19.6-21.2: tagline, maskot rebahan, bar yang bergerak */
+scene('s12','blue',19.6,21.2,
+  `<h1 class="hd" id="s12a" style="top:300px;font-size:150px">${H('Kamu mager, _MALAS_ yang gerak.')}</h1>
+   ${mascot('m12')}
+   <div id="s12t" style="position:absolute;left:150px;top:1390px;width:700px;height:34px;border-radius:17px;background:rgba(255,255,255,.28);overflow:hidden">
+     <div id="s12f" style="position:absolute;inset:0;background:#fff;border-radius:17px;transform-origin:0 50%"></div></div>`,
+  (lt)=>{
+    kin($('#s12a'),lt,0,0.08);
+    const m=$('#m12'); m.style.left='230px'; m.style.top='880px'; m.style.width='560px';
+    setMascot(m,{t:lt,open:0,lie:1,z:1});
+    tf(m,{y:(1-outBack(P(lt,0.1,0.4),1.6))*500});
+    $('#s12f').style.transform=`scaleX(${outCubic(P(lt,0.35,1.15)).toFixed(4)})`;
+  });
+
+/* S13 21.2-22.8: CTA */
+scene('s13','blue',21.2,22.8,
+  `<div id="s13l" style="position:absolute;left:0;width:1040px;top:380px;display:flex;align-items:center;justify-content:center;gap:28px">
+     <svg viewBox="0 0 34 34" width="150" height="150"><rect x="1" y="1" width="32" height="32" rx="9" fill="#fff"/><path d="M9 6h11l5 5v17H9z" fill="var(--accent)"/><path d="M20 6v5h5" fill="none" stroke="#fff" stroke-width="1.4"/><rect x="11.5" y="16" width="11" height="3.2" rx="1" fill="var(--mark)"/><path d="M12 22.5h10M12 13h6" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>
+     <span style="font:800 150px/1 Bricolage;letter-spacing:-.04em;color:#fff">MALAS</span></div>
+   <div class="btn" id="s13b" style="left:160px;top:720px;width:720px;height:190px;background:#fff;color:var(--accent);font-size:104px;box-shadow:0 16px 0 -2px rgba(0,0,0,.25)">Coba gratis</div>
+   <div id="s13r" style="position:absolute;left:0;top:0;width:60px;height:60px;border-radius:50%;background:rgba(44,58,158,.25)"></div>
+   ${mascot('m13')}
+   <div id="s13u" style="position:absolute;left:72px;width:888px;top:990px;text-align:center;font:700 62px JBMono;color:#fff;letter-spacing:-.02em">malas-app.netlify.app</div>`,
+  (lt)=>{
+    const lp=outBack(P(lt,0,0.35),2); tf($('#s13l'),{y:(1-lp)*-60,o:lp*3});
+    const bp=outBack(P(lt,0.12,0.4),2.4);
+    const press=lt>0.75?1-0.07*Math.sin(Math.PI*P(lt,0.75,0.18)):1;
+    tf($('#s13b'),{s:bp*press,o:bp*3});
+    const rp=P(lt,0.75,0.45);
+    tf($('#s13r'),{x:600,y:790,s:rp>0?lerp(0.5,9,outCubic(rp)):0,o:rp>0?(1-rp):0});
+    const up=P(lt,0.4,0.35); tf($('#s13u'),{y:(1-outBack(up,2))*50,o:up*3});
+    const m=$('#m13'); m.style.left='290px'; m.style.top='1080px'; m.style.width='440px';
+    setMascot(m,{t:lt+1.6,open:0,lie:1,z:1});
+    tf(m,{y:(1-outBack(P(lt,0.3,0.4),1.6))*420});
+  });
+
+/* ---------- render ---------- */
+const s1=scenes[0];
+const LOOP_START=22.8;   // transisi pulang ke bingkai 0 (loop mulus)
+window.DURATION_MS=TOTAL*1000;
+window.FPS=30;
+window.renderFrame=function(tMs){
+  let t=tMs/1000; t=((t%TOTAL)+TOTAL)%TOTAL;
+  for(const s of scenes){
+    const active=t>=s.start&&t<s.end;
+    s.el.style.display=active?'block':'none';
+    s.el.style.transform=''; s.el.style.zIndex='';
+    if(active){
+      const lt=t-s.start;
+      if(s.punch) tf($('.in',s.el),{s:lerp(1.06,1,outCubic(P(lt,0,0.3)))});
+      s.fn(lt);
+    }
+  }
+  if(t>=LOOP_START){
+    // adegan 1 (keadaan t=0) naik menutup CTA; di ujung sama persis dengan bingkai 0
+    const last=scenes[scenes.length-1];
+    last.el.style.display='block'; last.fn(Math.min(t-last.start,last.end-last.start-0.001));
+    s1.el.style.display='block'; s1.el.style.zIndex='5';
+    s1.fn(0);
+    const p=inOutCubic(P(t,LOOP_START,TOTAL-LOOP_START));
+    s1.el.style.transform=`translateY(${((1-p)*1920).toFixed(2)}px)`;
+  }
+};
+
+const FONTS=['800 100px Bricolage','600 30px Jakarta','700 30px Jakarta','800 30px Jakarta','500 30px JBMono','700 30px JBMono'];
+window.__ready=(async()=>{
+  await Promise.all(FONTS.map(f=>document.fonts.load(f,'Aa0.')));
+  await document.fonts.ready;
+  const ok=FONTS.every(f=>document.fonts.check(f,'Aa'));
+  const q=new URLSearchParams(location.search);
+  window.renderFrame((parseFloat(q.get('t'))||0)*1000);
+  if(q.get('play')){
+    const t0=performance.now();
+    const loop=(now)=>{window.renderFrame(now-t0);requestAnimationFrame(loop);};
+    requestAnimationFrame(loop);
+  }
+  return ok;
+})();
+})();
+</script>
+</body>
+</html>
