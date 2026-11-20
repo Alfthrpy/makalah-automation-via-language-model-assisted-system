@@ -1,0 +1,19 @@
+{
+  "name": "@malas/api-types",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "types": "./schema.d.ts",
+  "exports": {
+    ".": {
+      "types": "./schema.d.ts"
+    }
+  },
+  "scripts": {
+    "generate": "uv run malas-openapi && openapi-typescript openapi.json -o schema.d.ts"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.9.1",
+    "typescript": "~5.9.3"
+  }
+}

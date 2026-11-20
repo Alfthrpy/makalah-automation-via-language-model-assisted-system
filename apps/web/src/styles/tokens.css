@@ -1,0 +1,55 @@
+:root {
+  /* warna: netral sedikit condong ke biru tinta */
+  --bg: #f4f5f8;
+  --surface: #ffffff;
+  --surface-2: #eceef4;
+  --ink: #161a2c;
+  --muted: #545b73;
+  --line: #d9dce6;
+  --line-strong: #b9bed0;
+  --accent: #2c3a9e;          /* biru pulpen */
+  --accent-hover: #222e85;
+  --accent-soft: #e5e8fa;
+  --on-accent: #ffffff;
+  --mark: #ffe55c;            /* stabilo */
+  --mark-ink: #1d1a05;
+  --margin-red: #e0607a;      /* garis margin buku tulis */
+  --rule: #cfd8f0;            /* garis buku tulis */
+  --ok: #14703a;   --ok-soft: #e1f3e7;
+  --warn: #855400; --warn-soft: #fcefd2;
+  --bad: #b3261e;  --bad-soft: #fbe6e4;
+  --scrim: rgb(14 16 28 / .55);
+  --shadow-1: 0 1px 2px rgb(22 26 44 / .06), 0 2px 8px rgb(22 26 44 / .04);
+  --shadow-2: 0 2px 6px rgb(22 26 44 / .08), 0 16px 40px rgb(22 26 44 / .10);
+
+  /* tipografi */
+  --font-display: "Bricolage Grotesque Variable", "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-body: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --fs-xs: .78rem; --fs-sm: .875rem; --fs-md: 1rem; --fs-lg: 1.125rem;
+  --fs-xl: 1.375rem; --fs-2xl: 1.75rem; --fs-3xl: clamp(2rem, 1.4rem + 2.6vw, 3.1rem);
+
+  /* spasi (kelipatan 4px), radius, ukuran */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
+  --r-sm: 8px; --r-md: 12px; --r-lg: 18px; --r-pill: 999px;
+  --tap: 44px;
+  --maxw: 1120px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1220; --surface: #171b2b; --surface-2: #20253a; --ink: #e8eaf5; --muted: #a3a9c2;
+    --line: #2c3249; --line-strong: #444b68; --accent: #a3aeff; --accent-hover: #bcc4ff; --accent-soft: #262d55;
+    --on-accent: #10132a; --mark: #e9cf3f; --mark-ink: #1d1a05; --margin-red: #e47b90; --rule: #2b3352;
+    --ok: #61d08f; --ok-soft: #12301f; --warn: #f1c453; --warn-soft: #33290f; --bad: #ff8f86; --bad-soft: #3b1c1d;
+    --scrim: rgb(0 0 0 / .65); --shadow-1: 0 1px 2px rgb(0 0 0 / .4); --shadow-2: 0 2px 8px rgb(0 0 0 / .4), 0 18px 44px rgb(0 0 0 / .45);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1220; --surface: #171b2b; --surface-2: #20253a; --ink: #e8eaf5; --muted: #a3a9c2;
+  --line: #2c3249; --line-strong: #444b68; --accent: #a3aeff; --accent-hover: #bcc4ff; --accent-soft: #262d55;
+  --on-accent: #10132a; --mark: #e9cf3f; --mark-ink: #1d1a05; --margin-red: #e47b90; --rule: #2b3352;
+  --ok: #61d08f; --ok-soft: #12301f; --warn: #f1c453; --warn-soft: #33290f; --bad: #ff8f86; --bad-soft: #3b1c1d;
+  --scrim: rgb(0 0 0 / .65); --shadow-1: 0 1px 2px rgb(0 0 0 / .4); --shadow-2: 0 2px 8px rgb(0 0 0 / .4), 0 18px 44px rgb(0 0 0 / .45);
+  color-scheme: dark;
+}

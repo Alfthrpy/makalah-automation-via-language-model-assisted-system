@@ -8,11 +8,9 @@
 output
 logs
 .cache
-chroma_db
-arxiv_pdfs
-tests
-input
-.vscode
-# hasil keluaran lama bukan template
-template_and_output/makalah_output.docx
-template_and_output/~$*
+node_modules
+apps/web
+packages/api-types
+**/tests
+docs
+HANDOFF*.md

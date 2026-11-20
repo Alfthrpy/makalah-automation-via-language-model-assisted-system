@@ -1,129 +1,107 @@
-# Deploy MALAS ke Render
+# Deploy MALAS (gratis): Netlify + Hugging Face Space + Neon + Clerk (+ R2)
 
-Panduan ini men-deploy MALAS sebagai **web service publik tanpa login**. Setiap pengguna membawa
-API key sendiri (OpenRouter atau Kenari), jadi server tidak menyimpan dan tidak perlu secret apa pun.
+```
+Browser ──> Netlify (apps/web, statis)
+              │  /api/*  (proxy, satu origin, tanpa CORS)
+              ▼
+         Hugging Face Space (Docker, apps/api, port 7860)
+              │                │
+              ▼                ▼
+        Neon Postgres     Cloudflare R2 (opsional; tanpa R2 = .docx disimpan di Neon)
+   Login: Clerk (JWT diverifikasi backend lewat JWKS)
+```
 
-> Ringkasnya: **Blueprint → Apply → buka URL**. Seluruh konfigurasi sudah ada di `render.yaml`.
+> **Status uji (jujur):** image Docker, bundel Space, dan seluruh tes berjalan di sandbox pengembangan. Yang BELUM pernah dicoba
+> dengan layanan asli (tidak ada akun/kredensial di sandbox): Neon (latensi cold-start, PgBouncer), Clerk (format `iss`/`azp`
+> instance nyata, CSP), R2 (hanya diuji dengan klien S3 palsu), Netlify, dan HF Space. Ikuti bagian **Verifikasi** di tiap langkah.
+> Batas free tier semua layanan berubah-ubah: cek halaman harga masing-masing sebelum mengandalkannya.
 
-## 0. Yang sudah disiapkan di repo
+## 0. Yang sudah ada di repo
 
-| File | Fungsi |
+| Berkas | Fungsi |
 |---|---|
-| `Dockerfile` | Image produksi (Python 3.13, dependensi dari `uv.lock`, tanpa dependensi dev, jalan sebagai non-root) |
-| `.dockerignore` | Menjaga image kecil dan tidak ikut membawa `.env`, `output/`, `tests/`, dsb. |
-| `render.yaml` | Blueprint Render: layanan, region, health check, dan semua env var |
-| `GET /healthz` | Health check ringan (tidak memeriksa Host, tidak memasang cookie) |
+| `apps/api/Dockerfile` | Image backend (Python 3.13, dependensi dari `uv.lock`, non-root uid 1000, port 7860). Build context = root repo |
+| `deploy/hf-space/` | `README.md` (front-matter HF) + `bundle.sh` yang menyusun isi Space dari repo ini |
+| `.github/workflows/ci.yml` | CI: pytest (SQLite & Postgres 16), typecheck + tes + build web, build image + smoke test |
+| `.github/workflows/deploy-hf.yml` | Push bundel ke Space (butuh secret `HF_TOKEN` + variable `HF_SPACE`) |
+| `netlify.toml` | Build web, proxy `/api/*` ke Space, fallback SPA, header keamanan/CSP |
+| `apps/api/.env.example` | Semua env backend |
+| `GET /healthz` | Health check ringan (tanpa cookie, tanpa pemeriksaan Host) |
 
-## 1. Prasyarat
-- Akun [Render](https://render.com) yang sudah terhubung ke GitHub dan diberi akses ke repo ini.
-- Branch `main` berisi `Dockerfile` dan `render.yaml` (sudah, setelah merge).
+## 1. Neon (database)
+1. Buat project di [neon.tech](https://neon.tech) (region terdekat, mis. Singapore).
+2. Salin **dua** connection string: **pooled** (host berakhiran `-pooler`) → `DATABASE_URL`; **direct** → `DATABASE_URL_DIRECT` (dipakai migrasi Alembic saat server naik).
+3. Skema dibuat otomatis oleh server saat start (`malas_api.db.migrate()`).
 
-## 2. Cara A: Blueprint (disarankan)
-1. Dashboard Render → **New** → **Blueprint**.
-2. Pilih repo `Alfthrpy/makalah-automation-via-language-model-assisted-system`, branch **main**.
-3. Render membaca `render.yaml` dan menampilkan layanan `malas`. Klik **Apply**.
-4. Tunggu build (build pertama beberapa menit karena mengunduh dependensi; berikutnya lebih cepat berkat cache lapisan).
-5. Buka URL `https://<nama-layanan>.onrender.com` yang tertera di dashboard.
+## 2. Clerk (login)
+1. Buat aplikasi di [clerk.com](https://clerk.com) (instance development dulu).
+2. Dari **API keys**: **Publishable key** (→ web) dan **Frontend API URL** (→ `CLERK_ISSUER`, mis. `https://xxxx.clerk.accounts.dev`).
+3. `CLERK_AUTHORIZED_PARTIES` = origin web yang sah, mis. `https://malas.netlify.app` (klaim `azp`).
 
-## 3. Cara B: manual (bila tidak memakai Blueprint)
-**New → Web Service** → pilih repo → isi:
+## 3. Hugging Face Space (backend)
+1. Buat **Space** baru: SDK **Docker**, visibilitas **Public** (Netlify perlu menjangkaunya; API dilindungi login Clerk). Catat nama `pemilik/nama-space`.
+2. **Settings > Variables and secrets** di Space:
 
-| Kolom | Nilai |
-|---|---|
-| Language / Runtime | **Docker** |
-| Branch | `main` |
-| Region | Singapore (terdekat dari Indonesia) |
-| Instance Type | Free |
-| Health Check Path | `/healthz` |
-| Environment | tabel di bawah |
-
-*(Nama menu bisa berubah antar versi dashboard Render.)*
-
-## 4. Environment variable
-
-| Key | Nilai | Keterangan |
+| Nama | Jenis | Nilai |
 |---|---|---|
-| `MALAS_WEB_REQUIRE_KEY` | `1` | **Wajib.** Pengguna harus membawa API key sendiri; key server tidak pernah dipakai |
-| `MALAS_WEB_RETENTION_HOURS` | `6` | Riwayat & berkas dihapus otomatis setelah N jam |
-| `MALAS_WEB_MAX_QUEUE` | `5` | Batas total job aktif; 1 job aktif per pengguna |
-| `MALAS_FULLTEXT` | `0` | Matikan pengunduhan PDF paper (hemat memori di free tier). Ubah ke `1` bila RAM lebih besar |
-| `MALAS_WEB_HOST` | `0.0.0.0` | Agar bisa diakses dari luar kontainer |
-| `MALAS_OUTPUT_DIR` | `/tmp/malas-output` | Folder hasil (sementara) |
-| `PORT` | *(otomatis dari Render)* | Dibaca aplikasi; tidak perlu diisi |
-| `RENDER_EXTERNAL_HOSTNAME` | *(otomatis dari Render)* | Otomatis diizinkan sebagai Host |
-| `MALAS_WEB_ALLOWED_HOSTS` | *(opsional)* | Hanya bila memakai domain sendiri: `domain-anda.com` (koma bila lebih dari satu) |
+| `DATABASE_URL` | Secret | Neon pooled |
+| `DATABASE_URL_DIRECT` | Secret | Neon direct |
+| `MALAS_SECRET_KEY` | Secret | acak ≥ 32 karakter (`python -c "import secrets;print(secrets.token_urlsafe(48))"`). Aktifkan hanya bila fitur "simpan API key" dipakai; **jangan diganti sembarangan** (key tersimpan jadi tak terbaca; rotasi lewat `MALAS_SECRET_KEY_OLD`) |
+| `CLERK_ISSUER` | Variable | Frontend API URL Clerk |
+| `CLERK_AUTHORIZED_PARTIES` | Variable | `https://<situs-netlify>` |
+| `MALAS_AUTH_REQUIRED` | Variable | `1` (server menolak start tanpa Clerk) |
+| `MALAS_DAILY_QUOTA` | Variable | mis. `3` |
+| `R2_*` | Secret | opsional, lihat bagian 6 |
 
-**Jangan** menambahkan `OPENROUTER_API_KEY`, `GEMINI_API_KEY`, dan sejenisnya di Render. Di mode ini
-key itu tidak dipakai, dan menyimpannya hanya menambah risiko.
+   Bawaan dari Dockerfile (tidak perlu diisi): `MALAS_WEB_REQUIRE_KEY=1`, `MALAS_FULLTEXT=1`, `PORT=7860`. `MALAS_WEB_RETENTION_HOURS` (6) dan `MALAS_WEB_MAX_QUEUE` (5) bisa ditimpa.
+   `SPACE_HOST` diisi otomatis oleh HF dan sudah diizinkan sebagai Host.
+3. **Mengisi kode Space**, pilih salah satu:
+   - **Otomatis (disarankan):** di repo GitHub: *Settings > Secrets and variables > Actions*: secret `HF_TOKEN` (token HF izin *write*), variable `HF_SPACE` (`pemilik/nama-space`). Jalankan workflow **Deploy backend ke Hugging Face Space** (atau push ke `main`).
+   - **Manual:** `deploy/hf-space/bundle.sh /tmp/space && cd /tmp/space && git init -b main && git add -A && git commit -m deploy && git push --force https://huggingface.co/spaces/<pemilik>/<nama> main`.
+4. **Verifikasi:** `https://<pemilik>-<nama>.hf.space/healthz` → `ok`; `/api/config` → `"hosted": true`, `"auth": {"mode": "clerk", ...}`; `/api/jobs` tanpa token → 401.
 
-## 5. Verifikasi setelah deploy
-1. `https://<url>/healthz` → `ok`.
-2. `https://<url>/api/config` → memuat `"hosted": true` dan `"models": null`.
-3. Di halaman, centang **Mode uji**, isi data, **Buat makalah** → harus selesai dan bisa diunduh (tanpa key, tanpa biaya).
-4. Coba sungguhan: matikan Mode uji, pilih OpenRouter, tempel key khusus dengan kredit kecil, biarkan model kosong
-   (memakai saran: riset `deepseek/deepseek-v3.2`, penulis `google/gemini-2.5-flash`).
+Catatan HF Space: Space gratis **tidur** setelah tidak aktif (bangun ± puluhan detik), disk **ephemeral** (itulah mengapa riwayat dan hasil ada di Neon/R2), dan job yang sedang berjalan terputus bila Space restart: statusnya jadi "Terhenti" dan bisa dilanjutkan dari checkpoint (otomatis bila pengguna memilih menyimpan key).
 
-## 6. Batasan free tier (baca sebelum dibagikan)
-Sumber: [dokumentasi Render](https://render.com/docs/free).
+## 4. Netlify (web)
+1. Edit `netlify.toml`: ganti `GANTI-SPACE.hf.space` dengan host Space (bentuk `<pemilik>-<nama>.hf.space`), commit.
+2. Netlify: **Add new site > Import from Git**, pilih repo/branch. Build command dan folder publish sudah di `netlify.toml`.
+3. **Site configuration > Environment variables**: `VITE_CLERK_PUBLISHABLE_KEY` = publishable key Clerk. (`VITE_AUTH_MODE=clerk` sudah di `netlify.toml`.) **Jangan** menaruh secret di variabel `VITE_*`: semuanya terbaca publik.
+4. Setelah URL situs diketahui, isi `CLERK_AUTHORIZED_PARTIES` di Space dengan URL itu, dan tambahkan domain situs di dashboard Clerk bila diminta.
+5. **Verifikasi:** landing tampil → *Masuk* → Clerk → dasbor → buat makalah **Mode uji** → selesai → unduh `.docx`. Buka DevTools > Console: tidak boleh ada pelanggaran CSP. Bila ada (mis. Clerk memerlukan host tambahan), perbarui header `Content-Security-Policy` di `netlify.toml`; untuk instance produksi Clerk tambahkan domain Frontend API kamu (mis. `https://clerk.domainmu.com`) ke `script-src` dan `connect-src`.
 
-| Batasan | Dampak pada MALAS |
-|---|---|
-| **Tidur setelah 15 menit tanpa trafik**; bangun lagi sampai sekitar 1 menit | Pengunjung pertama menunggu. Selama tab terbuka, polling progres menjaga layanan tetap hidup; bila tab ditutup di tengah job, layanan bisa tidur dan job hilang. |
-| **Disk sementara** | Riwayat dan berkas hilang saat restart, deploy ulang, atau tidur. Unduh segera setelah selesai. |
-| **Bisa di-restart kapan saja** | Job yang sedang berjalan bisa terputus (tampil sebagai "Terhenti"). Cukup ulangi. |
-| **750 jam/bulan per workspace** | Cukup untuk satu layanan; waktu tidur tidak dihitung. |
-| **RAM 512 MB** (angka dari sumber pihak ketiga; cek halaman Render) | Lihat bagian di bawah. |
+Hal yang perlu dicek karena belum teruji dengan layanan asli: (a) Netlify meneruskan header `Authorization` pada proxy `/api/*` (seharusnya ya); (b) header `Host` yang sampai ke Space diterima (Space mengizinkan `SPACE_HOST`; bila ada 400 "Invalid host header", isi `MALAS_WEB_ALLOWED_HOSTS` dengan host yang tertera di pesan/log).
 
-### Memori: margin tipis
-Hasil ukur saya di lingkungan yang meniru Render: server idle ± 70 MB; setelah job pertama (CrewAI dimuat) ± **340–365 MB**,
-dan memori itu tetap terpakai setelahnya. Job dengan LLM sungguhan menambah sedikit lagi. Artinya muat di 512 MB,
-tapi tidak longgar. Itulah sebabnya `MALAS_FULLTEXT=0` di Blueprint: mengurai PDF besar bisa melonjakkan RAM.
-Bila log menunjukkan *out of memory* / layanan sering restart saat job berjalan:
-1. Pastikan `MALAS_FULLTEXT=0`.
-2. Pilih paket berbayar dengan RAM lebih besar (cek halaman harga Render), lalu baru pertimbangkan `MALAS_FULLTEXT=1`.
+## 5. Pengujian lokal
+```bash
+docker build -f apps/api/Dockerfile -t malas .
+docker run --rm -p 7860:7860 malas          # http://localhost:7860/healthz
+```
+Backend + web tanpa Docker/Clerk: lihat README (`uv run malas-web` dan `pnpm dev:web`).
+
+## 6. File hasil di Cloudflare R2 (opsional)
+Tanpa R2, `.docx` disimpan sebagai `bytea` di Neon (cukup untuk MVP; retensi otomatis membersihkannya). Untuk memindahkannya:
+1. Cloudflare > R2: buat bucket **privat** (jangan aktifkan akses publik; unduhan selalu lewat API yang memeriksa pemilik).
+2. Buat **API token R2** dengan izin *Object Read & Write* terbatas pada bucket itu.
+3. Isi secret Space: `R2_ENDPOINT_URL` (`https://<account_id>.r2.cloudflarestorage.com`), `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`. Keempatnya harus terisi (terisi sebagian = server menolak start dengan pesan jelas).
+4. Job lama yang `.docx`-nya ada di Neon tidak otomatis pindah; setelah masa retensi, riwayat itu hilang sendiri.
 
 ## 7. Keamanan (ringkas; rincian di README)
-- HTTPS otomatis di `onrender.com`; cookie sesi bertanda `Secure`, `HttpOnly`, `SameSite=Lax`.
-- API key pengguna hanya di memori selama job, tidak ditulis ke disk/log, dan dibersihkan dari pesan error.
-- stdout dibungkam saat job, jadi log Render tidak memuat judul/isi makalah. Hanya log start-up server yang tampil.
-- Riwayat antar pengguna terpisah (cookie acak); data dihapus otomatis setelah `MALAS_WEB_RETENTION_HOURS`.
-- Tanpa login, siapa pun yang tahu URL bisa memakai layanan, tapi hanya dengan key mereka sendiri.
-  Batas 1 job aktif per pengguna dan antrean total mencegah satu orang memenuhi layanan.
-- Batas yang jujur: Python tidak bisa menghapus string dari RAM dengan pasti. Sarankan pengguna memakai key
-  khusus dengan batas kredit kecil dan mencabutnya setelah selesai.
+- API key pengguna hanya di memori selama job (kecuali pengguna memilih menyimpannya: terenkripsi Fernet di DB, tidak pernah dikembalikan lewat API). Tidak ditulis ke disk/log; pesan error dibersihkan.
+- Login Clerk wajib di semua `/api/*` (kecuali `/api/config`); pemilik data = `sub` JWT; kuota harian per akun.
+- stdout dibungkam saat job, jadi log Space tidak memuat judul/isi makalah.
+- Batas yang jujur: Python tidak bisa menghapus string dari RAM dengan pasti; sarankan pengguna memakai key khusus dengan batas kredit kecil.
 
-## 8. Domain sendiri
-1. Render → layanan → **Settings → Custom Domains** → tambahkan domain dan ikuti instruksi DNS.
-2. Tambahkan env `MALAS_WEB_ALLOWED_HOSTS=domain-anda.com`.
-3. Health check tidak terpengaruh (`/healthz` selalu lolos).
-
-## 9. Update dan rollback
-- Push ke `main` → Render membangun dan men-deploy otomatis (perilaku bawaan layanan).
-- Rollback: Render → layanan → **Deploys** → pilih deploy sebelumnya → **Rollback**.
-
-## 10. Uji lokal dengan Docker (opsional)
-```bash
-docker build -t malas .
-docker run --rm -p 10000:10000 -e PORT=10000 malas
-# buka http://localhost:10000
-```
-Host `localhost` diizinkan secara bawaan. Catatan: image ini belum pernah saya build (tidak ada Docker daemon di
-lingkungan pengembangan). Yang sudah saya uji adalah langkah yang sama secara manual: instalasi bersih dari
-`uv.lock` tanpa dependensi dev, server dijalankan dengan env mirip Render, health check dengan Host internal,
-job mode uji sampai unduhan, dan pengukuran memori.
-
-## 11. Troubleshooting
+## 8. Troubleshooting
 
 | Gejala | Penyebab / solusi |
 |---|---|
-| Deploy gagal di tahap *health check* | Pastikan *Health Check Path* `/healthz`. Lihat log: server harus mencetak "MALAS web UI -> …" |
-| Halaman menampilkan **Invalid host header** (400) | Memakai domain sendiri tanpa `MALAS_WEB_ALLOWED_HOSTS`. Tambahkan domain tersebut |
-| Build gagal saat `uv sync` | Pastikan `uv.lock` ikut ter-commit dan sinkron dengan `pyproject.toml` (`uv lock`) |
-| Layanan restart saat job berjalan | Kemungkinan kehabisan memori (bagian 6) |
-| Job gagal di tengah jalan | Buka job tersebut → **Lanjutkan dari titik terakhir** (butuh API key lagi). Outline dan sub-bab yang sudah jadi dipakai ulang. Di free tier, checkpoint ikut hilang bila layanan restart/tidur karena disk sementara |
-| Job selalu "Antre" | Ada job lain yang sedang berjalan; antrean satu pekerja. Tunggu atau coba lagi |
-| "Anda masih punya makalah yang sedang diproses" (429) | Aturan 1 job aktif per pengguna. Tunggu selesai |
-| "Antrean penuh" (429) | `MALAS_WEB_MAX_QUEUE` tercapai; coba lagi sebentar lagi |
-| "API key ditolak penyedia" | Key salah/dicabut/tanpa saldo, atau model tidak tersedia untuk key tersebut |
-| Riwayat/berkas hilang | Normal di free tier (disk sementara) dan retensi otomatis. Unduh segera |
-| Pembukaan pertama lambat sekali | Layanan sedang bangun dari tidur (sampai ± 1 menit) |
+| Space *Build error* | Lihat tab Logs. Pastikan `uv.lock` sinkron (`uv lock`) dan ikut ter-commit |
+| Space start lalu langsung berhenti | Log: `MALAS_AUTH_REQUIRED=1 tetapi CLERK_ISSUER...` → isi `CLERK_ISSUER`; atau "Konfigurasi R2 tidak lengkap" → lengkapi keempat `R2_*` |
+| `/api/*` 401 padahal sudah login | `CLERK_ISSUER`/`CLERK_AUTHORIZED_PARTIES` tidak cocok dengan instance/origin. Cek `iss` dan `azp` di JWT (jwt.io; jangan tempel token ke situs yang tidak kamu percaya) |
+| 400 "Invalid host header" | Host proxy belum diizinkan: set `MALAS_WEB_ALLOWED_HOSTS` |
+| Halaman Clerk kosong / error CSP di Console | Perbarui `Content-Security-Policy` di `netlify.toml` (bagian 4, langkah 5) |
+| Pembukaan pertama lambat | Space gratis sedang bangun dari tidur |
+| Job "Terhenti" | Space restart saat job berjalan. Buka job → **Lanjutkan** (outline dan sub-bab yang sudah jadi dipakai ulang) |
+| "Anda masih punya makalah yang sedang diproses" (429) | Aturan 1 job aktif per pengguna |
+| "Kuota harian habis" (429) | `MALAS_DAILY_QUOTA` tercapai; reset tengah malam `MALAS_QUOTA_TZ` |
+| "API key ditolak penyedia" | Key salah/dicabut/tanpa saldo, atau model tidak tersedia untuk key itu |

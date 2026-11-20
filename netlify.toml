@@ -1,0 +1,50 @@
+# Frontend MALAS di Netlify. Panduan: DEPLOY.md
+# GANTI `GANTI-SPACE.hf.space` di bawah dengan host Space kamu (Space > menu ⋯ > "Embed this Space" > Direct URL,
+# bentuk: https://<pemilik>-<nama-space>.hf.space). Netlify tidak mengizinkan variabel env di redirect.
+
+[build]
+  command = "pnpm install --frozen-lockfile && pnpm --filter web build"
+  publish = "apps/web/dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # Publik (dibundel ke JS). Jangan taruh secret di VITE_*. Isi VITE_CLERK_PUBLISHABLE_KEY lewat UI Netlify
+  # (Site configuration > Environment variables), bukan di berkas ini.
+  VITE_AUTH_MODE = "clerk"
+
+# /api/* diteruskan (proxy, bukan redirect) ke backend: browser hanya bicara ke satu origin -> tanpa CORS.
+[[redirects]]
+  from = "/api/*"
+  to = "https://GANTI-SPACE.hf.space/api/:splat"
+  status = 200
+  force = true
+
+# SPA: semua rute lain ke index.html (react-router).
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"
+    X-Frame-Options = "DENY"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    # CSP untuk Clerk (daftar mengikuti dokumentasi Clerk; BELUM diuji dengan instance Clerk asli).
+    # Instance dev: *.clerk.accounts.dev. Produksi: ganti/tambahkan domain Frontend API Clerk (mis. https://clerk.domainmu.com).
+    # 'unsafe-inline' hanya untuk gaya (Clerk menyuntikkan <style>); skrip tidak inline.
+    Content-Security-Policy = "default-src 'self'; script-src 'self' https://*.clerk.accounts.dev https://challenges.cloudflare.com; connect-src 'self' https://*.clerk.accounts.dev https://clerk-telemetry.com; img-src 'self' data: https://img.clerk.com; style-src 'self' 'unsafe-inline'; font-src 'self'; worker-src 'self' blob:; frame-src https://challenges.cloudflare.com; form-action 'self'; base-uri 'none'; frame-ancestors 'none'"
+
+# Aset ber-hash dari Vite boleh di-cache selamanya; index.html harus selalu segar.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"
