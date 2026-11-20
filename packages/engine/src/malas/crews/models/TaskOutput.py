@@ -25,6 +25,9 @@ class ReferenceItem(BaseModel):
     source_id: Optional[str] = None
     oa_pdf_url: Optional[str] = None  # URL PDF open-access bila sudah diketahui dari sumber
     venue: Optional[str] = None
+    volume: Optional[str] = None  # nomor volume jurnal (string apa adanya dari sumber, mis. "4")
+    issue: Optional[str] = None  # nomor terbitan, mis. "2"
+    pages: Optional[str] = None  # rentang halaman dengan en dash, mis. "36–52"
     sections: List[str] = Field(default_factory=list, description="Judul sub-bab yang memakai referensi ini.")
 
 class References(BaseModel):

@@ -1,4 +1,5 @@
 """Konversi state Makalah menjadi file .docx via docxtpl (Jinja2 di dalam template Word)."""
+import logging
 import os
 import re
 from datetime import datetime
@@ -8,9 +9,11 @@ from typing import Any, Dict, Optional
 from docxtpl import DocxTemplate
 from jinja2 import Environment
 
-from malas.citations import is_institution
+from malas.apa import apa_sort_key, format_apa7, format_apa7_segments  # noqa: F401  (format_apa7: re-export)
 from malas.crews.models.TaskOutput import Makalah
 from malas.logo import apply_logo, normalize_logo
+
+logger = logging.getLogger(__name__)
 
 _BULAN = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli",
           "Agustus", "September", "Oktober", "November", "Desember"]
@@ -81,64 +84,45 @@ def normalize_for_template(context: Dict[str, Any]) -> Dict[str, Any]:
     return context
 
 
-def format_apa7(ref):
-    """
-    Mengubah sebuah dictionary referensi menjadi string berformat APA 7.
+_REF_RUN = re.compile(
+    r"(<w:r(?:\s[^>]*)?>)(?:<w:rPr>((?:(?!</w:rPr>).)*)</w:rPr>)?<w:t[^>]*>\{\{\s*ref\s*\}\}</w:t></w:r>", re.S)
+_RPR_HEAD = re.compile(r"^(?:<w:(?:rStyle|rFonts|b|bCs)\b[^>]*/>)*")
 
-    Args:
-        ref (dict): Dictionary yang berisi 'authors', 'year', 'title', dan 'link'.
 
-    Returns:
-        str: String referensi yang sudah diformat.
+def italicize_ref_runs(xml: str) -> str:
+    """Ganti run berisi tepat `{{ref}}` dengan loop segmen APA (teks, italik), mempertahankan rPr template.
+
+    Template lama menulis `{{ref}}` polos (tanpa `{{r ...}}`); daripada menyunting .docx, XML yang SUDAH di-patch
+    docxtpl diubah in-memory: tiap segmen jadi run sendiri dan `<w:i/>` ditambahkan pada segmen italik
+    (urutan skema CT_RPr: setelah rStyle/rFonts/b/bCs). Run yang tak cocok pola dibiarkan (teks polos).
+    Segmen diambil dari `daftar_pustaka_segmen[ref]`; tanpa entri -> satu segmen polos berisi `ref`.
     """
-    
-    # --- 1. Memformat Nama Penulis ---
-    authors_list = ref.get('authors', [])
-    formatted_authors = []
-    for name in authors_list:
-        parts = name.split()
-        if not parts:
-            continue
-        if is_institution(name):  # lembaga ("Wikipedia", "Badan Pusat Statistik"): tulis utuh
-            formatted_authors.append(" ".join(parts))
-            continue
-        last_name = parts[-1]
-        # Membuat inisial dari nama depan/tengah; "JA" (inisial kapital dari sumber) -> "J. A."
-        initials = " ".join(
-            f"{ch}." for p in parts[:-1] for ch in (p if p.isalpha() and p.isupper() and len(p) <= 3 else p[0])
+    def repl(m):
+        run_open, rpr = m.group(1), m.group(2) or ""
+        if "<w:i/>" in rpr or '<w:i w:val="1"/>' in rpr:
+            rpr_i = rpr
+        else:
+            head = _RPR_HEAD.match(rpr).end()
+            rpr_i = rpr[:head] + "<w:i/><w:iCs/>" + rpr[head:]
+        return (
+            "{% for seg in (daftar_pustaka_segmen or {}).get(ref) or [[ref, false]] %}"
+            f"{run_open}{{% if seg[1] %}}<w:rPr>{rpr_i}</w:rPr>{{% else %}}<w:rPr>{rpr}</w:rPr>{{% endif %}}"
+            '<w:t xml:space="preserve">{{ seg[0] }}</w:t></w:r>{% endfor %}'
         )
-        formatted_authors.append(f"{last_name}, {initials}")
 
-    # Menggabungkan daftar penulis dengan koma dan ampersand (&)
-    num_authors = len(formatted_authors)
-    if num_authors == 0:
-        authors_str = "Penulis tidak diketahui"
-    elif num_authors == 1:
-        authors_str = formatted_authors[0]
-    elif num_authors == 2:
-        authors_str = f"{formatted_authors[0]} & {formatted_authors[1]}"
-    else:
-        # Gabungkan semua kecuali yang terakhir dengan koma, lalu tambahkan '&'
-        authors_str = ", ".join(formatted_authors[:-1]) + f", & {formatted_authors[-1]}"
-    
-    # --- 2. Memformat Tahun ---
-    year = ref.get('year', 'n.d.') # 'n.d.' berarti 'no date'
-    year_str = f"({year})."
+    return _REF_RUN.sub(repl, xml)
 
-    # --- 3. Memformat Judul ---
-    # APA 7 menggunakan sentence case untuk judul artikel.
-    title = ref.get('title', 'Judul tidak diketahui').strip()
-    # Ini adalah cara sederhana untuk membuat sentence case
-    title_str = title[0].upper() + title[1:] + "."
 
-    # --- 4. Mengambil Link ---
-    link = ref.get('link') or ''
+class _ApaDocxTemplate(DocxTemplate):
+    """DocxTemplate yang merender `{{ref}}` daftar pustaka sebagai beberapa run (italik nama jurnal/volume)."""
 
-    # --- 5. Menggabungkan Semua Bagian ---
-    # Format: Penulis. (Tahun). Judul artikel. Link
-    final_reference = f"{authors_str.rstrip('.')}. {year_str} {title_str} {link}"
-    
-    return final_reference
+    def patch_xml(self, src_xml):
+        xml = super().patch_xml(src_xml)
+        try:
+            return italicize_ref_runs(xml)
+        except Exception as e:  # pola aneh -> teks polos, jangan gagalkan render
+            logger.warning("Italik daftar pustaka dilewati: %s", e)
+            return xml
 
 
 class DocxConverter:
@@ -185,9 +169,12 @@ class DocxConverter:
         """Prepare the context dictionary for rendering."""
         context = makalah_state.model_dump(mode='python')
 
-        daftar_pustaka_asli = context.get('daftar_pustaka', [])
-        daftar_pustaka_terformat = [format_apa7(ref) for ref in daftar_pustaka_asli]
-        context['daftar_pustaka_formatted'] = daftar_pustaka_terformat
+        # Urutan tampil APA (alfabet nama keluarga penulis pertama, tahun, judul); state tidak diubah.
+        daftar_pustaka_asli = sorted(context.get('daftar_pustaka', []), key=apa_sort_key)
+        segmen = [[[xml_safe(t), it] for t, it in format_apa7_segments(ref)] for ref in daftar_pustaka_asli]
+        context['daftar_pustaka_formatted'] = ["".join(t for t, _ in seg) for seg in segmen]
+        # teks utuh -> [[teks, italik], ...]: dipakai _ApaDocxTemplate; template polos mengabaikannya
+        context['daftar_pustaka_segmen'] = {"".join(t for t, _ in seg): seg for seg in segmen}
 
         # Template memakai {{univ}} setelah kata "UNIVERSITAS" dan {{formatted_date}}
         # (juga "FAKULTAS"/"JURUSAN"), jadi awalan yang sama di data dibuang agar tidak dobel.
@@ -212,8 +199,13 @@ class DocxConverter:
         """
         try:
             context = self._generate_context(makalah_state)
-            doc = DocxTemplate(self.template_path)
-            doc.render(context, jinja_env=self.jinja_env, autoescape=True)
+            try:
+                doc = _ApaDocxTemplate(self.template_path)
+                doc.render(context, jinja_env=self.jinja_env, autoescape=True)
+            except Exception as e:  # italik gagal -> render ulang teks polos (perilaku lama)
+                logger.warning("Render daftar pustaka ber-italik gagal, kembali ke teks polos: %s", e)
+                doc = DocxTemplate(self.template_path)
+                doc.render(context, jinja_env=self.jinja_env, autoescape=True)
 
             output_dir = os.path.dirname(self.output_path)
             if output_dir and not os.path.exists(output_dir):

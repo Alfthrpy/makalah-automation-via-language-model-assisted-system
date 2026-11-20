@@ -44,6 +44,25 @@ def _doi_url(doi: Optional[str]) -> Optional[str]:
     return f"https://doi.org/{doi}" if doi else None
 
 
+def _str(v) -> Optional[str]:
+    """Nilai bibliografis (volume/issue) sebagai string bersih; kosong -> None."""
+    s = " ".join(str(v).split()) if v is not None else ""
+    return s or None
+
+
+def page_range(first=None, last=None) -> Optional[str]:
+    """Rentang halaman APA: "36–52" (en dash); satu halaman bila first == last atau last kosong.
+
+    `first` boleh berupa rentang utuh ("36-52", gaya Crossref/Europe PMC); tanda hubung diganti en dash.
+    """
+    a, b = _str(first), _str(last)
+    if a and not b and re.fullmatch(r"\w+\s*[-\u2010-\u2014]+\s*\w+", a):
+        a, b = (x.strip() for x in re.split(r"[-\u2010-\u2014]+", a, maxsplit=1))
+    if not a:
+        return b
+    return a if not b or a == b else f"{a}\u2013{b}"
+
+
 # --------------------------------------------------------------------------- OpenAlex
 def _inverted_abstract(inv) -> Optional[str]:
     if not isinstance(inv, dict) or not inv:
@@ -59,7 +78,7 @@ class OpenAlex:
     name = "openalex"
     URL = "https://api.openalex.org/works"
     SELECT = ("id,doi,title,publication_year,authorships,primary_location,best_oa_location,"
-              "abstract_inverted_index,cited_by_count,language,type")
+              "abstract_inverted_index,cited_by_count,language,type,biblio")
     SKIP_TYPES = {"paratext", "erratum", "dataset", "peer-review", "editorial", "letter", "retraction"}
 
     def search(self, http, query: str, lang: str, limit: int, year_min: int) -> List[Candidate]:
@@ -79,6 +98,7 @@ class OpenAlex:
             doi = normalize_doi(w.get("doi"))
             loc = w.get("primary_location") or {}
             best = w.get("best_oa_location") or {}
+            bib = w.get("biblio") or {}
             out.append(Candidate(
                 source=self.name, source_id=str(w.get("id") or ""), title=clean_text(w["title"]) or "",
                 authors=[a["author"]["display_name"] for a in w.get("authorships", [])
@@ -88,7 +108,8 @@ class OpenAlex:
                 abstract=_inverted_abstract(w.get("abstract_inverted_index")),
                 venue=(loc.get("source") or {}).get("display_name"),
                 language=w.get("language"), cited_by=int(w.get("cited_by_count") or 0),
-                oa_pdf_url=best.get("pdf_url"),
+                oa_pdf_url=best.get("pdf_url"), volume=_str(bib.get("volume")), issue=_str(bib.get("issue")),
+                pages=page_range(bib.get("first_page"), bib.get("last_page")),
             ))
         return out
 
@@ -102,7 +123,7 @@ class Crossref:
         params = {
             "query.bibliographic": query, "rows": limit,
             "filter": f"from-pub-date:{year_min},type:journal-article",
-            "select": "DOI,title,author,issued,container-title,abstract,URL,is-referenced-by-count",
+            "select": "DOI,title,author,issued,container-title,abstract,URL,is-referenced-by-count,volume,issue,page",
         }
         if http.contact:
             params["mailto"] = http.contact
@@ -124,6 +145,7 @@ class Crossref:
                 url=_doi_url(doi) or it.get("URL"), abstract=clean_text(it.get("abstract")),
                 venue=(it.get("container-title") or [None])[0], language=None,
                 cited_by=int(it.get("is-referenced-by-count") or 0),
+                volume=_str(it.get("volume")), issue=_str(it.get("issue")), pages=page_range(it.get("page")),
             ))
         return out
 
@@ -161,13 +183,16 @@ class EuropePMC:
                     pdf = ft.get("url")
                     break
             pid = f"{r.get('source', '')}:{r.get('id', '')}"
+            ji = r.get("journalInfo") or {}  # resultType=core menaruh volume/issue di sini; "lite" di tingkat atas
             out.append(Candidate(
                 source=self.name, source_id=pid, title=clean_text(r["title"]) or "",
                 authors=[n for n in names if n][:8], year=_year(r.get("pubYear")), doi=doi,
                 url=_doi_url(doi) or (f"https://europepmc.org/article/{r.get('source')}/{r.get('id')}"),
                 abstract=clean_text(r.get("abstractText")), venue=r.get("journalTitle"),
                 language=(r.get("language") or "")[:2] or None, cited_by=int(r.get("citedByCount") or 0),
-                oa_pdf_url=pdf,
+                oa_pdf_url=pdf, volume=_str(r.get("journalVolume") or ji.get("volume")),
+                issue=_str(r.get("issue") or ji.get("issue")),
+                pages=page_range(r.get("pageInfo")),
             ))
         return out
 
