@@ -144,8 +144,6 @@ const SITU_KEYS = Object.keys(L.situ.items) as SituKey[];
 
 function Situation({ onPick, motion }: { onPick: (step: number | null) => void; motion: boolean }) {
   const [key, setKey] = useState<SituKey>("h3");
-  const s = L.situ.items[key];
-  const f = L.situ.foot(s.step, s.foot);
   return (
     <section className="section" id="situasi" aria-labelledby="situ-h">
       <div className="wrap">
@@ -161,16 +159,26 @@ function Situation({ onPick, motion }: { onPick: (step: number | null) => void; 
             </button>
           ))}
         </div>
+        {/* Semua panel ditumpuk di satu sel grid: tinggi kotak = panel terpanjang, jadi ganti chip tidak menggeser section di bawahnya. */}
         <div className="situ-box" aria-live="polite">
-          <div className="situ-time"><span className="eyebrow">{L.situ.left}</span><b>{s.left}</b><div className="bar" aria-hidden="true"><i style={{ width: `${s.pct}%` }} /></div></div>
-          <div className="vs">
-            <div className="vs-col no"><span className="eyebrow"><Icon name="x" />{L.situ.no}</span><p>{s.no}</p></div>
-            <div className="vs-col yes"><span className="eyebrow"><Icon name="check" />{L.situ.yes}</span><p>{s.yes}</p></div>
-          </div>
-          <p className="situ-foot">{f.before}
-            <a href={`#step-${s.step}`} onClick={(e) => { e.preventDefault(); document.getElementById(`step-${s.step}`)?.scrollIntoView({ behavior: motion ? "smooth" : "auto", block: "center" }); }}>{f.link}</a>
-            {f.after}
-          </p>
+          {SITU_KEYS.map((k) => {
+            const s = L.situ.items[k];
+            const f = L.situ.foot(s.step, s.foot);
+            const active = k === key;
+            return (
+              <div key={k} className={`situ-panel${active ? " on" : ""}`} inert={!active}>
+                <div className="situ-time"><span className="eyebrow">{L.situ.left}</span><b>{s.left}</b><div className="bar" aria-hidden="true"><i style={{ width: `${s.pct}%` }} /></div></div>
+                <div className="vs">
+                  <div className="vs-col no"><span className="eyebrow"><Icon name="x" />{L.situ.no}</span><p>{s.no}</p></div>
+                  <div className="vs-col yes"><span className="eyebrow"><Icon name="check" />{L.situ.yes}</span><p>{s.yes}</p></div>
+                </div>
+                <p className="situ-foot">{f.before}
+                  <a href={`#step-${s.step}`} onClick={(e) => { e.preventDefault(); document.getElementById(`step-${s.step}`)?.scrollIntoView({ behavior: motion ? "smooth" : "auto", block: "center" }); }}>{f.link}</a>
+                  {f.after}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

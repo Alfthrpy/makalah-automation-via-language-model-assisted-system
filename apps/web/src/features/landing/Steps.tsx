@@ -8,6 +8,16 @@ import { MotionButton, useMotion, useSeenOnce, useTimers } from "./motion";
 const C = t.landing.steps;
 interface SceneProps { runId: number; setPlaying: (v: boolean) => void }
 
+/** Teks yang diketik: versi penuh (tak terlihat) ikut menahan tinggi/lebar, jadi mengetik tidak mengubah ukuran kartu. */
+function Typed({ full, text, caret }: { full: string; text: string; caret?: boolean }) {
+  return (
+    <span className="typed">
+      <span className="typed-ghost" aria-hidden="true">{full}{caret && <i className="caret" />}</span>
+      <span className="typed-live">{text}{caret && <i className="caret" />}</span>
+    </span>
+  );
+}
+
 function Scene1({ runId, setPlaying }: SceneProps) {
   const full = C.s1.title;
   const [text, setText] = useState(full);
@@ -23,7 +33,7 @@ function Scene1({ runId, setPlaying }: SceneProps) {
   }, [runId, full, clear, later, setPlaying]);
   return (
     <div className="scene" aria-hidden="true">
-      <div className="mini-field"><span className="mini-lbl">{C.s1.field}</span><span className="mini-val"><span>{text}</span><i className="caret" /></span></div>
+      <div className="mini-field"><span className="mini-lbl">{C.s1.field}</span><span className="mini-val"><Typed full={full} text={text} caret /></span></div>
       <div className="mini-field" style={{ visibility: pen ? undefined : "hidden" }}><span className="mini-lbl">{C.s1.pen}</span><span className="mini-val mono">{C.s1.penVal}</span></div>
     </div>
   );
@@ -47,7 +57,7 @@ function Scene2({ runId, setPlaying }: SceneProps) {
   return (
     <div className="scene" aria-hidden="true">
       <div className="mini-field"><span className="mini-lbl">{C.s2.field}</span>
-        <span className="mini-val mono"><span>{text}</span><span style={{ visibility: lock ? undefined : "hidden" }}><Icon name="lock" /></span></span></div>
+        <span className="mini-val mono"><Typed full={full} text={text} /><span style={{ visibility: lock ? undefined : "hidden" }}><Icon name="lock" /></span></span></div>
       <span className="mini-note" style={{ visibility: note ? undefined : "hidden" }}><Icon name="check" />{C.s2.note}</span>
       <div className="btn-row"><span className="tag">{C.s2.or}</span><span className="tag"><Icon name="flask" />{C.s2.mock}</span></div>
     </div>
@@ -75,7 +85,7 @@ function Scene3({ runId, setPlaying }: SceneProps) {
   return (
     <div className="scene" aria-hidden="true">
       <span className={`mini-btn${press ? " press" : ""}`}>{C.s3.btn}</span>
-      <div style={{ display: "grid", gap: 4 }}><span className="mini-lbl num">{label}</span><div className="bar"><i style={{ width: `${pct}%` }} /></div></div>
+      <div className="prog"><span className="mini-lbl num">{label}</span><div className="bar"><i style={{ width: `${pct}%` }} /></div></div>
       <div className="s3-end">
         <MascotStep play={mascot.play} done={mascot.done} />
         <span className={`file-chip${file === "pop" ? " pop" : ""}`} style={{ visibility: file === "hidden" ? "hidden" : undefined }}><Icon name="doc" />{C.s3.file}</span>

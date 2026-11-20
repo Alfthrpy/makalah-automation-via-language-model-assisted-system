@@ -15,17 +15,24 @@
 .motion-btn { min-height: var(--tap); padding: 0 12px; font-size: var(--fs-xs); }
 .try-row { display: flex; gap: 8px; }
 .try-row .input { flex: 1; min-width: 0; }
+/* Pratinjau = kertas bergaris dengan jumlah baris TETAP (15), apa pun judul yang diketik: judul maks 2 baris, sub-bab 1 baris,
+   kutipan maks 3 baris (sisanya dipotong …). Tinggi tidak pernah berubah, jadi animasi ketik tidak menggeser apa pun di sekitarnya. */
 .pp {
+  --lh: 26px;
   position: relative; border: 1px solid var(--line); border-radius: 4px 4px var(--r-md) var(--r-md); background-color: var(--surface);
-  padding: 13px 16px 13px 54px; min-width: 0; font-size: .86rem; line-height: 26px; transition: transform .25s ease;
+  padding: calc(var(--lh) / 2) 16px calc(var(--lh) / 2) 54px; min-width: 0; font-size: .86rem; line-height: var(--lh); transition: transform .25s ease;
+  overflow: hidden;
   background-image: linear-gradient(90deg, transparent 38px, var(--margin-red) 38px, var(--margin-red) 40px, transparent 40px),
-    repeating-linear-gradient(transparent 0 25px, var(--rule) 25px 26px);
-  background-position: 0 0, 0 13px;
+    repeating-linear-gradient(transparent 0 calc(var(--lh) - 1px), var(--rule) calc(var(--lh) - 1px) var(--lh));
+  background-position: 0 0, 0 calc(var(--lh) / 2);
 }
 .pp:hover { transform: rotate(-.4deg); }
-.pp p, .pp li { margin: 0; overflow-wrap: anywhere; }
+.pp p, .pp li { margin: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.pp .pp-t, .pp .pp-snip { display: -webkit-box; -webkit-box-orient: vertical; white-space: normal; overflow-wrap: anywhere; text-overflow: clip; }
+.pp .pp-t { -webkit-line-clamp: 2; line-clamp: 2; min-height: calc(var(--lh) * 2); }
+.pp .pp-snip { -webkit-line-clamp: 3; line-clamp: 3; min-height: calc(var(--lh) * 3); }
 .pp-k { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--muted); letter-spacing: .08em; }
-.pp-t { font-family: var(--font-display); font-weight: 700; font-size: 1rem; line-height: 26px; }
+.pp-t { font-family: var(--font-display); font-weight: 700; font-size: 1rem; line-height: var(--lh); }
 .pp-b { font-weight: 700; font-size: var(--fs-xs); letter-spacing: .06em; color: var(--accent); }
 .pp-s { color: var(--muted); }
 .pp-list li { padding-left: 0; }
@@ -46,20 +53,27 @@
 .head-row .section-head { margin: 0; }
 
 .l-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-4); }
-.l-step { display: grid; gap: var(--sp-3); align-content: start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--sp-4); box-shadow: var(--shadow-1); transition: box-shadow .2s; min-width: 0; }
+.l-step { position: relative; display: grid; grid-template-rows: auto auto 1fr auto; gap: var(--sp-3); align-content: start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--sp-4); box-shadow: var(--shadow-1); transition: box-shadow .2s; min-width: 0; }
 .l-step.hl { box-shadow: 0 0 0 3px var(--mark), var(--shadow-1); }
 .l-step-top { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .l-num { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: var(--bg); font-family: var(--font-display); font-weight: 800; flex: none; }
 .l-step h3 { font-size: var(--fs-lg); }
 .l-step p { font-size: var(--fs-sm); color: var(--muted); }
-.hl-tag { display: none; }
-.l-step.hl .hl-tag { display: inline-flex; }
+/* Badge melayang di tepi atas kartu: muncul/hilang tanpa mengubah tinggi kartu. */
+.hl-tag { position: absolute; top: -13px; right: var(--sp-4); visibility: hidden; box-shadow: 0 0 0 2px var(--bg); }
+.l-step.hl .hl-tag { visibility: visible; }
 .replay { justify-self: start; min-height: var(--tap); }
 .scene { background: var(--bg); border: 1px dashed var(--line-strong); border-radius: var(--r-md); padding: 12px; min-height: 140px; display: grid; gap: 8px; align-content: start; font-size: var(--fs-sm); min-width: 0; }
 .mini-field { background: var(--surface); border: 1px solid var(--line-strong); border-radius: 8px; padding: 6px 10px; display: grid; min-width: 0; }
 .mini-lbl { font-size: var(--fs-xs); color: var(--muted); }
 .mini-val { display: flex; align-items: center; gap: 6px; min-height: 22px; overflow-wrap: anywhere; min-width: 0; }
 .mini-val .ic-sm { color: var(--ok); }
+.typed { display: grid; flex: 1 1 auto; min-width: 0; }
+.typed > * { grid-area: 1 / 1; min-width: 0; overflow-wrap: anywhere; }
+.typed-ghost { visibility: hidden; }
+.typed .caret { margin-left: 2px; vertical-align: text-bottom; }
+.prog { display: grid; gap: 4px; min-width: 0; }
+.prog .mini-lbl { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .caret { display: inline-block; width: 2px; height: 1.1em; background: var(--accent); }
 .playing .caret { animation: blink .9s steps(2) 4; }
 @keyframes blink { 50% { opacity: 0; } }
@@ -82,7 +96,9 @@
 .situ-chips button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .situ-chips button svg { display: none; }
 .situ-chips button[aria-pressed="true"] svg { display: block; }
-.situ-box { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: var(--sp-4); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--sp-5); box-shadow: var(--shadow-1); }
+.situ-box { display: grid; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--sp-5); box-shadow: var(--shadow-1); }
+.situ-panel { grid-area: 1 / 1; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: var(--sp-4); min-width: 0; }
+.situ-panel:not(.on) { visibility: hidden; }
 .situ-time { display: grid; gap: 8px; align-content: start; }
 .situ-time b { font-family: var(--font-display); font-size: var(--fs-2xl); font-weight: 800; line-height: 1; }
 .situ-time .bar i { background: var(--warn); }
@@ -136,11 +152,20 @@
 @keyframes acro-in { from { transform: scale(.6) rotate(-8deg); opacity: 0; } }
 .foot-brand b { font-family: var(--font-display); letter-spacing: .04em; color: var(--ink); }
 .landing.calm *, .landing.calm *::before, .landing.calm *::after { animation: none !important; transition: none !important; }
+/* Desktop: hero = satu layar penuh (di bawah topbar 64px + garis 1px). Garis kertas & jarak ikut tinggi layar,
+   jadi di laptop pendek pun kartu coba-ketik tidak terpotong; kalau layar benar-benar kependekan, hero tumbuh (tidak dipotong). */
+@container app (min-width: 981px) {
+  .l-hero { min-height: calc(100svh - 65px); padding-block: clamp(16px, 4svh, 48px); gap: clamp(var(--sp-5), 4vw, var(--sp-7)); }
+  .hero-copy { padding-top: 0; }
+  .pp { --lh: clamp(20px, 3.3svh, 26px); }
+  @supports (width: round(down, 1.5px, 1px)) { .pp { --lh: round(down, clamp(20px, 3.3svh, 26px), 1px); } } /* piksel utuh: garis kertas tetap sejajar teks */
+  .try { gap: clamp(8px, 1.4svh, var(--sp-3)); padding: clamp(var(--sp-3), 2svh, var(--sp-4)); }
+}
 @container app (max-width: 980px) {
   .l-hero, .priv { grid-template-columns: minmax(0, 1fr); }
   .acro { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .l-steps { grid-template-columns: minmax(0, 1fr); }
-  .situ-box { grid-template-columns: minmax(0, 1fr); }
+  .situ-panel { grid-template-columns: minmax(0, 1fr); }
 }
 @container app (max-width: 680px) {
   .l-hero { padding-block: var(--sp-5) var(--sp-6); gap: var(--sp-5); }
@@ -153,7 +178,7 @@
   .cta-band .rb-big { width: 168px; justify-self: center; grid-column: auto; grid-row: auto; }
   .cta-band .btn-row { grid-column: auto; }
   .section { padding-block: var(--sp-6); }
-  .pp { padding-left: 46px; background-image: linear-gradient(90deg, transparent 32px, var(--margin-red) 32px, var(--margin-red) 34px, transparent 34px), repeating-linear-gradient(transparent 0 25px, var(--rule) 25px 26px); }
+  .pp { padding-left: 46px; background-image: linear-gradient(90deg, transparent 32px, var(--margin-red) 32px, var(--margin-red) 34px, transparent 34px), repeating-linear-gradient(transparent 0 calc(var(--lh) - 1px), var(--rule) calc(var(--lh) - 1px) var(--lh)); }
   .landing .btn.lg { white-space: normal; text-align: center; padding-block: 8px; }
 }
 
