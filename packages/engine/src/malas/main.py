@@ -625,6 +625,7 @@ class MalasFlow(Flow[Makalah]):
             converter = DocxConverter(self.template_path, self.output_path,
                                       logo_path=self.logo_path, neutral_logo=self.neutral_logo)
             self.result_path = converter.convert(self.state)
+            self.stats["logo_placeholder"] = bool(getattr(converter, "logo_placeholder", False))
             print(f"🎉 Makalah berhasil dibuat: {self.result_path}")
 
 
