@@ -38,6 +38,7 @@ class Candidate:
     venue: Optional[str] = None
     language: Optional[str] = None
     cited_by: int = 0
+    kind: str = "article"  # article | book | encyclopedia
     oa_pdf_url: Optional[str] = None
     ranks: List[int] = field(default_factory=list)  # posisi pada tiap (sumber, query); dasar RRF
     sources: Set[str] = field(default_factory=set)

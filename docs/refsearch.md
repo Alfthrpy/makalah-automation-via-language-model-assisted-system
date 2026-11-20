@@ -10,7 +10,7 @@ Titik kembali: tag git `pre-refsearch-2026-11-20` (kondisi sebelum fitur ini). R
 outline (LLM, OutlineCrew)  ->  rencana query per sub-bab (1 panggilan LLM murah; gagal = heuristik)
   -> paralel per sub-bab: OpenAlex + Crossref (+ Europe PMC | arXiv | DOAJ sesuai bidang/indonesia)
   -> dedupe (DOI / judul / kemiripan) -> skor (BM25 + RRF + prior) -> 2 referensi per sub-bab (maks dipakai 2 sub-bab)
-  -> fallback: longgarkan tahun -> query judul makalah -> kosong (tanpa crash)
+  -> fallback: longgarkan tahun -> query judul makalah -> Wikipedia (id/en) + Open Library (hanya bila masih kurang) -> kosong (tanpa crash)
   -> full-text: PDF OA dari sumber -> arXiv -> Unpaywall -> Semantic Scholar -> meta citation_pdf_url (OJS) -> HTML
 Writer hanya menerima referensi milik sub-bab-nya (sebelumnya: semua referensi ke tiap sub-bab).
 ```
@@ -38,6 +38,10 @@ LLM tidak pernah menulis judul/penulis/tahun/DOI: semuanya berasal dari respons 
    MALAS_REFSEARCH=1 uv run kickoff --input contoh.yaml   # baru
    ```
    Bandingkan: token total, durasi, jumlah referensi nyata (klik DOI), hit-rate full-text, relevansi (baca manual).
+
+## Belum ada (rencana)
+Pencarian web umum (ddgs/Brave) dengan allowlist domain, regulasi (JDIH BPK), rerank LLM berbasis ID, CORE, embedding lokal.
+Penulis lembaga multi-kata (mis. "Badan Pusat Statistik") belum dikenali sitasi in-text (`citations.py` mengambil kata terakhir).
 
 ## Belum terverifikasi (tes memakai fixture, bukan API sungguhan)
 Bentuk respons tiap provider ditulis dari dokumentasi publik. Nama parameter key OpenAlex (`api_key`), filter

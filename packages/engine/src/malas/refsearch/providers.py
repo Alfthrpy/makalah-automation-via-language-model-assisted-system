@@ -244,6 +244,54 @@ class DOAJ:
         return out
 
 
+# --------------------------------------------------------------------------- Wikipedia (fallback topik populer/sejarah)
+class Wikipedia:
+    """Ringkasan pembuka artikel. Dipakai HANYA sebagai fallback; kredibilitas akademiknya rendah (kind=encyclopedia)."""
+
+    name = "wikipedia"
+
+    def search(self, http, query: str, lang: str, limit: int, year_min: int) -> List[Candidate]:
+        wl = "id" if lang == "id" else "en"
+        params = {
+            "action": "query", "format": "json", "generator": "search", "gsrsearch": query, "gsrlimit": min(limit, 5),
+            "prop": "extracts|info", "exintro": 1, "explaintext": 1, "exchars": 900, "inprop": "url", "redirects": 1,
+        }
+        data = http.get_json(f"https://{wl}.wikipedia.org/w/api.php", params)
+        pages = (((data or {}).get("query") or {}).get("pages") or {}) if isinstance(data, dict) else {}
+        out: List[Candidate] = []
+        for pg in sorted((p for p in pages.values() if isinstance(p, dict)), key=lambda p: p.get("index", 99)):
+            extract = clean_text(pg.get("extract"))
+            if not pg.get("title") or not extract or len(extract) < 80:
+                continue
+            out.append(Candidate(
+                source=self.name, source_id=f"{wl}:{pg.get('pageid')}", title=pg["title"], authors=["Wikipedia"],
+                year=_year(pg.get("touched")), url=pg.get("fullurl"), abstract=extract,
+                venue=f"Wikipedia ({wl})", language=wl, kind="encyclopedia",
+            ))
+        return out
+
+
+# --------------------------------------------------------------------------- Open Library (buku)
+class OpenLibrary:
+    name = "openlibrary"
+    URL = "https://openlibrary.org/search.json"
+
+    def search(self, http, query: str, lang: str, limit: int, year_min: int) -> List[Candidate]:
+        params = {"q": query, "limit": limit, "fields": "key,title,author_name,first_publish_year,language"}
+        data = http.get_json(self.URL, params)
+        out: List[Candidate] = []
+        for d in ((data or {}).get("docs") or []) if isinstance(data, dict) else []:
+            if not d.get("title") or not d.get("author_name") or not d.get("key"):
+                continue
+            out.append(Candidate(
+                source=self.name, source_id=str(d["key"]), title=clean_text(d["title"]) or "",
+                authors=list(d["author_name"])[:4], year=_year(d.get("first_publish_year")),
+                url=f"https://openlibrary.org{d['key']}", kind="book",
+                language=((d.get("language") or [""])[0] or "")[:2] or None,
+            ))
+        return out
+
+
 # --------------------------------------------------------------------------- fixture (mode mock, tanpa HTTP)
 class Fixture:
     """Hasil deterministik untuk MALAS_MOCK=1 dan tes alur: tanpa jaringan sama sekali."""
@@ -267,7 +315,10 @@ class Fixture:
         return out
 
 
-PROVIDERS: Dict[str, object] = {p.name: p for p in (OpenAlex(), Crossref(), EuropePMC(), ArXiv(), DOAJ(), Fixture())}
+PROVIDERS: Dict[str, object] = {
+    p.name: p for p in (OpenAlex(), Crossref(), EuropePMC(), ArXiv(), DOAJ(), Wikipedia(), OpenLibrary(), Fixture())
+}
+FALLBACK_PROVIDERS = ["wikipedia", "openlibrary"]  # hanya dipakai bila sumber akademik belum cukup
 
 # Bidang -> provider tambahan (OpenAlex & Crossref selalu dipakai)
 FIELD_PROVIDERS: Dict[str, List[str]] = {

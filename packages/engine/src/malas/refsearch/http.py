@@ -22,6 +22,9 @@ MIN_INTERVAL: Dict[str, float] = {
     "www.ebi.ac.uk": 0.2,
     "doaj.org": 0.5,
     "api.unpaywall.org": 0.1,
+    "id.wikipedia.org": 0.5,
+    "en.wikipedia.org": 0.5,
+    "openlibrary.org": 1.0,
 }
 _SECRET_PARAMS = {"api_key", "mailto", "email"}  # tidak ikut kunci cache
 MAX_BODY = 2_000_000

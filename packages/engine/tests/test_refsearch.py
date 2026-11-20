@@ -333,3 +333,56 @@ def test_dedupe_tidak_menggabungkan_judul_beda_angka():
     a = cand("Pembelajaran fiqih waris dalam kurikulum merdeka bagian 1")
     b = cand("Pembelajaran fiqih waris dalam kurikulum merdeka bagian 2")
     assert len(dedupe([a, b])) == 2
+
+
+# --------------------------------------------------------------------------- fallback ensiklopedia & buku
+WIKI = {"query": {"pages": {
+    "22": {"pageid": 22, "index": 2, "title": "Majapahit", "touched": "2026-03-01T10:00:00Z", "fullurl": "https://id.wikipedia.org/wiki/Majapahit",
+           "extract": "Majapahit adalah kerajaan Hindu-Buddha di Jawa Timur yang berdiri pada abad ke-13 hingga abad ke-16 Masehi."},
+    "11": {"pageid": 11, "index": 1, "title": "Sejarah Majapahit", "touched": "2026-01-01T00:00:00Z", "fullurl": "https://id.wikipedia.org/wiki/Sejarah_Majapahit",
+           "extract": "Sejarah kerajaan Majapahit dimulai dari Raden Wijaya yang mendirikan kerajaan di hutan Tarik pada tahun 1293."},
+    "33": {"pageid": 33, "index": 3, "title": "Stub", "extract": "pendek"}}}}
+
+
+def test_wikipedia_parse_urut_index_dan_buang_stub():
+    from malas.refsearch.providers import Wikipedia
+    out = Wikipedia().search(client([("wikipedia.org", Resp(200, WIKI))]), "majapahit", "id", 5, 2015)
+    assert [c.title for c in out] == ["Sejarah Majapahit", "Majapahit"]
+    assert out[0].kind == "encyclopedia" and out[0].authors == ["Wikipedia"] and out[0].year == 2026
+
+
+def test_openlibrary_parse():
+    from malas.refsearch.providers import OpenLibrary
+    body = {"docs": [{"key": "/works/OL1W", "title": "Runtuhnya Majapahit", "author_name": ["Slamet Muljana"], "first_publish_year": 1968},
+                     {"key": "/works/OL2W", "title": "Tanpa penulis"}]}
+    out = OpenLibrary().search(client([("openlibrary.org", Resp(200, body))]), "majapahit", "id", 5, 2015)
+    assert len(out) == 1 and out[0].kind == "book" and out[0].url == "https://openlibrary.org/works/OL1W" and out[0].year == 1968
+
+
+def test_buku_lama_dan_judul_pendek_ensiklopedia_valid():
+    assert is_valid(Candidate(source="o", source_id="1", title="Majapahit", year=2026, kind="encyclopedia"), 2015)
+    assert is_valid(Candidate(source="o", source_id="2", title="Runtuhnya Majapahit kerajaan", year=1968, kind="book"), 2015)
+    assert not is_valid(Candidate(source="o", source_id="3", title="Judul artikel jurnal lama", year=1968), 2015)
+
+
+def test_fallback_hanya_dipakai_bila_akademik_kurang(monkeypatch):
+    # akademik kosong -> ensiklopedia dipakai
+    c = client([("openalex.org", Resp(200, {"results": []})), ("crossref.org", Resp(200, {"message": {"items": []}})),
+                ("wikipedia.org", Resp(200, WIKI)), ("openlibrary.org", Resp(200, {"docs": []}))])
+    plan = heuristic_plan("Sejarah Kerajaan Majapahit", ["2.1 Berdirinya Majapahit"])
+    refs, rep = search_references(plan, "Sejarah Kerajaan Majapahit", c, k=2, year_min=2015)
+    assert {r.source for r in refs} == {"wikipedia"} and not rep["sections_without_refs"]
+    # akademik cukup -> Wikipedia tidak dipanggil sama sekali
+    c2 = client([("openalex.org", Resp(200, _oa_page(6))), ("crossref.org", Resp(200, {"message": {"items": []}})),
+                 ("wikipedia.org", Resp(200, WIKI))])
+    plan2 = heuristic_plan("Sistem Rekomendasi Kolaboratif", ["2.1 Landasan Teori"])
+    refs2, _ = search_references(plan2, "Sistem Rekomendasi Kolaboratif", c2, k=2, year_min=2015)
+    assert {r.source for r in refs2} == {"openalex"}
+    assert not any("wikipedia" in u for u, _ in c2.session.log)
+
+
+def test_format_apa_penulis_lembaga_dan_inisial_kapital():
+    from malas.docx_converter import format_apa7
+    assert format_apa7({"authors": ["Wikipedia"], "year": 2026, "title": "Majapahit", "link": "u"}).startswith("Wikipedia. (2026).")
+    assert format_apa7({"authors": ["JA Smith", "K Lee"], "year": 2021, "title": "t", "link": "u"}).startswith("Smith, J. A. & Lee, K. (2021)")
+    assert format_apa7({"authors": ["John Smith"], "year": 2020, "title": "t", "link": "u"}).startswith("Smith, J. (2020)")

@@ -106,9 +106,13 @@ def query_tokens(sq: SectionQuery) -> Set[str]:
 
 
 def is_valid(c: Candidate, year_min: int) -> bool:
-    if not c.year or len(c.title.split()) < MIN_TITLE_WORDS or _BAD_TITLE.match(c.title):
+    if not c.year or _BAD_TITLE.match(c.title):
         return False
-    return c.year >= year_min or c.cited_by >= CLASSIC_CITES
+    if c.kind == "encyclopedia":  # judul artikel pendek ("Majapahit") wajar
+        return True
+    if len(c.title.split()) < MIN_TITLE_WORDS:
+        return False
+    return c.year >= year_min or c.cited_by >= CLASSIC_CITES or c.kind == "book"  # buku boleh lebih tua
 
 
 def score(cands: List[Candidate], sq: SectionQuery, min_overlap: int = 2) -> List[Candidate]:
@@ -133,8 +137,9 @@ def score(cands: List[Candidate], sq: SectionQuery, min_overlap: int = 2) -> Lis
     for c, r, f in zip(keep, rel, rrf):
         prior = (0.3 if c.abstract else 0.0) + (0.2 if c.oa_pdf_url else 0.0) + (0.15 if c.doi else 0.0) \
             + min(0.3, 0.06 * math.log1p(c.cited_by)) + (0.1 if len(c.sources) > 1 else 0.0) \
-            + (0.3 if sq.indo and (c.language or "") == "id" else 0.0)
-        final.append((0.5 * r / top_rel + 0.3 * f / top_rrf + 0.2 * min(prior, 1.0), c))
+            + (0.3 if sq.indo and (c.language or "") == "id" else 0.0) \
+            - (0.4 if c.kind == "encyclopedia" else 0.0)
+        final.append((0.5 * r / top_rel + 0.3 * f / top_rrf + 0.2 * max(min(prior, 1.0), -0.5), c))
     final.sort(key=lambda x: x[0], reverse=True)
     return [c for _, c in final]
 

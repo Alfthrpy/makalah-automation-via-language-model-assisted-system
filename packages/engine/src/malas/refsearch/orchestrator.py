@@ -10,7 +10,7 @@ from malas.config import is_mock
 from malas.crews.models.TaskOutput import ReferenceItem
 from malas.refsearch.http import HttpClient
 from malas.refsearch.models import Candidate, SectionQuery
-from malas.refsearch.providers import PROVIDERS, providers_for
+from malas.refsearch.providers import FALLBACK_PROVIDERS, PROVIDERS, providers_for
 from malas.refsearch.rank import choose, ckey, dedupe, is_valid, score
 
 log = logging.getLogger("malas.refsearch")
@@ -63,6 +63,12 @@ def _search_section(http: HttpClient, sq: SectionQuery, judul: str, year_min: in
     if len(good) < k:  # 2) query dari judul makalah saja (sub-bab generik / topik sempit)
         broad = SectionQuery(section=sq.section, q_en="", q_id=judul, bidang=sq.bidang, indo=sq.indo)
         absorb(_gather(http, broad, names, year_min - 10, broad.queries()), year_min - 10, overlap=1)
+    if len(good) < k and not is_mock():  # 3) topik tanpa literatur jurnal: ensiklopedia & buku, urutan terakhir
+        extra = [n for n in FALLBACK_PROVIDERS if n not in names]
+        absorb(_gather(http, sq, extra, year_min), year_min)
+        if len(good) < k:
+            broad = SectionQuery(section=sq.section, q_en="", q_id=judul, bidang=sq.bidang, indo=sq.indo)
+            absorb(_gather(http, broad, extra, year_min, broad.queries()), year_min, overlap=1)
     return good
 
 
