@@ -63,7 +63,7 @@ def test_karakter_khusus_xml_tidak_hilang(tmp_path):
 
     assert "Riset & Pengembangan <AI>" in teks
     assert "p & q <b>" in teks
-    assert "Lee, A. & Kim, B." in teks
+    assert "Lee, A., & Kim, B." in teks
     assert "?x=1&y=2" in teks
 
 

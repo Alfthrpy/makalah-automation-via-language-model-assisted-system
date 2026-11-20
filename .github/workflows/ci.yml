@@ -35,6 +35,8 @@ jobs:
           packages/engine/src/malas/logo.py
           packages/engine/tests/test_logo.py
           packages/engine/src/malas/apa.py
+          packages/engine/src/malas/names.py
+          packages/engine/tests/test_names.py
           packages/engine/tests/test_apa.py
       - run: uv run pytest -q
 

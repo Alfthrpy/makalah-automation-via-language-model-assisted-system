@@ -384,7 +384,7 @@ def test_fallback_hanya_dipakai_bila_akademik_kurang(monkeypatch):
 def test_format_apa_penulis_lembaga_dan_inisial_kapital():
     from malas.docx_converter import format_apa7
     assert format_apa7({"authors": ["Wikipedia"], "year": 2026, "title": "Majapahit", "link": "u"}).startswith("Wikipedia. (2026).")
-    assert format_apa7({"authors": ["JA Smith", "K Lee"], "year": 2021, "title": "t", "link": "u"}).startswith("Smith, J. A. & Lee, K. (2021)")
+    assert format_apa7({"authors": ["JA Smith", "K Lee"], "year": 2021, "title": "t", "link": "u"}).startswith("Smith, J. A., & Lee, K. (2021)")
     assert format_apa7({"authors": ["John Smith"], "year": 2020, "title": "t", "link": "u"}).startswith("Smith, J. (2020)")
 
 

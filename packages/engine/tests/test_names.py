@@ -1,5 +1,4 @@
 import pytest
-
 from malas.names import family_of, is_confident, is_institution, normalize_author
 
 

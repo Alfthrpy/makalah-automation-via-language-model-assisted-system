@@ -34,7 +34,7 @@ SHOLAHUDIN = {
     "pages": "1711-1719", "doi": "10.29100/jipi.v11i2.7903",
 }
 SHOLAHUDIN_APA = (
-    "Sholahudin, S. & Syihabuddin, S. (2026). Pengaruh gamifikasi asesmen formatif terhadap motivasi belajar siswa "
+    "Sholahudin, S., & Syihabuddin, S. (2026). Pengaruh gamifikasi asesmen formatif terhadap motivasi belajar siswa "
     "dalam pembelajaran bahasa Arab sebagai bahasa asing. JIPI (Jurnal Ilmiah Penelitian dan Pembelajaran "
     "Informatika), 11(2), 1711–1719. https://doi.org/10.29100/jipi.v11i2.7903"
 )
@@ -62,9 +62,9 @@ def test_tanpa_volume_venue_penulis():
     # venue saja (tanpa volume/halaman) -> render yang ada
     assert format_apa7({"title": "Judul", "authors": ["Ana Lee"], "year": 2021, "venue": "Jurnal X", "link": "u"}) \
         == "Lee, A. (2021). Judul. Jurnal X. u"
-    # halaman tanpa volume, tahun kosong -> n.d.
+    # halaman tanpa volume, tahun kosong -> t.t.
     assert format_apa7({"title": "T", "authors": ["Ana Lee"], "year": 0, "venue": "J", "pages": "5-9"}) \
-        == "Lee, A. (n.d.). T. J, 5–9."
+        == "Lee, A. (t.t.). T. J, 5–9."
 
 
 def test_data_lama_given_family_tanpa_field_baru():
@@ -103,7 +103,7 @@ def test_sentence_case_tidak_merusak_judul_benar_dan_nama_diri_dari_data():
 
 def test_sentence_case_bisa_dimatikan(monkeypatch):
     monkeypatch.setenv("MALAS_APA_SENTENCECASE", "0")
-    assert format_apa7(SHOLAHUDIN).startswith("Sholahudin, S. & Syihabuddin, S. (2026). PENGARUH GAMIFIKASI")
+    assert format_apa7(SHOLAHUDIN).startswith("Sholahudin, S., & Syihabuddin, S. (2026). PENGARUH GAMIFIKASI")
 
 
 # --------------------------------------------------------------------------- urut alfabet

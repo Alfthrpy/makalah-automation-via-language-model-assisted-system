@@ -17,16 +17,15 @@ Keterbatasan (disengaja): urutan nama ber-inisial di belakang bisa ambigu tanpa 
 supaya sama dengan yang dapat dikenali verifier sitasi.
 """
 import re
-from typing import Tuple
 
 _LEMBAGA = re.compile(
     r"\b(badan|kementerian|kemenkes|kemendikbud|dinas|lembaga|pusat|universitas|institut|politeknik|sekolah tinggi|"
     r"organisasi|asosiasi|komisi|dewan|bank|perusahaan|pemerintah|republik|world|organization|association|ministry|"
-    r"institute|university|bureau|agency|commission|council|foundation|department|office)\b", re.I)
+    r"institute|university|bureau|agency|commission|council|foundation|department|office)\b", re.IGNORECASE)
 
-_PREFIX_GELAR = re.compile(r"^(?:dr|drs|dra|prof|ir|h|hj|kh|ust|ustadz|ustadzah)\.?$", re.I)
+_PREFIX_GELAR = re.compile(r"^(?:dr|drs|dra|prof|ir|h|hj|kh|ust|ustadz|ustadzah)\.?$", re.IGNORECASE)
 # gelar di belakang: "S.Pd", "M.Pd.I", "S.Ag.", "Lc", "Ph.D", "M.A." (mengandung segmen >1 huruf, atau dikenal)
-_SUFFIX_GELAR = re.compile(r"^(?:lc|ma|msc|mba|phd|ph\.d|sh|se|st|mt|mm|mh|dr)\.?$", re.I)
+_SUFFIX_GELAR = re.compile(r"^(?:lc|ma|msc|mba|phd|ph\.d|sh|se|st|mt|mm|mh|dr)\.?$", re.IGNORECASE)
 _DOTTED = re.compile(r"^(?:[A-Za-z]{1,4}\.)+[A-Za-z]{0,4}\.?$")
 
 
@@ -78,7 +77,7 @@ def _strip_degrees(tokens: list) -> list:
     return toks
 
 
-def split_author(raw: str) -> Tuple[str, str, bool]:
+def split_author(raw: str) -> tuple[str, str, bool]:
     """-> (family, initials "G. G.", confident). Lembaga: (nama utuh, "", True)."""
     raw = " ".join((raw or "").split())
     if not raw:

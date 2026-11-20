@@ -162,13 +162,11 @@ def _end(s: str) -> str:
 
 
 def join_authors(authors: list[str]) -> str:
-    """1: "A, X." · 2: "A, X. & B, Y." · ≥3: "A, X., B, Y., & C, Z." (perilaku lama dipertahankan)."""
+    """APA 7 (daftar pustaka): 1: "A, X." · 2: "A, X., & B, Y." · ≥3: "A, X., B, Y., & C, Z." (koma sebelum &)."""
     if not authors:
         return ""
     if len(authors) == 1:
         return authors[0]
-    if len(authors) == 2:
-        return f"{authors[0]} & {authors[1]}"
     return ", ".join(authors[:-1]) + f", & {authors[-1]}"
 
 
@@ -193,7 +191,7 @@ def format_apa7_segments(ref: Mapping) -> list[Segment]:
     """
     authors = _authors(ref)
     year = ref.get("year")
-    year_s = _clean(year) if year not in (None, "", 0, "0") else "n.d."
+    year_s = _clean(year) if year not in (None, "", 0, "0") else "t.t."  # tanpa tahun (APA berbahasa Indonesia)
     title = _clean(ref.get("title")) or "Judul tidak diketahui"
     if sentence_case_enabled():
         title = to_sentence_case(title, protected_from(ref))
