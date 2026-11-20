@@ -1,0 +1,417 @@
+{
+ "timeline": {
+  "BPM": 86.02,
+  "BEAT": 0.6975,
+  "T": 27.9,
+  "LOOP_IN": 0.5,
+  "SC": {
+   "A": 2.8,
+   "B": 5.566666666666666,
+   "C": 8.733333333333333,
+   "D": 12.566666666666666,
+   "E": 16.4,
+   "F": 20.233333333333334,
+   "G": 23.366666666666667,
+   "END": 27.4
+  },
+  "EV": {
+   "slam": 0.3333333333333333,
+   "typeStart": 3.433333333333333,
+   "typeEnd": 5.333333333333333,
+   "modeUji": 7.133333333333334,
+   "tapBuat": 8.233333333333333,
+   "step1": 9.666666666666666,
+   "done": 10.5,
+   "tapUnduh": 11.766666666666667,
+   "swipe": 15.433333333333334,
+   "stamp": 17.033333333333335,
+   "tapCoba": 25.366666666666667
+  }
+ },
+ "events": [
+  {
+   "t": 0.3333333333333333,
+   "type": "thud"
+  },
+  {
+   "t": 2.8,
+   "type": "whoosh",
+   "gain": 1
+  },
+  {
+   "t": 3.433333333333333,
+   "type": "type",
+   "i": 0,
+   "space": false
+  },
+  {
+   "t": 3.466666666666667,
+   "type": "type",
+   "i": 1,
+   "space": false
+  },
+  {
+   "t": 3.5,
+   "type": "type",
+   "i": 2,
+   "space": false
+  },
+  {
+   "t": 3.533333333333333,
+   "type": "type",
+   "i": 3,
+   "space": false
+  },
+  {
+   "t": 3.6,
+   "type": "type",
+   "i": 4,
+   "space": false
+  },
+  {
+   "t": 3.6333333333333333,
+   "type": "type",
+   "i": 5,
+   "space": false
+  },
+  {
+   "t": 3.6666666666666665,
+   "type": "type",
+   "i": 6,
+   "space": false
+  },
+  {
+   "t": 3.7,
+   "type": "type",
+   "i": 7,
+   "space": false
+  },
+  {
+   "t": 3.7666666666666666,
+   "type": "type",
+   "i": 8,
+   "space": true
+  },
+  {
+   "t": 3.8,
+   "type": "type",
+   "i": 9,
+   "space": false
+  },
+  {
+   "t": 3.8333333333333335,
+   "type": "type",
+   "i": 10,
+   "space": false
+  },
+  {
+   "t": 3.8666666666666667,
+   "type": "type",
+   "i": 11,
+   "space": false
+  },
+  {
+   "t": 3.9,
+   "type": "type",
+   "i": 12,
+   "space": false
+  },
+  {
+   "t": 3.933333333333333,
+   "type": "type",
+   "i": 13,
+   "space": false
+  },
+  {
+   "t": 3.966666666666667,
+   "type": "type",
+   "i": 14,
+   "space": true
+  },
+  {
+   "t": 4,
+   "type": "type",
+   "i": 15,
+   "space": false
+  },
+  {
+   "t": 4.033333333333333,
+   "type": "type",
+   "i": 16,
+   "space": false
+  },
+  {
+   "t": 4.066666666666666,
+   "type": "type",
+   "i": 17,
+   "space": false
+  },
+  {
+   "t": 4.1,
+   "type": "type",
+   "i": 18,
+   "space": false
+  },
+  {
+   "t": 4.133333333333334,
+   "type": "type",
+   "i": 19,
+   "space": false
+  },
+  {
+   "t": 4.2,
+   "type": "type",
+   "i": 20,
+   "space": false
+  },
+  {
+   "t": 4.233333333333333,
+   "type": "type",
+   "i": 21,
+   "space": true
+  },
+  {
+   "t": 4.266666666666667,
+   "type": "type",
+   "i": 22,
+   "space": false
+  },
+  {
+   "t": 4.3,
+   "type": "type",
+   "i": 23,
+   "space": false
+  },
+  {
+   "t": 4.333333333333333,
+   "type": "type",
+   "i": 24,
+   "space": false
+  },
+  {
+   "t": 4.366666666666666,
+   "type": "type",
+   "i": 25,
+   "space": false
+  },
+  {
+   "t": 4.4,
+   "type": "type",
+   "i": 26,
+   "space": false
+  },
+  {
+   "t": 4.433333333333334,
+   "type": "type",
+   "i": 27,
+   "space": false
+  },
+  {
+   "t": 4.5,
+   "type": "type",
+   "i": 28,
+   "space": false
+  },
+  {
+   "t": 4.533333333333333,
+   "type": "type",
+   "i": 29,
+   "space": false
+  },
+  {
+   "t": 4.566666666666666,
+   "type": "type",
+   "i": 30,
+   "space": true
+  },
+  {
+   "t": 4.6,
+   "type": "type",
+   "i": 31,
+   "space": false
+  },
+  {
+   "t": 4.633333333333334,
+   "type": "type",
+   "i": 32,
+   "space": false
+  },
+  {
+   "t": 4.666666666666667,
+   "type": "type",
+   "i": 33,
+   "space": false
+  },
+  {
+   "t": 4.7,
+   "type": "type",
+   "i": 34,
+   "space": false
+  },
+  {
+   "t": 4.766666666666667,
+   "type": "type",
+   "i": 35,
+   "space": false
+  },
+  {
+   "t": 4.8,
+   "type": "type",
+   "i": 36,
+   "space": true
+  },
+  {
+   "t": 4.833333333333333,
+   "type": "type",
+   "i": 37,
+   "space": false
+  },
+  {
+   "t": 4.866666666666666,
+   "type": "type",
+   "i": 38,
+   "space": false
+  },
+  {
+   "t": 4.9,
+   "type": "type",
+   "i": 39,
+   "space": false
+  },
+  {
+   "t": 4.933333333333334,
+   "type": "type",
+   "i": 40,
+   "space": false
+  },
+  {
+   "t": 4.966666666666667,
+   "type": "type",
+   "i": 41,
+   "space": true
+  },
+  {
+   "t": 5,
+   "type": "type",
+   "i": 42,
+   "space": false
+  },
+  {
+   "t": 5.033333333333333,
+   "type": "type",
+   "i": 43,
+   "space": false
+  },
+  {
+   "t": 5.066666666666666,
+   "type": "type",
+   "i": 44,
+   "space": false
+  },
+  {
+   "t": 5.133333333333334,
+   "type": "type",
+   "i": 45,
+   "space": false
+  },
+  {
+   "t": 5.166666666666667,
+   "type": "type",
+   "i": 46,
+   "space": false
+  },
+  {
+   "t": 5.2,
+   "type": "type",
+   "i": 47,
+   "space": false
+  },
+  {
+   "t": 5.233333333333333,
+   "type": "type",
+   "i": 48,
+   "space": false
+  },
+  {
+   "t": 5.266666666666667,
+   "type": "type",
+   "i": 49,
+   "space": false
+  },
+  {
+   "t": 5.3,
+   "type": "type",
+   "i": 50,
+   "space": false
+  },
+  {
+   "t": 5.566666666666666,
+   "type": "whoosh",
+   "gain": 0.6
+  },
+  {
+   "t": 7.133333333333334,
+   "type": "tick"
+  },
+  {
+   "t": 8.233333333333333,
+   "type": "click"
+  },
+  {
+   "t": 8.733333333333333,
+   "type": "whoosh",
+   "gain": 1
+  },
+  {
+   "t": 9.666666666666666,
+   "type": "tick"
+  },
+  {
+   "t": 10.5,
+   "type": "ding"
+  },
+  {
+   "t": 11.766666666666667,
+   "type": "click"
+  },
+  {
+   "t": 12.566666666666666,
+   "type": "whoosh",
+   "gain": 1
+  },
+  {
+   "t": 15.433333333333334,
+   "type": "swipe"
+  },
+  {
+   "t": 16.4,
+   "type": "whoosh",
+   "gain": 1
+  },
+  {
+   "t": 17.033333333333335,
+   "type": "stamp"
+  },
+  {
+   "t": 20.233333333333334,
+   "type": "whoosh",
+   "gain": 1
+  },
+  {
+   "t": 23.366666666666667,
+   "type": "whoosh",
+   "gain": 1
+  },
+  {
+   "t": 25.366666666666667,
+   "type": "click"
+  },
+  {
+   "t": 27.4,
+   "type": "whoosh",
+   "gain": 1
+  }
+ ],
+ "frames": 837,
+ "fps": 30
+}
