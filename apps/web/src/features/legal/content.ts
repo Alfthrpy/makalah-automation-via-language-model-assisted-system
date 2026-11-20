@@ -4,7 +4,9 @@
  *  - retensi: job selesai/gagal dihapus 48 jam setelah selesai (JobManager.purge; default di app.py DEFAULT_RETENTION_HOURS, mode hosting);
  *  - yang dikirim ke penyedia LLM: judul, mata kuliah, tahun, kota, NAMA dosen dan penyusun (kata pengantar), plus
  *    konten yang disusun; NIM, kelas, universitas, fakultas, jurusan tidak dikirim (packages/engine crews/*.yaml);
- *  - pencarian referensi: Crossref, Semantic Scholar, arXiv (tools/custom_tool.py, fulltext.py);
+ *  - pencarian referensi: jalur baru (MALAS_REFSEARCH=1) mengirim kata kunci dari judul & sub-bab ke OpenAlex, Crossref, Europe PMC,
+ *    arXiv, DOAJ, dan cadangan Wikipedia & Open Library (packages/engine refsearch/); jalur lama: Crossref, Semantic Scholar, arXiv,
+ *    DuckDuckGo (tools/custom_tool.py); full-text: server mengunduh PDF/halaman artikel terbuka (fulltext.py), Unpaywall bila email kontak diisi;
  *  - tabel `users` hanya menyimpan id Clerk; tabel `usage` menyimpan kuota harian (id pengguna, tanggal, jumlah);
  *  - logo kampus/sekolah: satu per akun di tabel user_logos (PNG ternormalisasi), disimpan sampai pengguna menghapusnya,
  *    tidak dikirim ke penyedia LLM, hanya ditanam ke .docx;
@@ -183,7 +185,8 @@ export const PRIVACY: LegalDoc = {
         [
           "Penyedia model bahasa pilihanmu (OpenRouter atau Kenari): menerima key-mu dan isi yang dikirim ke model, yaitu judul, mata kuliah, tahun, kota, nama dosen dan nama penyusun (untuk kata pengantar), serta bagian makalah yang sedang disusun. NIM, kelas, universitas, fakultas, dan jurusan tidak dikirim. Penyedia itu punya kebijakan sendiri.",
           "Logo yang kamu unggah tidak dikirim ke penyedia model bahasa maupun layanan lain; ia hanya disimpan di basis data kami dan ditanam ke berkas .docx-mu.",
-          "Layanan pencarian literatur (Crossref, Semantic Scholar, arXiv): menerima kata kunci yang diturunkan dari judulmu untuk mencari referensi.",
+          "Layanan pencarian literatur (OpenAlex, Crossref, Europe PMC, arXiv, DOAJ, Semantic Scholar; sebagai cadangan Wikipedia, Open Library, dan DuckDuckGo): menerima kata kunci yang diturunkan dari judul dan sub-bab makalahmu untuk mencari referensi. Nama, NIM, dan data sampulmu tidak dikirim ke mereka.",
+          "Situs penerbit dan repositori jurnal terbuka: server kami mengunduh teks artikel yang terbuka (open access) agar bisa dikutip. Mereka hanya melihat alamat IP server kami, bukan identitasmu.",
           "Clerk: mengelola akun dan login.",
           "Neon (basis data), Hugging Face (server API), dan Netlify (situs web): menyimpan atau meneruskan data yang disebut di atas sebagai penyedia infrastruktur.",
         ],

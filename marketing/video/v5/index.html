@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1080">
+<title>MALAS Promo v5</title>
+<!--
+  Video promo vertikal MALAS v5 "Referensi yang bisa kamu cek" (1080x1920, 30 fps, 30,0 dtk = 48 ketukan @ 96 BPM, loop).
+  Konsep berbeda dari v4: bukan alur 3 langkah, melainkan satu pertanyaan ("daftar pustaka dari AI, beneran ada?")
+  dijawab dengan transparansi: referensi dari database jurnal, ada DOI, kamu buka dan cek sendiri; angka uji internal;
+  tetap DRAF. Audio disintesis terpisah oleh audio.py dari window.EVENTS (lihat build.sh).
+  Deterministik: window.renderFrame(tMs) menghitung seluruh tampilan dari t.  ?play=1 -> pratinjau realtime; ?t=8.5 -> satu bingkai.
+  Aset: assets/ui-job-jalan.png = tangkapan layar ASLI aplikasi MALAS (Mode uji, dari v4). Daftar pustaka, kartu hasil
+  pencarian, dan halaman DOI dibangun di HTML ini dengan data GENERIK (penulis "Penulis, A.", DOI 10.0000/contoh...,
+  prefiks 10.0000 tidak terdaftar, sama seperti fixture Mode uji) dan diberi label "Tampilan contoh".
+-->
+<style>
+@font-face{font-family:"Bricolage";src:url(fonts/bricolage-grotesque-latin-wght-normal.woff2) format("woff2");font-weight:200 800;font-display:block}
+@font-face{font-family:"Jakarta";src:url(fonts/plus-jakarta-sans-latin-600-normal.woff2) format("woff2");font-weight:600;font-display:block}
+@font-face{font-family:"Jakarta";src:url(fonts/plus-jakarta-sans-latin-700-normal.woff2) format("woff2");font-weight:700;font-display:block}
+@font-face{font-family:"Jakarta";src:url(fonts/plus-jakarta-sans-latin-800-normal.woff2) format("woff2");font-weight:800;font-display:block}
+@font-face{font-family:"JBMono";src:url(fonts/jetbrains-mono-latin-700-normal.woff2) format("woff2");font-weight:700;font-display:block}
+@font-face{font-family:"Carlito";src:url(fonts/Carlito-Regular.ttf) format("truetype");font-weight:400;font-display:block}
+@font-face{font-family:"Carlito";src:url(fonts/Carlito-Bold.ttf) format("truetype");font-weight:700;font-display:block}
+:root{
+  --bg:#f4f5f8; --surface:#fff; --ink:#161a2c; --muted:#545b73; --line:#d9dce6;
+  --accent:#2c3a9e; --accent-soft:#e5e8fa; --mark:#ffe55c; --mark-ink:#1d1a05; --red:#d2405e; --green:#1d7a3e; --green-soft:#e2f4e8;
+}
+html,body{margin:0;background:#000}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden;background:var(--bg);font-family:"Jakarta",sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+.tr{position:absolute;will-change:transform,opacity}
+.hd{left:84px;width:880px;margin:0;font:800 130px/1.0 "Bricolage";letter-spacing:-.035em}
+.hd .a{color:var(--accent)}
+.on-blue{color:#fff}
+.sm{font:700 54px/1.2 "Jakarta"}
+.pill{display:inline-flex;align-items:center;padding:12px 30px 15px;border-radius:999px;font:700 50px/1.1 "Jakarta";white-space:nowrap;background:var(--ink);color:#fff;box-shadow:0 10px 24px -8px rgba(22,26,44,.45)}
+.mk{background:var(--mark);color:var(--mark-ink);padding:0 .08em;border-radius:.08em}
+
+/* halaman dokumen (daftar pustaka) */
+.doc{position:absolute;background:#fff;border-radius:18px;border:2px solid #d3d6df;box-shadow:0 30px 60px -24px rgba(22,26,44,.35);font-family:"Carlito";color:#22252e;box-sizing:border-box;padding:40px 52px}
+.doc h3{margin:0 0 22px;text-align:center;font:700 46px/1 "Carlito";letter-spacing:.02em}
+.doc p{margin:0 0 20px;padding-left:56px;text-indent:-56px;font:400 38px/1.3 "Carlito"}
+.doi{color:#1f4fbf;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px;background:linear-gradient(var(--mark),var(--mark)) no-repeat 0 0/0% 100%}
+.qm{text-indent:0;display:inline-flex;align-items:center;justify-content:center;width:62px;height:62px;border-radius:50%;background:var(--red);color:#fff;font:800 46px/1 "Jakarta";vertical-align:middle;transform-origin:50% 50%}
+.fz{display:inline-block;height:26px;border-radius:13px;background:#d7dae3;vertical-align:middle}
+
+/* kartu hasil pencarian */
+.card{position:absolute;left:84px;width:860px;height:136px;background:#fff;border-radius:24px;border:2px solid var(--line);box-sizing:border-box;padding:20px 28px;box-shadow:0 14px 30px -18px rgba(22,26,44,.35)}
+.card .ti{font:700 39px/1.15 "Jakarta";white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .bd{display:flex;gap:12px;margin-top:12px}
+.bdg{display:inline-flex;align-items:center;gap:8px;padding:4px 16px 6px;border-radius:999px;font:700 32px/1.1 "Jakarta";background:var(--green-soft);color:var(--green);white-space:nowrap}
+.bdg.n{background:var(--accent-soft);color:var(--accent)}
+
+/* peramban generik */
+.br{position:absolute;background:#fff;border-radius:24px;overflow:hidden;border:2px solid #c9ccd4;box-shadow:0 -10px 50px -12px rgba(22,26,44,.35)}
+.br .addr{height:84px;background:#e9ebf0;display:flex;align-items:center;padding:0 22px}
+.br .addr div{flex:1;height:56px;border-radius:28px;background:#fff;display:flex;align-items:center;gap:12px;padding:0 22px;font:600 34px "Jakarta";color:#3a3f4d;white-space:nowrap;overflow:hidden}
+
+.chip{display:inline-block;padding:8px 24px 11px;border-radius:999px;background:#fff;border:2px solid var(--line);font:700 40px/1.1 "Jakarta";margin:0 12px 14px 0;transform-origin:50% 60%}
+.stat{position:absolute;left:84px;width:860px;height:140px;display:flex;align-items:center;gap:26px;background:#fff;border-radius:26px;border:2px solid var(--line);box-sizing:border-box;padding:0 30px}
+.stat b{flex:none;width:240px;font:800 92px/1 "Bricolage";letter-spacing:-.03em;color:var(--accent)}
+.stat span{font:700 40px/1.18 "Jakarta"}
+.tap{position:absolute;width:84px;height:84px;margin:-42px 0 0 -42px;border-radius:50%;background:rgba(22,26,44,.28);border:4px solid #fff;box-sizing:border-box;z-index:20;opacity:0}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script>
+(function(){
+"use strict";
+/* ===== tempo: 96 BPM, semua peristiwa di ketukan / pecahan ketukan, dibulatkan ke bingkai ===== */
+const BPM=96, B=60/BPM;                // 0,625 dtk per ketukan (= 18,75 bingkai)
+const FPS=30;
+const LOOP_IN=0.5;
+const fr=x=>Math.round(x*FPS)/FPS;
+const T=fr(48*B);                      // 48 ketukan = 30,0 dtk = 900 bingkai
+const b=n=>fr(n*B);
+// adegan (ketukan): H 0-6 | A 6-14 cari | B 14-24 DOI | C 24-32 uji internal | D 32-39 DRAF | EC 39-48 CTA
+const SC={A:b(6),B:b(14),C:b(24),D:b(32),EC:b(39),END:fr(T-LOOP_IN)};
+const stage=document.getElementById('stage');
+const clamp=(x,a=0,c=1)=>Math.min(c,Math.max(a,x));
+const P=(t,a,d)=>clamp((t-a)/d);
+const lerp=(a,c,x)=>a+(c-a)*x;
+const outCubic=x=>1-Math.pow(1-x,3);
+const inCubic=x=>x*x*x;
+const inOut=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const outBack=(x,s=1.7)=>{const c=s+1;return 1+c*Math.pow(x-1,3)+s*Math.pow(x-1,2);};
+const $=(s,r=stage)=>r.querySelector(s);
+const $$=(s,r=stage)=>Array.from(r.querySelectorAll(s));
+const f2=n=>n.toFixed(2);
+function el(html){const d=document.createElement('div');d.innerHTML=html.trim();const e=d.firstElementChild;stage.appendChild(e);return e;}
+
+/* ===== peristiwa (sumber kebenaran sinkron SFX di audio.py) ===== */
+const EV={
+  slam:b(1),                                   // "beneran ada?" menghantam
+  q:[b(2),b(2.5),b(3)],                        // tanda tanya merah muncul di tiap DOI
+  cards:[b(9),b(10),b(11)],                    // kartu hasil pencarian masuk
+  swipe:b(16),                                 // stabilo di DOI
+  tapDoi:b(17.5),                              // ketuk DOI -> halaman artikel
+  checks:[b(19),b(19.75),b(20.5)],             // Judul / Penulis / Tahun dicek
+  ding:b(21.25),
+  chips:[0,1,2,3,4,5,6,7].map(i=>b(24.75+i*0.25)),   // 8 topik uji
+  stats:[b(27),b(28),b(29)],
+  stamp:b(32.75),                              // DRAF dicap
+  note1:b(43.5),
+  press:b(44),                                 // "Coba gratis" ditekan (akor tonika mendarat, awal bar 12)
+};
+const EVENTS=[
+  {t:EV.slam,type:'thud'},
+  ...[SC.A,SC.B,SC.C,SC.D,SC.EC,SC.END].map(t=>({t,type:'whoosh'})),
+  ...EV.q.map(t=>({t,type:'plop'})),
+  {t:fr(SC.A+0.9),type:'swipe',gain:0.6},      // "memindai" database
+  ...EV.cards.map(t=>({t,type:'pop'})),
+  {t:EV.swipe,type:'swipe'},
+  {t:EV.tapDoi,type:'click'},
+  ...EV.checks.map(t=>({t,type:'tick'})),
+  {t:EV.ding,type:'ding'},
+  ...EV.chips.map((t,i)=>({t,type:'blip',i})),
+  ...EV.stats.map(t=>({t,type:'pop'})),
+  {t:EV.stamp,type:'stamp'},
+  {t:EV.note1,type:'note1'},
+  {t:EV.press,type:'press'},
+  {t:EV.press,type:'note2'},
+].sort((a,c)=>a.t-c.t);
+
+/* ===== track: masuk/keluar seragam ===== */
+const tracks=[];
+function track(e,tin,tout,o={}){tracks.push({e,tin,tout,dy:o.dy??80,hook:!!o.hook});e.style.zIndex=o.z||1;return e;}
+const ENTER=0.5, EXIT=0.35, LEAD=1/FPS;
+const DOIS=['10.0000/contoh.2023.014','10.0000/contoh.2022.031','10.0000/contoh.2024.007'];
+const CHECK='<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>';
+
+/* ---------- HOOK: daftar pustaka tanpa sumber yang jelas ---------- */
+track(el(`<h1 class="hd tr" style="top:270px;font-size:118px;width:940px">Daftar pustaka<br>dari AI…<br><span class="a" id="q" style="display:inline-block;transform-origin:0 70%">beneran ada?</span></h1>`),0,SC.A,{hook:true,z:3});
+track(el(`<div class="doc tr" id="docH" style="left:84px;top:760px;width:860px;height:490px">
+  <h3>DAFTAR PUSTAKA</h3>
+  ${[[400,'2021'],[440,'2019'],[360,'2023']].map(([w,y],i)=>`<p>Penulis, ${'ABC'[i]}. (${y}). <span class="fz" style="width:${w}px"></span><br><span class="fz" style="width:${640-w}px"></span> doi: <span style="color:var(--red);font-weight:700">???</span> <span class="qm" id="qm${i}">?</span></p>`).join('')}
+  </div>`),0,SC.A,{hook:true,dy:120});
+
+/* ---------- A: dicari dari database jurnal ---------- */
+track(el(`<h1 class="hd tr" style="top:270px">Dari jurnal<br><span class="a">sungguhan.</span></h1>`),SC.A,SC.B);
+track(el(`<div class="sm tr" style="left:84px;width:860px;top:545px;color:var(--muted);font-size:46px">Datanya diambil dari database,<br>bukan dikarang AI.</div>`),SC.A+0.2,SC.B);
+track(el(`<div class="tr" style="left:84px;top:740px;width:860px;height:280px;border-radius:24px;overflow:hidden;border:2px solid var(--line);background:#fff">
+   <img src="assets/ui-job-jalan.png" style="position:absolute;left:${f2(-74*860/1026)}px;top:${f2(-1540*860/1026)}px;width:${f2(1170*860/1026)}px"></div>`),SC.A+0.1,SC.B,{dy:160,z:2});
+track(el(`<div class="tr" style="right:136px;top:708px"><span class="pill" style="font-size:40px;padding:8px 24px 11px">Tampilan contoh</span></div>`),SC.A+0.3,SC.B,{z:5});
+const CARDS=[
+  ['Literasi digital dan minat baca mahasiswa',['DOI','Abstrak','PDF terbuka']],
+  ['Media sosial dan kebiasaan membaca',['DOI','Abstrak','B. Indonesia']],
+  ['Minat baca di perguruan tinggi',['DOI','Abstrak','PDF terbuka']],
+];
+const cardEls=CARDS.map(([ti,bd],i)=>track(el(`<div class="card tr" style="top:${1056+i*154}px">
+   <div class="ti">${ti}</div><div class="bd">${bd.map(x=>`<span class="bdg${x==='B. Indonesia'?' n':''}">${x==='B. Indonesia'?'':CHECK}${x}</span>`).join('')}</div></div>`),SC.A,SC.B,{z:3}));
+
+/* ---------- B: DOI dibuka dan dicek ---------- */
+track(el(`<h1 class="hd tr" style="top:270px">Buka DOI-nya.<br><span class="a">Cek sendiri.</span></h1>`),SC.B,SC.C);
+const docB=track(el(`<div class="doc tr" style="left:84px;top:580px;width:860px;height:700px">
+  <h3>DAFTAR PUSTAKA</h3>
+  <p>Penulis, A., &amp; Contoh, B. (2023). Literasi digital dan minat baca mahasiswa. <span class="doi" id="doi0">https://doi.org/${DOIS[0]}</span></p>
+  <p>Peneliti, C. (2022). Media sosial dan kebiasaan membaca. <span class="doi">https://doi.org/${DOIS[1]}</span></p>
+  <p>Sarjana, D. (2024). Minat baca di perguruan tinggi. <span class="doi">https://doi.org/${DOIS[2]}</span></p>
+  <div class="tap" id="tapB"></div>
+  </div>`),SC.B,SC.C,{dy:160,z:2});
+track(el(`<div class="tr" style="right:136px;top:552px"><span class="pill" style="font-size:40px;padding:8px 24px 11px">Tampilan contoh</span></div>`),SC.B+0.2,SC.C,{z:5});
+const brB=track(el(`<div class="br tr" id="brB" style="left:84px;top:1010px;width:860px;height:530px">
+  <div class="addr"><div><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#3a3f4d" stroke-width="2.6" stroke-linecap="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>doi.org/${DOIS[0]}</div></div>
+  <div style="padding:30px 40px 0">
+    <div style="font:700 34px Jakarta;color:var(--muted)">Artikel jurnal</div>
+    <div style="font:800 52px/1.1 Bricolage;letter-spacing:-.02em;margin-top:8px">Literasi digital dan minat baca mahasiswa</div>
+    <div style="font:600 38px Jakarta;color:var(--muted);margin-top:12px">Penulis, A. &amp; Contoh, B. · 2023</div>
+    <div style="display:flex;gap:16px;margin-top:28px">
+      ${['Judul','Penulis','Tahun'].map((x,i)=>`<span class="bdg ck" id="ck${i}" style="font-size:42px;padding:8px 24px 11px">${CHECK.replace(/34/g,'40')}${x}</span>`).join('')}
+    </div></div></div>`),SC.B,SC.C,{dy:0,z:4});
+
+/* ---------- C: uji internal ---------- */
+track(el(`<h1 class="hd tr" style="top:270px">Uji internal:<br><span class="a">8 topik.</span></h1>`),SC.C,SC.D);
+const TOPICS=['Hukum','Tafsir','Fisioterapi','Akuntansi syariah','Sejarah','K-pop','Machine learning','Pajak'];
+const chipBox=track(el(`<div class="tr" style="left:84px;top:560px;width:920px">${TOPICS.map((x,i)=>`<span class="chip" id="chip${i}">${x}</span>`).join('')}</div>`),SC.C,SC.D,{dy:40});
+const STATS=[['32/32','sub-bab dapat ≥2 referensi berabstrak'],['±97%','punya PDF open-access yang diketahui'],['±78%','teks lengkapnya berhasil diambil']];
+STATS.forEach(([n,l],i)=>track(el(`<div class="stat tr" id="st${i}" style="top:${880+i*160}px"><b>${n}</b><span>${l}</span></div>`),EV.stats[i]-0.05,SC.D,{dy:60,z:2}));
+track(el(`<div class="sm tr" style="left:84px;width:860px;top:1380px;font-size:40px;color:var(--muted)">Hasil uji internal, bukan jaminan.<br>Jurnal berbahasa Indonesia ikut tercakup.</div>`),EV.stats[2]+0.2,SC.D);
+
+/* ---------- D: tetap DRAF ---------- */
+track(el(`<h1 class="hd tr on-blue" style="top:400px;font-size:160px;text-align:center;line-height:1.05">Tetap<br><span class="mk" id="draf" style="display:inline-block">DRAF.</span></h1>`),SC.D,SC.EC);
+track(el(`<div class="sm tr on-blue" style="left:84px;width:880px;top:820px;text-align:center;font-size:60px">Baca &amp; cocokkan<br>dengan sumbernya.<br>Sitasi bisa keliru.</div>`),SC.D+0.25,SC.EC);
+track(el(`<div class="sm tr on-blue" style="left:84px;width:880px;top:1110px;text-align:center;font-size:48px;opacity:.9">Aturan AI kampus &amp; dosenmu<br>tetap tanggung jawabmu.</div>`),SC.D+0.5,SC.EC);
+
+/* ---------- EC: CTA ---------- */
+const btnW=820, btnL=522-btnW/2;
+track(el(`<div class="tr" style="left:${btnL}px;top:520px;width:${btnW}px;height:220px">
+   <div id="ripA" style="position:absolute;left:660px;top:110px;width:40px;height:40px;margin:-20px;border-radius:50%;border:6px solid #fff;box-sizing:border-box;opacity:0"></div>
+   <div id="btn" style="position:absolute;inset:0;background:#fff;color:var(--accent);border-radius:999px;display:flex;align-items:center;justify-content:center;gap:28px;
+      font:800 104px/1 Bricolage;letter-spacing:-.025em;box-shadow:0 26px 50px -14px rgba(8,12,48,.55),0 6px 0 0 rgba(8,12,48,.18)">Coba gratis
+      <svg id="arr" width="88" height="88" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15M13 6l6 6-6 6"/></svg></div>
+   <div class="tap" id="tap2" style="left:660px;top:110px"></div>
+ </div>`),SC.EC,SC.END,{z:3,dy:60});
+track(el(`<div class="tr on-blue" style="left:84px;width:876px;top:800px;display:flex;justify-content:center">
+   <div style="display:flex;align-items:center;gap:22px;padding:20px 38px 22px;border-radius:30px;background:rgba(255,255,255,.12);border:3px solid rgba(255,255,255,.45)">
+     <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="var(--mark)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4 12.5l5 5L20 6.5"/></svg>
+     <div style="font:700 52px/1.15 Jakarta;color:#fff">Mode uji gratis,<br>tanpa API key</div></div></div>`),SC.EC+0.25,SC.END);
+track(el(`<div class="tr on-blue" style="left:84px;width:876px;top:1005px;text-align:center;font:600 40px/1.3 Jakarta;color:rgba(255,255,255,.88)">Mode uji = teks &amp; referensi contoh.<br>Referensi nyata: pakai API key-mu.</div>`),SC.EC+0.4,SC.END);
+track(el(`<div class="tr on-blue" style="left:84px;width:876px;top:1170px;display:flex;align-items:center;justify-content:center;gap:20px;font:800 78px/1 Bricolage;letter-spacing:-.02em">
+   <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13.5a4.5 4.5 0 0 0 6.4.4l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.2 1.2"/><path d="M14 10.5a4.5 4.5 0 0 0-6.4-.4l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/></svg>Link di bio</div>`),SC.EC+0.55,SC.END);
+track(el(`<div class="tr" style="left:84px;width:876px;top:1290px;display:flex;justify-content:center">
+   <div style="padding:22px 34px 26px;border-radius:999px;background:rgba(8,12,48,.32);border:3px solid rgba(255,255,255,.55);font:800 70px/1.1 Jakarta;color:#fff;letter-spacing:-.015em;white-space:nowrap">malas-app.netlify.app</div></div>`),SC.EC+0.7,SC.END);
+
+/* ===== posisi DOI (diukur sekali dari tata letak, sebelum transform) ===== */
+let doiPos=null;
+function measure(){const s=$('#doi0'); doiPos={x:s.offsetLeft+Math.min(s.offsetWidth,320)*0.5, y:s.offsetTop+s.offsetHeight*0.5};}
+
+function popScale(t,t0,d=0.35,from=0.4){ if(t<t0) return 0; return lerp(from,1,outBack(P(t,t0,d),2.2)); }
+
+function inner(t){
+  const tt=t>=T-LOOP_IN-LEAD?t-T:t;
+  // HOOK: "beneran ada?" dihantam, tanda tanya muncul satu per satu, kartu bergetar
+  const hs=P(tt,EV.slam,0.4);
+  $('#q').style.transform=`scale(${(tt>=EV.slam?lerp(1.3,1,outBack(hs,2.2)):1).toFixed(4)})`;
+  EV.q.forEach((q0,i)=>{const s=popScale(tt,q0,0.35,0.2); const e=$('#qm'+i); e.style.opacity=s>0?1:0; e.style.transform=`scale(${s.toFixed(4)}) rotate(${(tt>=q0?-12*(1-P(tt,q0,0.35)):0).toFixed(2)}deg)`;});
+
+  // A: kartu hasil masuk dari kanan, satu per satu
+  cardEls.forEach((c,i)=>{const p=outCubic(P(t,EV.cards[i]-0.08,0.4));
+    c.style.visibility=t>=SC.A&&t<SC.B&&p>0?'visible':'hidden';
+    if(t>=SC.A&&t<SC.B) {c.style.transform+=` translateX(${f2((1-p)*260)}px)`; c.style.opacity=(parseFloat(c.style.opacity)*p).toFixed(3);} });
+
+  // B: stabilo menyapu DOI, ketuk, halaman artikel naik, tiga centang
+  $('#doi0').style.backgroundSize=`${(100*outCubic(P(t,EV.swipe,0.45))).toFixed(2)}% 100%`;
+  const tap=$('#tapB'); tap.style.left=f2(doiPos.x)+'px'; tap.style.top=f2(doiPos.y)+'px';
+  const tp=P(t,EV.tapDoi-0.12,0.45);
+  tap.style.opacity=tp>0&&tp<1?(1-tp*0.6).toFixed(3):0;
+  tap.style.transform=`scale(${(tp<0.27?lerp(1.3,0.85,tp/0.27):lerp(0.85,1,(tp-0.27)/0.73)).toFixed(3)})`;
+  const up=outCubic(P(t,EV.tapDoi+0.1,0.45));
+  brB.style.visibility=t>=SC.B&&t<SC.C&&up>0?'visible':'hidden';
+  if(t>=SC.B&&t<SC.C){ brB.style.transform+=` translateY(${f2((1-up)*700)}px)`; }
+  EV.checks.forEach((c0,i)=>{const s=popScale(t,c0,0.3,0.5); const e=$('#ck'+i); e.style.opacity=s>0?1:0; e.style.transform=`scale(${s.toFixed(4)})`;});
+
+  // C: chip topik muncul cepat
+  EV.chips.forEach((c0,i)=>{const s=popScale(t,c0,0.3,0.3); const e=$('#chip'+i); e.style.opacity=s>0?1:0; e.style.transform=`scale(${s.toFixed(4)})`;});
+
+  // D: DRAF dicap
+  const dp=P(t,EV.stamp,0.35);
+  $('#draf').style.transform=`scale(${(t>=EV.stamp?lerp(1.35,1,outBack(dp,2.4)):1).toFixed(4)}) rotate(${(t>=EV.stamp?-3*(1-dp):0).toFixed(2)}deg)`;
+  $('#draf').style.opacity=t>=EV.stamp-0.02?1:0;
+
+  // EC: panah menyenggol per ketukan, tombol ditekan tepat di EV.press
+  const beatPh=(((t-EV.press)/B)%1+1)%1;
+  $('#arr').style.transform=`translateX(${f2(12*Math.pow(Math.sin(Math.PI*beatPh),2))}px)`;
+  const pd=t-EV.press;
+  const press=pd<0?1:pd<0.07?lerp(1,0.92,pd/0.07):lerp(0.92,1,outBack(clamp((pd-0.07)/0.4),2.2));
+  $('#btn').style.transform=`scale(${press.toFixed(4)})`;
+  const tap2=$('#tap2'); const tp2=P(t,EV.press-0.12,0.5);
+  tap2.style.opacity=tp2>0&&tp2<1?(1-tp2*0.6).toFixed(3):0;
+  tap2.style.transform=`scale(${(tp2<0.24?lerp(1.3,0.85,tp2/0.24):lerp(0.85,1,(tp2-0.24)/0.76)).toFixed(3)})`;
+  const r=P(t,EV.press,0.75); const rp=$('#ripA');
+  rp.style.opacity=r>0&&r<1?(0.75*(1-r)).toFixed(3):0; rp.style.transform=`scale(${(1+outCubic(r)*10).toFixed(3)})`;
+}
+
+/* ===== latar: terang -> biru (DRAF + CTA) -> terang (loop ke hook) ===== */
+function bgAt(t){
+  const v=Math.min(P(t,SC.D-0.15,0.35), 1-P(t,SC.END,0.35));
+  const L=[244,245,248], Bl=[44,58,158];
+  return `rgb(${L.map((x,i)=>Math.round(lerp(x,Bl[i],inOut(v)))).join(',')})`;
+}
+
+window.DURATION_MS=Math.round(T*1000); window.FPS=FPS;
+window.TIMELINE={BPM,BEAT:B,T,LOOP_IN,SC,EV};
+window.EVENTS=EVENTS;
+window.renderFrame=function(tMs){
+  let t=tMs/1000; t=((t%T)+T)%T;
+  stage.style.background=bgAt(t);
+  for(const k of tracks){
+    const tt=(k.hook&&t>=T-LOOP_IN-LEAD)?t-T:t;
+    const enterStart=(k.hook?-LOOP_IN:k.tin)-LEAD;   // masuk 1 bingkai lebih awal: tidak ada bingkai kosong di pergantian adegan
+    const vis=tt>=enterStart&&tt<k.tout;
+    k.e.style.visibility=vis?'visible':'hidden';
+    if(!vis) continue;
+    const ei=outCubic(P(tt,enterStart,ENTER)), ex=inCubic(P(tt,k.tout-EXIT,EXIT));
+    k.e.style.transform=`translate(0,${f2((1-ei)*k.dy-ex*50)}px) scale(${(lerp(0.97,1,ei)*lerp(1,0.98,ex)).toFixed(4)})`;
+    k.e.style.opacity=(ei*(1-ex)).toFixed(3);
+  }
+  inner(t);
+};
+
+const FONTS=['800 100px Bricolage','600 30px Jakarta','700 30px Jakarta','800 30px Jakarta','700 30px JBMono','400 30px Carlito','700 30px Carlito'];
+window.__ready=(async()=>{
+  await Promise.all(FONTS.map(f=>document.fonts.load(f,'Aa0.')));
+  await document.fonts.ready;
+  await Promise.all(Array.from(document.images).map(im=>im.decode().catch(()=>{throw new Error('gagal memuat '+im.src)})));
+  const ok=FONTS.every(f=>document.fonts.check(f,'Aa'));
+  measure();
+  const q=new URLSearchParams(location.search);
+  window.renderFrame((parseFloat(q.get('t'))||0)*1000);
+  if(q.get('play')){const t0=performance.now();const loop=n=>{window.renderFrame(n-t0);requestAnimationFrame(loop);};requestAnimationFrame(loop);}
+  return ok;
+})();
+})();
+</script>
+</body>
+</html>

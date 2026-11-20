@@ -5,11 +5,13 @@ import { LogoMark } from "../../components/Mascot";
 import { Button, LinkButton } from "../../components/ui/primitives";
 import { id as t } from "../../copy/id";
 import { AUTH_MODE, useAuthState } from "../../lib/auth";
+import { useSeo } from "../../seo/useSeo";
 
 /** /masuk dan /daftar: komponen Clerk di mode produksi; kartu mode-dev tanpa Clerk saat pengembangan. */
 export default function AuthPage({ mode }: { mode: "masuk" | "daftar" }) {
   const auth = useAuthState();
   const loc = useLocation();
+  useSeo({ title: mode === "daftar" ? "Daftar" : "Masuk", path: `/${mode}`, noindex: true });
   const from = (loc.state as { from?: string } | null)?.from ?? "/dasbor";
   if (auth.ready && auth.signedIn) return <Navigate to={from} replace />;
   const up = mode === "daftar";

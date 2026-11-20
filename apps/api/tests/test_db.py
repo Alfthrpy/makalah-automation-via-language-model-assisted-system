@@ -237,6 +237,17 @@ def test_job_antre_dengan_key_sesi_hilang_saat_restart(managers):
     gate.set()
 
 
+def eventually(cond, timeout=5.0, what="kondisi"):
+    """Tunggu pembersihan yang SENGAJA terjadi sesaat SETELAH status job berubah (key dibuang di `finally`, checkpoint
+    dihapus setelah status tersimpan agar resume tidak hilang bila proses mati). Menuntutnya seketika = balapan antar thread."""
+    end = time.time() + timeout
+    while time.time() < end:
+        if cond():
+            return
+        time.sleep(0.02)
+    raise AssertionError(f"{what} tidak terpenuhi dalam {timeout} dtk")
+
+
 def test_checkpoint_dan_berkas_selamat_dari_restart_lalu_lanjut(managers):
     def fail(job, progress, out, runtime=None):
         checkpoint.save(out.parent / "checkpoint.json", state(2), {}, {})
@@ -264,7 +275,8 @@ def test_checkpoint_dan_berkas_selamat_dari_restart_lalu_lanjut(managers):
     while m2.get(j2)["status"] != "done":
         assert time.time() < end, m2.get(j2)
         time.sleep(0.02)
-    assert m2.read_file(j2) == b"PK-lanjut" and m2.repo.checkpoint_meta(j2) is None
+    assert m2.read_file(j2) == b"PK-lanjut"
+    eventually(lambda: m2.repo.checkpoint_meta(j2) is None, what="checkpoint job selesai terhapus")
     assert m2.repo.checkpoint_meta(jid) is not None  # job asal tetap bisa dilanjutkan lagi
     with pytest.raises(ValueError):
         m2.submit(dict(REQ), True, "t", "t", owner="u1", resume_from="0" * 32)
@@ -344,7 +356,7 @@ def test_key_tersimpan_dipakai_job_tanpa_pernah_plaintext_di_db(managers):
     assert r2.status_code == 202
     wait_for(c, r2.json()["id"], {"done"})
     assert seen["rt"].api_key == KEY
-    assert len(m.vault) == 0  # brankas bersih setelah job
+    eventually(lambda: len(m.vault) == 0, what="brankas kosong")  # brankas bersih setelah job
 
     assert c.delete("/api/keys/openrouter").json() == {"result": "deleted"}
     assert c.delete("/api/keys/openrouter").status_code == 404

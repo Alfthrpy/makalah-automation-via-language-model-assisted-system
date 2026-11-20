@@ -196,6 +196,17 @@ dialog::backdrop { background: var(--scrim); }
 .legal section p, .legal section li { line-height: 1.7; }
 .legal section p + p, .legal section p + ul, .legal section ul + p { margin-top: var(--sp-3); }
 .legal section ul { padding-left: 1.25em; list-style: disc; }
+.legal section ol { padding-left: 1.5em; list-style: decimal; }
+.legal section ol li + li, .legal section ul li + li { margin-top: 6px; }
+.legal h3 { font-size: var(--fs-lg); font-weight: 700; margin: var(--sp-4) 0 var(--sp-2); }
+.guide-example { white-space: pre-wrap; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--sp-3) var(--sp-4); margin-top: var(--sp-3); font-family: var(--font-mono, ui-monospace, monospace); font-size: var(--fs-sm, 0.9rem); line-height: 1.6; overflow-x: auto; }
+.crumbs { color: var(--muted); font-size: var(--fs-sm, 0.9rem); margin-bottom: var(--sp-4); }
+.crumbs a { color: var(--accent); text-underline-offset: 3px; }
+.guide-list { list-style: none; padding: 0; display: grid; gap: var(--sp-3); }
+.guide-list li { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--sp-4) var(--sp-5); display: grid; gap: 4px; }
+.guide-list a { color: var(--accent); text-underline-offset: 3px; }
+.guide-list span { color: var(--muted); line-height: 1.5; }
+.guide-cta { margin-top: var(--sp-6); display: flex; gap: var(--sp-4); align-items: center; flex-wrap: wrap; }
 .legal section li + li { margin-top: var(--sp-2); }
 .legal section li::marker { color: var(--accent); }
 

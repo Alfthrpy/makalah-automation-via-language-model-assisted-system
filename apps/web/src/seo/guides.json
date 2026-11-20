@@ -1,0 +1,430 @@
+{
+  "index": {
+    "title": "Panduan Menulis Makalah dan Referensi",
+    "h1": "Panduan menulis makalah, sitasi, dan mencari referensi",
+    "description": "Panduan praktis: struktur makalah, daftar pustaka APA 7, cara cek DOI, mencari jurnal open access, dan memakai AI secara bertanggung jawab.",
+    "intro": "Kumpulan panduan singkat untuk mahasiswa dan siswa yang sedang menyusun makalah. Isinya membahas hal-hal yang paling sering membingungkan: bagaimana menyusun bab, menulis daftar pustaka, memeriksa apakah sebuah referensi benar-benar ada, mencari jurnal yang bisa dibaca gratis secara sah, dan memakai AI tanpa melanggar aturan kampus. Semua contoh penulis dan judul di panduan ini fiktif, jadi selalu cocokkan dengan pedoman resmi dan aturan dari dosen atau kampusmu."
+  },
+  "guides": [
+    {
+      "slug": "cara-menulis-daftar-pustaka-apa-7",
+      "title": "Cara Menulis Daftar Pustaka APA 7 dan Contohnya",
+      "h1": "Cara menulis daftar pustaka dan sitasi APA edisi 7, lengkap dengan contoh",
+      "description": "Format APA 7 untuk artikel jurnal, buku, dan halaman web, sitasi dalam teks, beda parafrasa dan kutipan langsung, serta kesalahan yang sering terjadi.",
+      "updated": "2026-11-20",
+      "readingMinutes": 6,
+      "intro": "APA edisi 7 memakai dua bagian yang saling terhubung: sitasi singkat di dalam teks (nama belakang penulis dan tahun) dan entri lengkap di daftar pustaka. Setiap sitasi di teks harus punya entri di daftar pustaka, dan sebaliknya. Panduan ini merangkum pola yang paling sering dipakai di makalah. Untuk kasus khusus, rujuk pedoman resmi APA dan pedoman penulisan kampusmu, karena sebagian kampus memakai modifikasi sendiri.",
+      "sections": [
+        {
+          "h2": "Pola dasar entri daftar pustaka",
+          "paragraphs": [
+            "Hampir semua entri APA 7 mengikuti urutan yang sama: siapa (penulis), kapan (tahun), apa (judul), dan di mana (sumber, misalnya nama jurnal, penerbit, atau situs, lalu DOI atau URL). Nama penulis ditulis dengan nama belakang lebih dulu, diikuti inisial nama depan.",
+            "Judul artikel, judul buku, dan judul halaman web ditulis dengan sentence case, artinya hanya huruf pertama judul, huruf pertama setelah titik dua, dan nama diri yang memakai huruf kapital. Sebaliknya, nama jurnal ditulis dengan huruf kapital di setiap kata utama. Di dokumen Word, judul buku serta nama jurnal beserta nomor volumenya dicetak miring; teks polos di halaman ini tidak bisa menampilkan huruf miring, jadi perhatikan bagian itu saat kamu mengetik."
+          ],
+          "bullets": [
+            "Daftar pustaka disusun alfabetis berdasarkan nama belakang penulis pertama.",
+            "Gunakan indentasi gantung (hanging indent): baris pertama rata kiri, baris berikutnya menjorok ke dalam.",
+            "DOI ditulis sebagai tautan lengkap, misalnya https://doi.org/10.0000/contoh.2023.001, tanpa awalan kata DOI."
+          ]
+        },
+        {
+          "h2": "Contoh entri: artikel jurnal, buku, dan halaman web",
+          "paragraphs": [
+            "Berikut contoh dengan penulis dan judul fiktif. Perhatikan letak titik, koma, tanda kurung, dan penggunaan tanda & sebelum penulis terakhir. Untuk artikel jurnal, angka volume ditulis langsung setelah nama jurnal, nomor terbitan di dalam kurung, lalu rentang halaman.",
+            "Untuk halaman web, cantumkan tanggal terbit selengkap yang tersedia. Bila penulisnya adalah organisasi, nama organisasi ditulis di posisi penulis. Bila tidak ada tanggal, APA 7 memakai singkatan n.d. (dalam pedoman berbahasa Indonesia kadang ditulis t.t.; ikuti pedoman kampusmu)."
+          ],
+          "example": "Artikel jurnal:\nRahma, A., & Wijaya, B. (2023). Pengaruh jadwal belajar terhadap kebiasaan membaca mahasiswa tingkat awal. Jurnal Contoh Pendidikan, 12(2), 45–60. https://doi.org/10.0000/contoh.2023.001\n\nBuku:\nSantoso, C. D. (2021). Dasar-dasar menulis ilmiah untuk pemula. Penerbit Fiktif Nusantara.\n\nHalaman web:\nLembaga Literasi Contoh. (2022, 14 Maret). Cara membaca artikel ilmiah dengan cepat. Situs Literasi Contoh. https://contoh.example/artikel/membaca-cepat"
+        },
+        {
+          "h2": "Sitasi dalam teks: satu, dua, dan tiga penulis atau lebih",
+          "paragraphs": [
+            "Ada dua gaya sitasi dalam teks. Sitasi dalam kurung meletakkan nama dan tahun di dalam tanda kurung di akhir kalimat. Sitasi naratif menjadikan nama penulis bagian dari kalimat, dan tahunnya ditulis di dalam kurung tepat setelah nama.",
+            "Untuk dua penulis, sebutkan keduanya setiap kali. Di dalam kurung dipakai tanda &, sedangkan di sitasi naratif berbahasa Indonesia dipakai kata dan. Untuk tiga penulis atau lebih, APA 7 cukup menulis nama penulis pertama diikuti et al. sejak sitasi pertama. Dalam tulisan berbahasa Indonesia, banyak kampus memakai dkk. sebagai padanannya. Pilih salah satu sesuai pedoman kampus, lalu pakai secara konsisten."
+          ],
+          "example": "Satu penulis:\n(Santoso, 2021) atau Santoso (2021) menyatakan bahwa ...\n\nDua penulis:\n(Rahma & Wijaya, 2023) atau Rahma dan Wijaya (2023) menemukan bahwa ...\n\nTiga penulis atau lebih:\n(Putri dkk., 2024) atau (Putri et al., 2024)\nPutri dkk. (2024) menjelaskan bahwa ..."
+        },
+        {
+          "h2": "Parafrasa dan kutipan langsung",
+          "paragraphs": [
+            "Parafrasa berarti menyampaikan gagasan sumber dengan kata-kata dan susunan kalimatmu sendiri. Cukup cantumkan nama dan tahun; nomor halaman tidak wajib, walaupun APA menganjurkannya bila membantu pembaca menemukan bagian yang dimaksud.",
+            "Kutipan langsung menyalin kata-kata sumber persis. Kutipan ini wajib diberi tanda petik dan nomor halaman (p. dalam bahasa Inggris, hlm. dalam banyak pedoman berbahasa Indonesia). Kutipan yang panjang, yaitu sekitar 40 kata atau lebih, ditulis sebagai blok terpisah yang menjorok tanpa tanda petik. Gunakan kutipan langsung secukupnya; makalah yang sebagian besar berisi kutipan biasanya dinilai kurang menunjukkan pemahaman penulisnya."
+          ],
+          "example": "Parafrasa:\nKebiasaan membaca mahasiswa cenderung meningkat ketika jadwal belajar disusun secara teratur (Rahma & Wijaya, 2023).\n\nKutipan langsung:\nRahma dan Wijaya (2023) menyebut jadwal belajar sebagai \"kerangka kecil yang menjaga kebiasaan tetap hidup\" (hlm. 52)."
+        },
+        {
+          "h2": "Kesalahan umum yang mudah dihindari",
+          "paragraphs": [
+            "Sebelum mengumpulkan makalah, luangkan waktu untuk mencocokkan setiap sitasi di teks dengan daftar pustaka. Kesalahan berikut sering muncul dan biasanya cepat diperbaiki."
+          ],
+          "bullets": [
+            "Tahun berbeda antara teks dan daftar pustaka, misalnya teks menulis (Rahma, 2022) padahal entri menulis 2023.",
+            "Ada sitasi di teks tetapi tidak ada entrinya di daftar pustaka, atau sebaliknya ada entri yang tidak pernah dikutip.",
+            "Judul artikel ditulis dengan Huruf Besar di Setiap Kata, padahal APA 7 memakai sentence case untuk judul artikel dan buku.",
+            "Ejaan nama penulis tidak sama antara teks dan daftar pustaka.",
+            "Daftar pustaka tidak urut alfabetis, atau diberi nomor seperti gaya sitasi lain.",
+            "DOI ditulis tanpa https://doi.org/ atau tautannya tidak bisa dibuka karena salah ketik."
+          ]
+        },
+        {
+          "h2": "Bantuan dari MALAS",
+          "paragraphs": [
+            "MALAS menyusun draf makalah dari judul, termasuk daftar pustaka dari referensi yang dicari di database jurnal dengan DOI atau tautan yang bisa kamu buka. Format dan isinya tetap perlu kamu periksa satu per satu karena sitasi otomatis bisa keliru. Mode uji gratis tanpa API key tersedia untuk melihat contoh hasilnya."
+          ]
+        }
+      ],
+      "faq": [
+        {
+          "q": "Dalam makalah berbahasa Indonesia, pakai dkk. atau et al.?",
+          "a": "APA 7 aslinya memakai et al., sedangkan banyak pedoman kampus di Indonesia memakai dkk. Ikuti pedoman kampus atau dosenmu, lalu gunakan satu bentuk secara konsisten di seluruh makalah."
+        },
+        {
+          "q": "Apakah parafrasa wajib mencantumkan nomor halaman?",
+          "a": "Menurut APA 7 tidak wajib, tetapi dianjurkan bila membantu pembaca menemukan bagian yang dirujuk. Kutipan langsung tetap wajib mencantumkan nomor halaman."
+        },
+        {
+          "q": "Bagaimana jika sumber tidak mencantumkan tahun terbit?",
+          "a": "APA 7 memakai n.d. (no date) di posisi tahun, dan sebagian pedoman berbahasa Indonesia memakai t.t. Sebelum itu, coba periksa halaman hak cipta, metadata, atau bagian bawah halaman web untuk menemukan tanggalnya."
+        },
+        {
+          "q": "Apakah daftar pustaka harus memakai spasi ganda?",
+          "a": "APA 7 menganjurkan spasi ganda di seluruh dokumen, termasuk daftar pustaka. Banyak kampus punya ketentuan spasi sendiri untuk makalah, jadi cek dulu pedoman yang berlaku untukmu."
+        }
+      ],
+      "related": ["cara-cek-doi-referensi", "struktur-makalah-bab-pendahuluan-pembahasan-penutup"]
+    },
+    {
+      "slug": "cara-cek-doi-referensi",
+      "title": "Cara Cek DOI dan Memastikan Referensi Itu Asli",
+      "h1": "Cara mengecek DOI dan memastikan sebuah referensi benar-benar ada",
+      "description": "Apa itu DOI, cara membukanya di doi.org, cara mencocokkan judul, penulis, tahun, dan jurnal, serta tanda referensi yang perlu dicurigai dan dicek ulang.",
+      "updated": "2026-11-20",
+      "readingMinutes": 5,
+      "intro": "Cara tercepat memeriksa referensi yang punya DOI adalah membukanya lewat https://doi.org/ lalu mencocokkan judul, penulis, tahun, dan nama jurnal dengan yang tertulis di daftar pustakamu. Kalau DOI tidak terbuka atau datanya tidak cocok, anggap referensi itu belum terverifikasi sampai kamu menemukan sumber aslinya. Langkah ini penting terutama bila daftar pustaka disusun dengan bantuan alat otomatis atau AI.",
+      "sections": [
+        {
+          "h2": "Apa itu DOI",
+          "paragraphs": [
+            "DOI (Digital Object Identifier) adalah kode pengenal permanen untuk sebuah karya digital, biasanya artikel jurnal, prosiding, bab buku, atau data penelitian. Bentuknya selalu diawali angka 10, diikuti prefiks penerbit, garis miring, lalu kode unik karya tersebut, misalnya 10.0000/contoh.2023.001 (contoh ini fiktif).",
+            "Keunggulan DOI dibanding tautan biasa adalah sifatnya yang tetap. Walaupun situs penerbit pindah alamat, DOI yang terdaftar diarahkan ke lokasi terbaru karya tersebut. Karena itu DOI menjadi cara yang praktis untuk memastikan bahwa sebuah artikel memang ada."
+          ]
+        },
+        {
+          "h2": "Langkah memeriksa DOI",
+          "paragraphs": [
+            "Pemeriksaan ini hanya butuh beberapa menit per referensi. Lakukan untuk setiap entri yang punya DOI, terutama sumber yang menjadi dasar argumen utama makalahmu."
+          ],
+          "numbered": [
+            "Salin DOI dari daftar pustaka, tanpa spasi atau tanda baca tambahan di ujungnya.",
+            "Buka https://doi.org/ lalu tempel DOI di kotak pencarian, atau langsung tempel tautan lengkap https://doi.org/ diikuti DOI di bilah alamat peramban.",
+            "Pastikan kamu diarahkan ke halaman artikel di situs penerbit atau jurnal.",
+            "Cocokkan judul, nama penulis, tahun terbit, nama jurnal, serta volume dan halaman dengan entri di daftar pustakamu.",
+            "Baca abstraknya, lalu pastikan isinya memang mendukung kalimat yang kamu tulis di makalah."
+          ]
+        },
+        {
+          "h2": "Tanda referensi yang perlu dicurigai",
+          "paragraphs": [
+            "Referensi yang tampak rapi belum tentu benar. Alat otomatis, termasuk AI, kadang menghasilkan referensi yang terlihat meyakinkan tetapi tidak ada, atau mencampur data dari dua artikel berbeda. Waspadai tanda-tanda berikut."
+          ],
+          "bullets": [
+            "DOI tidak terbuka atau muncul pesan bahwa DOI tidak ditemukan.",
+            "DOI terbuka, tetapi mengarah ke artikel dengan judul atau topik yang berbeda.",
+            "Nama penulis, tahun, atau jurnal tidak sama dengan yang tercantum di halaman artikel.",
+            "Tahun terbit tidak masuk akal, misalnya lebih baru dari tanggal hari ini atau lebih tua dari jurnalnya sendiri.",
+            "Judul terdengar sangat pas dengan topikmu tetapi tidak ditemukan di mesin pencari mana pun.",
+            "Nama jurnal tidak bisa ditemukan sama sekali."
+          ]
+        },
+        {
+          "h2": "Jika referensi tidak ketemu",
+          "paragraphs": [
+            "Pertama, coba cari ulang secara manual. Salin judul lengkap dan tempel di Google Scholar, sebaiknya di dalam tanda kutip agar dicari sebagai frasa utuh. Kamu juga bisa mencarinya di database terbuka seperti situs pencarian metadata Crossref, DOAJ untuk jurnal open access, atau Portal Garuda untuk jurnal Indonesia. Bila judul tidak ketemu, coba kombinasi nama belakang penulis, beberapa kata kunci, dan tahun.",
+            "Kalau tetap tidak ditemukan, jangan dipakai. Hapus referensi itu dan cari sumber lain yang benar-benar bisa kamu buka dan baca. Kalau artikelnya ada tetapi datanya sedikit berbeda, perbaiki entri daftar pustaka sesuai halaman resmi artikel, lalu sesuaikan juga sitasi di dalam teks."
+          ]
+        },
+        {
+          "h2": "Tidak semua sumber punya DOI",
+          "paragraphs": [
+            "Tidak punya DOI bukan berarti sumbernya palsu. Banyak buku, laporan lembaga, peraturan, skripsi di repositori kampus, halaman web, dan sebagian jurnal yang lebih kecil memang tidak memakai DOI. Untuk sumber seperti ini, periksa dengan cara lain: cari buku di katalog perpustakaan atau data ISBN, buka laporan dari situs resmi lembaga penerbitnya, dan pastikan tautan halaman web masih aktif serta isinya sesuai.",
+            "Sebaliknya, bila sebuah artikel jurnal punya DOI, APA 7 meminta DOI itu dicantumkan. Jadi bila kamu menemukan DOI saat memeriksa, tambahkan ke daftar pustakamu."
+          ]
+        },
+        {
+          "h2": "Bantuan dari MALAS",
+          "paragraphs": [
+            "MALAS menyusun draf makalah dari judul dengan referensi yang dicari dari database jurnal, sehingga setiap entri disertai DOI atau tautan yang bisa kamu buka dan cek dengan langkah di atas. Hasilnya tetap draf yang harus kamu baca dan verifikasi sendiri. Mode uji gratis tanpa API key berisi teks dan referensi contoh."
+          ]
+        }
+      ],
+      "faq": [
+        {
+          "q": "Apakah DOI yang terbuka sudah pasti benar untuk referensiku?",
+          "a": "Belum tentu. DOI yang terbuka hanya membuktikan ada artikel dengan kode itu; kamu tetap perlu mencocokkan judul, penulis, tahun, dan jurnalnya, serta memastikan isinya mendukung kalimatmu."
+        },
+        {
+          "q": "Bolehkah memakai referensi yang tidak punya DOI?",
+          "a": "Boleh, selama sumbernya jelas, bisa ditemukan, dan kredibel, misalnya buku dari penerbit yang jelas atau laporan dari situs resmi lembaga. Ikuti juga ketentuan dosen soal jenis sumber yang diterima."
+        },
+        {
+          "q": "Mengapa AI bisa membuat referensi yang tidak ada?",
+          "a": "Model bahasa menyusun teks berdasarkan pola, sehingga bisa menghasilkan judul, penulis, dan DOI yang terdengar wajar padahal tidak pernah terbit. Karena itu setiap referensi dari AI perlu dicek ke sumber aslinya."
+        }
+      ],
+      "related": ["cara-menulis-daftar-pustaka-apa-7", "cara-mencari-jurnal-gratis-dan-open-access"]
+    },
+    {
+      "slug": "struktur-makalah-bab-pendahuluan-pembahasan-penutup",
+      "title": "Struktur Makalah: Pendahuluan, Pembahasan, Penutup",
+      "h1": "Struktur makalah yang benar: dari sampul, Bab I Pendahuluan, sampai daftar pustaka",
+      "description": "Kerangka makalah standar di Indonesia beserta isi tiap bagian, panjang yang wajar, dan contoh rumusan masalah yang baik dibandingkan yang terlalu luas.",
+      "updated": "2026-11-20",
+      "readingMinutes": 6,
+      "intro": "Makalah di Indonesia umumnya tersusun dari sampul, kata pengantar, daftar isi, Bab I Pendahuluan, Bab II Pembahasan, Bab III Penutup, dan daftar pustaka. Setiap bagian punya tugas yang berbeda, dan kunci makalah yang rapi adalah benang merah: rumusan masalah di Bab I dijawab di Bab II, lalu disimpulkan di Bab III. Format persisnya bisa berbeda antar kampus atau sekolah, jadi tetap ikuti pedoman yang diberikan dosen atau gurumu.",
+      "sections": [
+        {
+          "h2": "Kerangka makalah standar",
+          "paragraphs": [
+            "Berikut susunan yang paling sering dipakai. Sebagian dosen meminta tambahan seperti abstrak atau lampiran, sementara tugas yang singkat kadang tidak memerlukan kata pengantar."
+          ],
+          "example": "Halaman sampul\nKata pengantar\nDaftar isi\nBAB I PENDAHULUAN\n  1.1 Latar Belakang\n  1.2 Rumusan Masalah\n  1.3 Tujuan\nBAB II PEMBAHASAN\n  2.1 Subbab sesuai rumusan masalah pertama\n  2.2 Subbab sesuai rumusan masalah kedua\nBAB III PENUTUP\n  3.1 Kesimpulan\n  3.2 Saran\nDaftar Pustaka"
+        },
+        {
+          "h2": "Bagian awal: sampul, kata pengantar, daftar isi",
+          "paragraphs": [
+            "Sampul memuat judul makalah, nama mata kuliah atau pelajaran, nama dosen atau guru bila diminta, nama dan nomor induk penyusun, logo serta nama institusi, dan tahun. Usahakan judul spesifik dan tidak terlalu panjang.",
+            "Kata pengantar cukup satu halaman atau kurang: ucapan syukur, tujuan penulisan makalah, ucapan terima kasih secukupnya, dan harapan agar makalah bermanfaat. Daftar isi sebaiknya dibuat otomatis dari fitur heading di pengolah kata agar nomor halamannya selalu sesuai."
+          ]
+        },
+        {
+          "h2": "Bab I Pendahuluan",
+          "paragraphs": [
+            "Latar belakang menjelaskan mengapa topik ini penting untuk dibahas. Pola yang mudah dipakai adalah dari umum ke khusus: mulai dari konteks luas, persempit ke masalah yang spesifik, dukung dengan rujukan dari sumber yang kredibel, lalu tutup dengan alasan mengapa makalah ini ditulis. Untuk makalah tugas kuliah, satu sampai dua halaman biasanya sudah cukup.",
+            "Rumusan masalah berisi dua sampai empat pertanyaan yang akan dijawab di pembahasan. Tujuan ditulis sejajar dengan rumusan masalah: setiap pertanyaan punya satu tujuan yang sepadan, misalnya pertanyaan bagaimana dijawab dengan tujuan untuk mengetahui bagaimana."
+          ]
+        },
+        {
+          "h2": "Contoh rumusan masalah: baik dan terlalu luas",
+          "paragraphs": [
+            "Rumusan masalah yang baik jelas batasannya: siapa atau apa yang dibahas, dalam konteks apa, dan bisa dijawab dalam ruang sebuah makalah. Rumusan yang terlalu luas membuat pembahasan dangkal karena mencoba menjawab segalanya. Contoh di bawah memakai topik fiktif."
+          ],
+          "example": "Terlalu luas:\n1. Bagaimana pengaruh teknologi terhadap pendidikan?\n\nLebih baik:\n1. Bagaimana penggunaan aplikasi catatan digital memengaruhi cara mahasiswa tingkat awal menyusun ringkasan materi kuliah?\n2. Apa saja kendala yang dihadapi mahasiswa saat beralih dari catatan tulis tangan ke catatan digital?\n\nTujuan yang sejajar:\n1. Untuk mengetahui pengaruh penggunaan aplikasi catatan digital terhadap cara mahasiswa tingkat awal menyusun ringkasan materi kuliah.\n2. Untuk mengidentifikasi kendala yang dihadapi mahasiswa saat beralih ke catatan digital."
+        },
+        {
+          "h2": "Bab II Pembahasan",
+          "paragraphs": [
+            "Pembahasan adalah inti makalah dan biasanya bagian terpanjang. Cara paling aman menyusunnya adalah membuat satu subbab untuk setiap rumusan masalah, dengan urutan yang sama. Dengan begitu pembaca mudah melihat bahwa setiap pertanyaan benar-benar dijawab.",
+            "Di setiap subbab, jelaskan konsep atau teori yang relevan, sajikan temuan dari beberapa sumber, bandingkan pendapat yang berbeda bila ada, lalu tambahkan analisismu sendiri. Bagian analisis inilah yang membedakan makalah dari sekadar kumpulan kutipan. Setiap informasi yang diambil dari sumber perlu diberi sitasi."
+          ]
+        },
+        {
+          "h2": "Bab III Penutup dan daftar pustaka",
+          "paragraphs": [
+            "Kesimpulan menjawab rumusan masalah secara ringkas, sebaiknya dengan urutan yang sama. Jangan memasukkan informasi baru yang belum dibahas di Bab II. Saran berisi rekomendasi yang realistis dan berkaitan dengan pembahasan, misalnya untuk pembaca, pihak tertentu, atau penulis makalah berikutnya.",
+            "Daftar pustaka memuat semua sumber yang dikutip, ditulis dengan satu gaya sitasi secara konsisten, misalnya APA 7 bila itu yang diminta. Pastikan tidak ada sitasi di teks yang terlewat dari daftar pustaka."
+          ]
+        },
+        {
+          "h2": "Bantuan dari MALAS",
+          "paragraphs": [
+            "MALAS menyusun draf makalah .docx dari judul dengan kerangka seperti di atas, lengkap dengan referensi dari database jurnal yang punya DOI atau tautan untuk dicek. Draf itu titik awal yang tetap harus kamu baca, periksa, dan lengkapi dengan analisismu sendiri. Mode uji gratis tanpa API key berisi contoh."
+          ]
+        }
+      ],
+      "faq": [
+        {
+          "q": "Berapa halaman panjang makalah yang wajar?",
+          "a": "Tidak ada angka baku; panjangnya ditentukan oleh dosen atau guru. Sebagai patokan umum, Bab II biasanya bagian terpanjang, sedangkan pendahuluan dan penutup lebih singkat."
+        },
+        {
+          "q": "Berapa jumlah rumusan masalah yang ideal?",
+          "a": "Untuk makalah tugas, dua sampai empat pertanyaan biasanya cukup. Yang lebih penting adalah setiap pertanyaan spesifik dan benar-benar dijawab di pembahasan."
+        },
+        {
+          "q": "Apakah kesimpulan boleh memuat kutipan dari sumber?",
+          "a": "Sebaiknya tidak. Kesimpulan berisi jawaban atas rumusan masalah dengan kata-katamu sendiri berdasarkan pembahasan yang sudah ditulis."
+        },
+        {
+          "q": "Apakah makalah perlu abstrak?",
+          "a": "Makalah tugas biasanya tidak memerlukan abstrak, tetapi sebagian dosen memintanya. Bila diminta, abstrak ditulis singkat dan memuat topik, tujuan, isi utama, dan kesimpulan."
+        }
+      ],
+      "related": ["cara-menulis-daftar-pustaka-apa-7", "memakai-ai-untuk-makalah-dengan-bertanggung-jawab"]
+    },
+    {
+      "slug": "memakai-ai-untuk-makalah-dengan-bertanggung-jawab",
+      "title": "Memakai AI untuk Makalah secara Bertanggung Jawab",
+      "h1": "Memakai AI untuk menulis makalah dengan jujur dan bertanggung jawab",
+      "description": "Panduan seimbang memakai AI untuk makalah: cek aturan kampus, verifikasi fakta dan sitasi, tulis ulang dengan analisis sendiri, dan pahami risikonya.",
+      "updated": "2026-11-20",
+      "readingMinutes": 6,
+      "intro": "AI bisa membantu menyusun kerangka, menjelaskan konsep, atau membuat draf awal, tetapi tidak menggantikan membaca sumber dan berpikir sendiri. Langkah pertama selalu sama: cari tahu aturan kampus dan dosenmu tentang penggunaan AI. Setelah itu, perlakukan setiap keluaran AI sebagai bahan mentah yang harus kamu periksa, tulis ulang, dan pertanggungjawabkan.",
+      "sections": [
+        {
+          "h2": "Mulai dari aturan kampus dan dosen",
+          "paragraphs": [
+            "Aturan tentang AI berbeda-beda. Ada mata kuliah yang melarangnya sama sekali, ada yang mengizinkan untuk tahap tertentu seperti mencari ide atau memperbaiki bahasa, dan ada yang mewajibkan mahasiswa menyatakan penggunaannya. Baca silabus, pedoman akademik, atau pengumuman kampus, dan bila masih ragu, tanyakan langsung kepada dosen sebelum mulai.",
+            "Mematuhi aturan itu adalah tanggung jawabmu sendiri, bukan tanggung jawab alat yang kamu pakai. Bila aturannya melarang, jangan memakai AI untuk tugas tersebut."
+          ]
+        },
+        {
+          "h2": "Peran AI yang masuk akal",
+          "paragraphs": [
+            "Bila diizinkan, AI paling berguna di tahap awal dan tahap merapikan, bukan sebagai pengganti pemahaman. Beberapa penggunaan yang umumnya lebih aman antara lain:"
+          ],
+          "bullets": [
+            "Memecah topik besar menjadi beberapa sudut pandang untuk dipilih.",
+            "Membuat kerangka bab yang kemudian kamu sesuaikan.",
+            "Menjelaskan istilah atau konsep yang belum kamu pahami, lalu kamu cocokkan dengan buku atau artikel.",
+            "Menghasilkan draf awal sebagai bahan untuk ditulis ulang, bukan untuk dikumpulkan apa adanya.",
+            "Memberi masukan tentang kejelasan kalimat pada tulisan yang sudah kamu buat sendiri."
+          ]
+        },
+        {
+          "h2": "Cek setiap fakta dan sitasi ke sumber asli",
+          "paragraphs": [
+            "Model bahasa bisa menulis dengan sangat meyakinkan walaupun isinya keliru. Kesalahan ini sering disebut halusinasi: fakta yang salah, angka yang tidak berdasar, kutipan yang tidak pernah diucapkan, atau referensi yang tidak pernah terbit.",
+            "Karena itu, setiap klaim penting perlu ditelusuri ke sumber aslinya. Untuk referensi, buka DOI atau tautannya, cocokkan judul, penulis, tahun, dan jurnal, lalu baca setidaknya abstrak dan bagian yang relevan. Referensi yang tidak bisa kamu temukan atau tidak kamu baca sebaiknya tidak dicantumkan."
+          ]
+        },
+        {
+          "h2": "Tulis ulang dan tambahkan analisismu sendiri",
+          "paragraphs": [
+            "Draf dari AI cenderung umum dan datar. Nilai sebuah makalah biasanya terletak pada pemahaman dan analisis penulisnya: bagaimana kamu menghubungkan sumber, membandingkan pendapat, memberi contoh yang relevan dengan konteksmu, dan menarik kesimpulan.",
+            "Tulis ulang setiap bagian dengan kata-katamu sendiri setelah kamu memahami sumbernya. Tambahkan pendapat dan contoh yang lahir dari bacaanmu. Cara praktis untuk menguji diri: bila kamu tidak bisa menjelaskan sebuah paragraf secara lisan tanpa melihat teks, berarti bagian itu belum benar-benar menjadi tulisanmu."
+          ]
+        },
+        {
+          "h2": "Jujur soal penggunaan AI",
+          "paragraphs": [
+            "Bila kampus atau dosen meminta pernyataan penggunaan AI, sampaikan dengan jujur dan spesifik, misalnya alat yang dipakai dan untuk tahap apa. Kejujuran ini melindungi kamu sendiri; menyembunyikan penggunaan yang seharusnya diungkapkan dapat dianggap pelanggaran integritas akademik.",
+            "Panduan ini tidak memberi cara mengelabui pemeriksa atau detektor apa pun, dan tidak ada alat yang bisa menjanjikan nilai tertentu. Yang bisa kamu kendalikan adalah kualitas dan kejujuran prosesmu."
+          ]
+        },
+        {
+          "h2": "Risiko lain yang perlu diingat",
+          "bullets": [
+            "Bias: AI bisa mengulang sudut pandang yang berat sebelah dari data yang dipelajarinya, jadi bandingkan dengan beberapa sumber.",
+            "Informasi usang: pengetahuan model bisa tidak mencakup perkembangan terbaru.",
+            "Kebocoran data: jangan menempelkan data pribadi, data responden, nilai, atau dokumen rahasia ke layanan AI tanpa memahami kebijakan privasinya.",
+            "Ketergantungan: terlalu sering mengandalkan AI bisa membuat keterampilan membaca dan menulismu tidak berkembang."
+          ],
+          "paragraphs": [
+            "Mengenali risiko ini membantu kamu memakai AI dengan lebih hati-hati, bukan sekadar lebih cepat."
+          ]
+        },
+        {
+          "h2": "Bantuan dari MALAS",
+          "paragraphs": [
+            "MALAS menyusun draf makalah dari judul dengan referensi dari database jurnal yang disertai DOI atau tautan untuk dicek, dan hasilnya memang dimaksudkan sebagai draf yang kamu baca, periksa, dan tulis ulang. Pastikan penggunaannya sesuai aturan kampusmu. Mode uji gratis tanpa API key berisi contoh."
+          ]
+        }
+      ],
+      "faq": [
+        {
+          "q": "Apakah memakai AI untuk makalah termasuk kecurangan?",
+          "a": "Tergantung aturan kampus dan dosen untuk tugas tersebut. Penggunaan yang dilarang atau tidak diungkapkan padahal wajib dapat dianggap pelanggaran, jadi pastikan aturannya sebelum memakai."
+        },
+        {
+          "q": "Bagaimana cara menyatakan penggunaan AI di makalah?",
+          "a": "Ikuti format yang diminta kampus atau dosen. Bila tidak ada format khusus, sebutkan secara singkat alat yang dipakai dan untuk apa, misalnya untuk menyusun kerangka awal atau memperbaiki kalimat."
+        },
+        {
+          "q": "Apakah referensi dari AI bisa langsung dipakai?",
+          "a": "Tidak sebaiknya. Setiap referensi perlu dicek ke sumber aslinya karena AI bisa menghasilkan judul, penulis, atau DOI yang keliru atau tidak ada."
+        },
+        {
+          "q": "Amankah menempelkan data penelitian ke layanan AI?",
+          "a": "Hindari menempelkan data pribadi atau data sensitif, misalnya identitas responden. Baca kebijakan privasi layanan yang kamu pakai dan ikuti aturan etika penelitian kampusmu."
+        }
+      ],
+      "related": ["cara-cek-doi-referensi", "struktur-makalah-bab-pendahuluan-pembahasan-penutup"]
+    },
+    {
+      "slug": "cara-mencari-jurnal-gratis-dan-open-access",
+      "title": "Cara Mencari Jurnal Gratis dan Open Access",
+      "h1": "Cara mencari jurnal gratis dan open access secara sah untuk makalah",
+      "description": "Arti open access, tempat mencari jurnal gratis secara sah, tips kata kunci, serta cara menilai kredibilitas jurnal dan menghindari jurnal predator.",
+      "updated": "2026-11-20",
+      "readingMinutes": 6,
+      "intro": "Banyak artikel ilmiah bisa dibaca gratis secara sah karena diterbitkan dengan model open access atau diunggah penulisnya ke repositori. Tempat yang paling sering dipakai antara lain Google Scholar, DOAJ, Portal Garuda, repositori kampus, arXiv untuk bidang tertentu, dan perpustakaan kampusmu sendiri. Setelah menemukan artikel, langkah berikutnya adalah menilai apakah sumbernya kredibel.",
+      "sections": [
+        {
+          "h2": "Apa arti open access",
+          "paragraphs": [
+            "Open access berarti artikel dapat dibaca dan diunduh tanpa biaya dan tanpa harus berlangganan. Ada jurnal yang seluruh isinya open access, ada pula jurnal berlangganan yang membuka sebagian artikelnya. Selain itu, banyak penulis menyimpan versi naskah mereka di repositori institusi atau server pracetak.",
+            "Perlu diingat, versi di repositori bisa berupa naskah sebelum atau sesudah ditelaah, bukan selalu versi akhir dari penerbit. Bila kamu mengutipnya, periksa versi mana yang kamu baca dan cocokkan data bibliografinya dengan versi terbit bila ada."
+          ]
+        },
+        {
+          "h2": "Tempat mencari jurnal gratis secara sah",
+          "paragraphs": [
+            "Layanan berikut bersifat publik dan umum dipakai mahasiswa. Masing-masing punya kekuatan berbeda, jadi ada baiknya memakai lebih dari satu."
+          ],
+          "bullets": [
+            "Google Scholar: mesin pencari literatur ilmiah lintas bidang. Bila ada versi yang bisa diakses, tautannya biasanya muncul di sisi kanan hasil pencarian.",
+            "DOAJ (Directory of Open Access Journals): direktori jurnal open access yang memiliki kriteria seleksi, berguna untuk mencari artikel maupun mengecek sebuah jurnal.",
+            "Portal Garuda: indeks artikel dari jurnal-jurnal Indonesia, cocok untuk topik dengan konteks lokal.",
+            "Repositori kampus: banyak universitas menyimpan skripsi, tesis, dan artikel dosen yang bisa diakses publik.",
+            "arXiv: server pracetak untuk bidang seperti fisika, matematika, ilmu komputer, dan statistik. Banyak naskah di sini belum melalui telaah sejawat.",
+            "Perpustakaan kampus: sering menyediakan akses ke database berlangganan bagi mahasiswa, serta bantuan pustakawan untuk mencari sumber."
+          ]
+        },
+        {
+          "h2": "Tips kata kunci agar hasil lebih relevan",
+          "paragraphs": [
+            "Hasil pencarian sangat bergantung pada kata kunci. Mulailah dari konsep inti topikmu, lalu perluas atau persempit sesuai hasil yang muncul."
+          ],
+          "bullets": [
+            "Cari dalam bahasa Indonesia dan bahasa Inggris, misalnya kebiasaan membaca dan reading habits.",
+            "Coba sinonim dan istilah yang berdekatan, misalnya pembelajaran daring, kuliah online, dan e-learning.",
+            "Pakai tanda kutip untuk frasa utuh, misalnya \"literasi digital\".",
+            "Batasi tahun terbit lewat filter, misalnya lima sampai sepuluh tahun terakhir, kecuali kamu membutuhkan teori klasik.",
+            "Perhatikan kata kunci yang dipakai di artikel yang relevan, lalu gunakan untuk pencarian berikutnya.",
+            "Telusuri daftar pustaka artikel yang bagus untuk menemukan sumber terkait."
+          ]
+        },
+        {
+          "h2": "Menilai kredibilitas jurnal",
+          "paragraphs": [
+            "Gratis tidak sama dengan asal-asalan, tetapi tidak semua yang terbit di internet layak dikutip. Untuk jurnal Indonesia, cek apakah jurnal tersebut terakreditasi di SINTA, sistem yang dikelola kementerian yang membidangi pendidikan tinggi; peringkatnya ditulis dalam tingkatan seperti S1 sampai S6. Untuk jurnal internasional, keterdaftaran di direktori seperti DOAJ bisa menjadi salah satu pertimbangan.",
+            "Tanda lain yang baik: artikel memiliki DOI, jurnal menjelaskan proses peer review atau telaah sejawat, ada dewan redaksi dengan afiliasi yang jelas, serta tersedia ISSN dan arsip terbitan yang teratur. Tidak ada satu tanda yang cukup sendirian, jadi lihat secara keseluruhan."
+          ]
+        },
+        {
+          "h2": "Hati-hati dengan jurnal predator",
+          "paragraphs": [
+            "Jurnal predator adalah penerbit yang menarik biaya publikasi tetapi tidak menjalankan telaah sejawat dengan sungguh-sungguh. Artikel di jurnal seperti ini kualitasnya tidak terjamin, sehingga sebaiknya tidak dijadikan rujukan utama."
+          ],
+          "bullets": [
+            "Menjanjikan proses terbit yang sangat cepat tanpa revisi berarti.",
+            "Cakupan topik terlalu luas dan tidak fokus, misalnya semua bidang ilmu dalam satu jurnal.",
+            "Nama jurnal sangat mirip dengan jurnal terkenal.",
+            "Situs penuh kesalahan bahasa, informasi kontak tidak jelas, atau klaim indeks yang tidak bisa dibuktikan.",
+            "Rajin mengirim undangan menulis lewat email massal."
+          ]
+        },
+        {
+          "h2": "Bantuan dari MALAS",
+          "paragraphs": [
+            "MALAS mencari referensi dari database jurnal saat menyusun draf makalah dari judul, dan setiap referensi disertai DOI atau tautan agar kamu bisa membuka, membaca, dan menilainya sendiri. Draf tersebut tetap perlu kamu periksa sebelum dipakai. Mode uji gratis tanpa API key tersedia dengan teks dan referensi contoh."
+          ]
+        }
+      ],
+      "faq": [
+        {
+          "q": "Apakah mengunduh artikel dari repositori kampus itu sah?",
+          "a": "Ya, bila repositori tersebut memang menyediakannya untuk publik. Tetap cantumkan sitasi yang benar dan perhatikan apakah yang kamu baca versi naskah atau versi terbit."
+        },
+        {
+          "q": "Bagaimana cara mengecek akreditasi SINTA sebuah jurnal?",
+          "a": "Buka situs resmi SINTA, lalu cari nama jurnal atau ISSN-nya di menu pencarian jurnal. Bila jurnal terakreditasi, peringkatnya akan ditampilkan di halaman jurnal tersebut."
+        },
+        {
+          "q": "Bolehkah mengutip artikel pracetak dari arXiv?",
+          "a": "Boleh bila dosen mengizinkan, tetapi ingat bahwa pracetak umumnya belum ditelaah sejawat. Bila sudah ada versi terbitnya di jurnal, sebaiknya kutip versi terbit tersebut."
+        }
+      ],
+      "related": ["cara-cek-doi-referensi", "cara-menulis-daftar-pustaka-apa-7"]
+    }
+  ]
+}

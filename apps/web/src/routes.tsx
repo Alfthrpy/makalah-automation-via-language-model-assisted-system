@@ -12,6 +12,8 @@ const Dashboard = lazy(() => import("./features/dashboard/Dashboard"));
 const Create = lazy(() => import("./features/create/Create"));
 const JobPage = lazy(() => import("./features/job/JobPage"));
 const Settings = lazy(() => import("./features/settings/Settings"));
+const GuidePage = lazy(() => import("./features/guides/Guides"));
+const GuideIndex = lazy(() => import("./features/guides/Guides").then((m) => ({ default: m.GuideIndex })));
 
 function Loading() {
   return <main className="screen" id="main" aria-busy="true"><div className="wrap" style={{ display: "grid", gap: 12 }}><Skeleton h={28} w="40%" /><Skeleton h={120} /></div></main>;
@@ -35,6 +37,8 @@ export function AppRoutes() {
           <Route path="/daftar/*" element={<AuthPage mode="daftar" />} />
           <Route path="/ketentuan" element={<Legal doc="terms" />} />
           <Route path="/privasi" element={<Legal doc="privacy" />} />
+          <Route path="/panduan" element={<GuideIndex />} />
+          <Route path="/panduan/:slug" element={<GuidePage />} />
         </Route>
         <Route element={<RequireAuth />}>
           <Route element={<AppLayout />}>
