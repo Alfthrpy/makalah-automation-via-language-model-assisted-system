@@ -1,0 +1,10 @@
+{
+ "premaster_lufs": -19.684930272789547,
+ "tp_before_limit": 1.8661225037736457,
+ "final_lufs_internal": -14.002033338193355,
+ "final_true_peak_internal": -1.2752158194602603,
+ "limiter_min_gain_db": -0.21047790421675744,
+ "samples": 1473600,
+ "seconds": 30.7,
+ "sample_peak": 0.8629040885785892
+}
