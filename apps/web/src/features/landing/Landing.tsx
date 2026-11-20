@@ -22,10 +22,12 @@ function TryTitle() {
   const [demoRun, setDemoRun] = useState(0);
   const [animKey, setAnimKey] = useState(0);
   const [debounced, setDebounced] = useState(title);
+  const [cardRef, seen] = useSeenOnce<HTMLDivElement>(0.4);
 
   // Tanpa interaksi: memutar contoh 6 putaran lalu diam; berhenti begitu input difokus.
+  // Baru mulai setelah kartu terlihat (di ponsel kartu ada di bawah layar pertama, jadi tidak jalan tanpa ditonton).
   useEffect(() => {
-    if (!motion || touched || demoRun >= 6) return;
+    if (!seen || !motion || touched || demoRun >= 6) return;
     const next = samples[(demoRun + 1) % samples.length]!;
     let n = 0;
     let tm: number;
@@ -35,9 +37,9 @@ function TryTitle() {
       if (n < next.length) tm = window.setTimeout(step, 45);
       else { setAnimKey((k) => k + 1); tm = window.setTimeout(() => setDemoRun((r) => r + 1), 3200); }
     };
-    tm = window.setTimeout(step, demoRun === 0 ? 2100 : 600);
+    tm = window.setTimeout(step, demoRun === 0 ? 1400 : 600);
     return () => clearTimeout(tm);
-  }, [motion, touched, demoRun, samples]);
+  }, [seen, motion, touched, demoRun, samples]);
 
   // Dijeda sebelum disentuh: kembali ke contoh pertama (keadaan akhir yang tenang).
   useEffect(() => { if (!motion && !touched) { setTitle(samples[0]!); setDebounced(samples[0]!); } }, [motion, touched, samples]);
@@ -54,7 +56,7 @@ function TryTitle() {
   let i = 0;
   const st = () => ({ ["--i" as string]: i++ }) as React.CSSProperties;
   return (
-    <div className="try card" role="region" aria-labelledby="try-h">
+    <div className="try card" id="coba" ref={cardRef} role="region" aria-labelledby="try-h">
       <div className="try-head">
         <h2 className="try-title" id="try-h">{L.try.title}</h2>
         <MotionButton />
@@ -85,6 +87,7 @@ function TryTitle() {
 }
 
 function Hero() {
+  const { motion } = useMotion();
   return (
     <div className="wrap">
       <section className="l-hero" aria-labelledby="hero-h">
@@ -101,6 +104,10 @@ function Hero() {
             <li><Icon name="pen" />{L.facts.draft}</li>
             <li><Icon name="key" />{L.facts.key}</li>
           </ul>
+          <a className="hero-cue" href="#coba" onClick={(e) => {
+            e.preventDefault();
+            document.getElementById("coba")?.scrollIntoView({ behavior: motion ? "smooth" : "auto", block: "start" });
+          }}>{L.heroCue}<Icon name="chev" size="md" /></a>
         </div>
         <TryTitle />
       </section>

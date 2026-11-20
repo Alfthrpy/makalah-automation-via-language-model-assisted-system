@@ -74,6 +74,7 @@ export const id = {
     ctaPrimary: "Coba gratis",
     ctaLogin: "Masuk",
     facts: { time: "±10–30 menit", draft: "Hasilnya draf", key: "Pakai key-mu" },
+    heroCue: "Coba ketik judul",
     factsLabel: "Ringkasnya",
     try: {
       title: "Coba ketik judul",
