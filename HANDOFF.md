@@ -194,6 +194,13 @@ Catatan: tes `test_ringkasan_riwayat_memuat_progres_dan_posisi_antrean` pernah f
 - Netlify BELUM dibuat: pemilik membuatnya sendiri dari UI (import repo, env `VITE_CLERK_PUBLISHABLE_KEY`).
 - Catatan sandbox: environment `makalah-malas` menyimpan credential HF dan Neon (proxy menyuntikkan); hapus bila tak dipakai. Token HF lama yang sempat tertempel di chat harus dicabut.
 
+## Persiapan peluncuran (2026-11-20)
+- **Ketentuan Layanan dan Kebijakan Privasi** sudah ada (bukan placeholder lagi): `apps/web/src/features/legal/content.ts` (data) + `features/states/Legal.tsx`. Ditulis dari perilaku sistem (retensi 6 jam; ke penyedia LLM hanya judul, mata kuliah, tahun, kota, NAMA dosen/penyusun; NIM, kelas, kampus tidak dikirim; pencarian Crossref/Semantic Scholar/arXiv). Ada tes (`legal.test.tsx`) yang mengunci fakta-fakta itu; bila perilaku berubah (analitik, retensi, dll.), perbarui teks dan `LEGAL_UPDATED`. BUKAN nasihat hukum; pengelola ditulis "perorangan (proyek pribadi)", kontak = GitHub issues (`CONTACT_URL`). Pemilik perlu meninjau. Diverifikasi di browser: 0 pelanggaran axe, 0 overflow, 0 error konsol (390/1280 x terang/gelap).
+- **Pratinjau dibagikan**: meta OG/Twitter di `apps/web/index.html` (URL absolut `malas-app.netlify.app`), `public/og.png` (sumber `apps/web/og/`), `favicon.svg`, `robots.txt`, `sitemap.xml`. Ganti domain di semuanya bila memakai domain sendiri.
+- **Skrip deploy** yang bisa diulang: `deploy/netlify/deploy.py` (deploy web lewat API Netlify, `NETLIFY_AUTH_TOKEN`) dan `deploy/hf-space/push.py` (backend ke Space dalam SATU commit, riwayat lama aman, `HF_TOKEN`).
+- **`docs/LAUNCH-CHECKLIST.md`**: daftar peluncuran (wajib / disarankan / operasional) dengan fakta live (situs Netlify `malas-app`, Space, Neon, Clerk).
+- Tes web sekarang 33 (24 + 9 tes halaman hukum); pytest tidak berubah.
+
 ## Langkah berikutnya (mulai di sini)
 Semua kode dan konfigurasi selesai. Yang tersisa HANYA yang butuh akun/kredensial milik pemilik; kerjakan berurutan mengikuti `DEPLOY.md` dan verifikasi tiap langkah:
 1. Push ke GitHub dan lihat CI hijau (pertama kali dijalankan; perbaiki bila ada beda lingkungan). Perlu `main`/PR agar workflow berjalan.

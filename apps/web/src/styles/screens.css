@@ -182,3 +182,19 @@ dialog::backdrop { background: var(--scrim); }
 .tip { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--bg); font-size: var(--fs-xs); padding: 8px 10px; border-radius: var(--r-sm); width: 240px; white-space: normal; text-align: left; font-weight: 500; line-height: 1.45; pointer-events: none; opacity: 0; transition: opacity .15s; z-index: 5; }
 [data-tip]:hover .tip, [data-tip]:focus-within .tip { opacity: 1; }
 
+
+/* ---- Ketentuan Layanan / Kebijakan Privasi ---- */
+.legal { max-width: 720px; padding-bottom: var(--sp-8, 64px); }
+.legal-intro { font-size: var(--fs-lg); line-height: 1.6; margin-bottom: var(--sp-5); }
+.legal-toc { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--sp-4) var(--sp-5); margin-bottom: var(--sp-6); }
+.legal-toc ol { margin: 0; padding-left: 1.5em; list-style: decimal; }
+.legal-toc li + li { margin-top: 8px; }
+.legal-toc li::marker { color: var(--muted); font-weight: 700; }
+.legal-toc a, .legal section a { color: var(--accent); text-underline-offset: 3px; }
+.legal section { margin-top: var(--sp-6); scroll-margin-top: 80px; }
+.legal h2 { font-size: var(--fs-xl); font-weight: 800; margin-bottom: var(--sp-3); }
+.legal section p, .legal section li { line-height: 1.7; }
+.legal section p + p, .legal section p + ul, .legal section ul + p { margin-top: var(--sp-3); }
+.legal section ul { padding-left: 1.25em; list-style: disc; }
+.legal section li + li { margin-top: var(--sp-2); }
+.legal section li::marker { color: var(--accent); }
