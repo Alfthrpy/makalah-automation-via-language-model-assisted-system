@@ -24,7 +24,9 @@ from malas import checkpoint, paths
 from malas.citations import (
     check_citations, citation_label, content_text, prune_unused_references,
 )
-from malas.config import get_llm, is_mock
+from malas.config import enhance_tier, get_llm, is_mock
+from malas.enhance.models import Blueprint, Scope
+from malas.enhance.context import build_context, one_line_refs, render_context, scope_text
 from malas.crews.finishing_crew.finishing_crews import run_citation_fix, run_kata_pengantar
 from malas.crews.models.TaskOutput import Bab, Makalah, Penyusun, SubBab
 from malas import refsearch
@@ -217,6 +219,7 @@ class MalasFlow(Flow[Makalah]):
                 bab_baru.subbab = [SubBab(judul=t.strip()) for t in subbab_data.sections if t.strip()]
                 self.state.bab[roman_numerals[i]] = bab_baru
 
+            self._apply_outline_extras(outline_output.pydantic)
             if use_refsearch:
                 self.state.daftar_pustaka = self._search_refs()
             else:
@@ -227,6 +230,22 @@ class MalasFlow(Flow[Makalah]):
             self._emit("outline", "info",
                        f"{self.stats['subbab_count']} sub-bab, {self.stats['refs_found']} referensi")
             self._save_checkpoint()  # outline = ± 5 menit kerja; jangan sampai hilang bila tahap berikutnya gagal
+
+    def _apply_outline_extras(self, outline) -> None:
+        """Kerangka RM + lingkup hasil inferensi planner (tanpa panggilan LLM tambahan) -> Makalah.blueprint (parsial).
+
+        Lingkup hasil tebakan TIDAK dimasukkan ke prompt penulis (itu hanya dari isian pengguna): tebakan salah
+        (mis. "mahasiswa" padahal bukti siswa) justru akan memperparah subjek yang melenceng.
+        """
+        if enhance_tier() == "off" or self.state.blueprint is not None:
+            return
+        rqs = list(getattr(outline, "research_questions", None) or [])
+        sc = getattr(outline, "scope", None)
+        if rqs or sc:
+            self.state.blueprint = Blueprint(
+                scope=Scope(jenis_makalah=self.state.jenis_makalah, subjek=(sc.subjek if sc else ""),
+                            jenjang=(sc.jenjang if sc else "")),
+                research_questions=rqs)
 
     def _sections_needing_refs(self) -> list[str]:
         """Sub-bab yang butuh referensi: 1.1 Latar Belakang + semua sub-bab Bab 2 (sama seperti aturan lama)."""
@@ -272,8 +291,10 @@ class MalasFlow(Flow[Makalah]):
         """
         store = self.fulltext
         semua = [(i, r) for i, r in enumerate(self.state.daftar_pustaka) if r.link]
+        fallback = False
         if any(r.sections for _, r in semua):  # hasil refsearch: tiap sub-bab hanya menerima referensinya sendiri
             milik = [(i, r) for i, r in semua if subbab_judul in r.sections]
+            fallback = not milik
             semua = milik or semua[:3]  # sub-bab tanpa referensi sendiri (mis. 1.2/3.1): beberapa yang umum
         punya_teks = [i for i, r in semua if i in store.texts]
         jatah = _env_int("MALAS_FULLTEXT_CHARS", 3000) // max(len(punya_teks), 1)
@@ -291,6 +312,8 @@ class MalasFlow(Flow[Makalah]):
             if kutipan:
                 item["kutipan"] = kutipan
             hasil.append(item)
+        if fallback and enhance_tier() != "off":  # 1 baris per sumber: cukup untuk merujuk, tanpa mengulang angka/kutipan
+            return one_line_refs(hasil)
         return hasil
 
     def _write_subbab(self, crew, writer, inputs: dict, judul: str):
@@ -352,14 +375,17 @@ class MalasFlow(Flow[Makalah]):
                     print(f"\n✍️ Mengerjakan: {bab.judul} - {subbab.judul}")
                     self._emit("tulis", "info", f"{nomor}/{total} · {subbab.judul}")
 
-                    # 1. Siapkan konteks dari konten sub-bab sebelumnya
-                    formatted_previous_content = ""
-                    if subbab_index > 0:
-                        previous_subbab = bab.subbab[subbab_index - 1]
-                        if previous_subbab.judul in generated_contents:
-                            header = f"Konten dari Sub-Bab sebelumnya '{previous_subbab.judul}':"
-                            full_content_str = content_text(generated_contents[previous_subbab.judul])
-                            formatted_previous_content = f"{header}\n{full_content_str}"
+                    # 1. Siapkan konteks: ringkasan SELURUH makalah yang sudah ditulis (ContextPack); tier "off" = perilaku lama
+                    if enhance_tier() == "off":
+                        formatted_previous_content = ""
+                        if subbab_index > 0:
+                            previous_subbab = bab.subbab[subbab_index - 1]
+                            if previous_subbab.judul in generated_contents:
+                                header = f"Konten dari Sub-Bab sebelumnya '{previous_subbab.judul}':"
+                                full_content_str = content_text(generated_contents[previous_subbab.judul])
+                                formatted_previous_content = f"{header}\n{full_content_str}"
+                    else:
+                        formatted_previous_content = render_context(build_context(self.state, subbab, bab_key))
 
                     # 2. Jalankan crew untuk menghasilkan konten sub-bab saat ini
                     inputs = {
@@ -369,6 +395,7 @@ class MalasFlow(Flow[Makalah]):
                         "references": self._references_for(subbab.judul),
                         "judul_makalah": self.state.judul,
                         "mata_kuliah": self.state.mata_kuliah,
+                        "lingkup": scope_text(self.state),
                     }
                     # 3. Tulis (dengan 1x ulang bila gagal/kosong), lalu simpan checkpoint
                     new_content = self._write_subbab(crew_instance, writer, inputs, subbab.judul)

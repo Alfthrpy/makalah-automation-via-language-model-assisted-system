@@ -457,6 +457,22 @@
             "title": "Fakultas",
             "type": "string"
           },
+          "jenis_makalah": {
+            "default": "kajian_pustaka",
+            "enum": [
+              "kajian_pustaka",
+              "penelitian"
+            ],
+            "title": "Jenis Makalah",
+            "type": "string"
+          },
+          "jenjang": {
+            "default": "",
+            "maxLength": 60,
+            "minLength": 0,
+            "title": "Jenjang",
+            "type": "string"
+          },
           "judul": {
             "maxLength": 200,
             "minLength": 3,
@@ -546,6 +562,13 @@
             "default": false,
             "title": "Save Key",
             "type": "boolean"
+          },
+          "subjek": {
+            "default": "",
+            "maxLength": 120,
+            "minLength": 0,
+            "title": "Subjek",
+            "type": "string"
           },
           "tahun": {
             "pattern": "^(19|20)\\d{2}$",
@@ -1033,6 +1056,16 @@
             "title": "Fakultas",
             "type": "string"
           },
+          "jenis_makalah": {
+            "default": "kajian_pustaka",
+            "title": "Jenis Makalah",
+            "type": "string"
+          },
+          "jenjang": {
+            "default": "",
+            "title": "Jenjang",
+            "type": "string"
+          },
           "judul": {
             "title": "Judul",
             "type": "string"
@@ -1059,6 +1092,11 @@
             },
             "title": "Penyusun",
             "type": "array"
+          },
+          "subjek": {
+            "default": "",
+            "title": "Subjek",
+            "type": "string"
           },
           "tahun": {
             "title": "Tahun",

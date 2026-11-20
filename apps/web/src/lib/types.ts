@@ -38,6 +38,9 @@ export interface PaperRequest {
   jurusan?: string;
   kota?: string;
   tahun?: string;
+  /** Lingkup opsional (backend sudah menerima; kolom di formulir menyusul). */
+  subjek?: string;
+  jenjang?: string;
 }
 
 /** Badan POST /api/jobs (hanya yang dipakai web). */

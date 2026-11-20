@@ -6,6 +6,7 @@ from typing import List
 
 from malas.crews.models.TaskOutput import SubBab
 from malas.tolerant import TolerantConverter
+from malas import refsearch
 from malas.config import get_llm, is_mock
 from malas.tools.custom_tool import DuckDuckGoSearchTool
 # If you want to run a snippet of code before or after the crew starts,
@@ -47,7 +48,7 @@ class WriteFormatCrew():
     def write_content(self) -> Task:
         return Task(
             config=self.tasks_config['write_content_task'], # type: ignore[index]
-            tools=[search_tool],
+            tools=[] if refsearch.enabled() else [search_tool],  # refsearch+full-text: tool tak perlu (loop token + sitasi liar)
             output_pydantic=SubBab,
             converter_cls=TolerantConverter,
         )

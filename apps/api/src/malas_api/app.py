@@ -17,7 +17,7 @@ import secrets
 import unicodedata
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Annotated, List, Optional
+from typing import Annotated, List, Literal, Optional
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
@@ -92,6 +92,10 @@ class JobRequest(BaseModel):
     tahun: Annotated[str, StringConstraints(pattern=r"^(19|20)\d{2}$")] = Field(
         default_factory=lambda: str(datetime.now().year)
     )
+    # Lingkup (opsional): mencegah subjek melenceng (mis. bukti siswa MTs tetapi kesimpulan bicara "mahasiswa").
+    subjek: Str(120) = ""
+    jenjang: Str(60) = ""
+    jenis_makalah: Literal["kajian_pustaka", "penelitian"] = "kajian_pustaka"
     template: Optional[str] = None
     mock: bool = False
     # BYOK: key hanya dipakai untuk job ini. SecretStr agar tidak tercetak/ter-dump tanpa sengaja.

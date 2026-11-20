@@ -12,6 +12,11 @@ make_outline_task:
     - DILARANG KERAS membuat sub-bab dengan tingkatan lebih dalam (contohnya: "2.1.1", "2.2.1.a", dll). Cukup satu level saja.
     Bab 3: Penutup
     - WAJIB berisi HANYA 1 sub-bab: "3.1 Kesimpulan".
+
+    Selain "subbabs", sertakan dua kunci tambahan pada JSON yang sama (singkat, tanpa teks lain):
+    - "scope": {"jenis_makalah": "kajian_pustaka", "subjek": "<populasi/objek yang dibahas bila dapat
+      disimpulkan dari judul, jika tidak kosongkan>", "jenjang": "<jenjang pendidikan bila relevan, jika tidak kosongkan>"}
+    - "research_questions": 2-3 kalimat tanya rumusan masalah yang konsisten dengan judul.
   expected_output: >
     Sebuah outline makalah yang komprehensif dan penuh detail serta sesuai dengan intruksi
   agent: outline_planner

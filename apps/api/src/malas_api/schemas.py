@@ -94,6 +94,9 @@ class PaperRequest(_Out):
     jurusan: str
     kota: str
     tahun: str
+    subjek: str = ""
+    jenjang: str = ""
+    jenis_makalah: str = "kajian_pustaka"
 
 
 class JobOut(_Out):

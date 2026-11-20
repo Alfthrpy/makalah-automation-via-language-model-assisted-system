@@ -281,6 +281,17 @@ export interface components {
              * @default
              */
             fakultas: string;
+            /**
+             * Jenis Makalah
+             * @default kajian_pustaka
+             * @enum {string}
+             */
+            jenis_makalah: "kajian_pustaka" | "penelitian";
+            /**
+             * Jenjang
+             * @default
+             */
+            jenjang: string;
             /** Judul */
             judul: string;
             /**
@@ -324,6 +335,11 @@ export interface components {
              */
             save_key: boolean;
             /** Tahun */
+            /**
+             * Subjek
+             * @default
+             */
+            subjek: string;
             tahun?: string;
             /** Template */
             template?: string | null;
@@ -485,6 +501,16 @@ export interface components {
             dosen_pengampu: string;
             /** Fakultas */
             fakultas: string;
+            /**
+             * Jenis Makalah
+             * @default kajian_pustaka
+             */
+            jenis_makalah: string;
+            /**
+             * Jenjang
+             * @default
+             */
+            jenjang: string;
             /** Judul */
             judul: string;
             /** Jurusan */
@@ -497,6 +523,11 @@ export interface components {
             mata_kuliah: string;
             /** Penyusun */
             penyusun: components["schemas"]["Penyusun"][];
+            /**
+             * Subjek
+             * @default
+             */
+            subjek: string;
             /** Tahun */
             tahun: string;
             /** Universitas */

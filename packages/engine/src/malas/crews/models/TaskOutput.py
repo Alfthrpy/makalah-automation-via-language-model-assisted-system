@@ -1,7 +1,7 @@
 from typing import List, Dict, Union, Literal, Optional
 from pydantic import BaseModel, Field
 
-from malas.enhance.models import Blueprint, EvidenceCard, Finding
+from malas.enhance.models import Blueprint, EvidenceCard, Finding, Scope
 
 # Model untuk struktur outline sederhana (seperti yang kita gunakan sebelumnya)
 class SimpleSubbab(BaseModel):
@@ -9,6 +9,9 @@ class SimpleSubbab(BaseModel):
 
 class Outline(BaseModel):
     subbabs: Dict[str, SimpleSubbab] = {}
+    # tanpa panggilan LLM tambahan: planner sekalian menyimpulkan lingkup & kerangka rumusan masalah (opsional)
+    scope: Optional[Scope] = None
+    research_questions: List[str] = Field(default_factory=list)
 
 
 # Model untuk struktur referensi
