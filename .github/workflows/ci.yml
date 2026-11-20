@@ -38,6 +38,11 @@ jobs:
           packages/engine/src/malas/names.py
           packages/engine/tests/test_names.py
           packages/engine/tests/test_apa.py
+          packages/engine/scripts/build_template_v3.py
+          packages/engine/src/malas/template_check.py
+          packages/engine/tests/test_template_v3.py
+          packages/engine/src/malas/enhance/context.py
+          packages/engine/tests/test_enhance_context.py
       - run: uv run pytest -q
 
   python-postgres:
