@@ -8,6 +8,7 @@ from typing import Any, Dict, Optional
 from docxtpl import DocxTemplate
 from jinja2 import Environment
 
+from malas.citations import is_institution
 from malas.crews.models.TaskOutput import Makalah
 from malas.logo import apply_logo, normalize_logo
 
@@ -98,8 +99,8 @@ def format_apa7(ref):
         parts = name.split()
         if not parts:
             continue
-        if len(parts) == 1:  # nama lembaga / satu kata (mis. "Wikipedia"): tulis apa adanya
-            formatted_authors.append(parts[0])
+        if is_institution(name):  # lembaga ("Wikipedia", "Badan Pusat Statistik"): tulis utuh
+            formatted_authors.append(" ".join(parts))
             continue
         last_name = parts[-1]
         # Membuat inisial dari nama depan/tengah; "JA" (inisial kapital dari sumber) -> "J. A."

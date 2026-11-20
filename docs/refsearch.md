@@ -41,7 +41,6 @@ LLM tidak pernah menulis judul/penulis/tahun/DOI: semuanya berasal dari respons 
 
 ## Belum ada (rencana)
 Pencarian web umum (ddgs/Brave) dengan allowlist domain, regulasi (JDIH BPK), rerank LLM berbasis ID, CORE, embedding lokal.
-Penulis lembaga multi-kata (mis. "Badan Pusat Statistik") belum dikenali sitasi in-text (`citations.py` mengambil kata terakhir).
 
 ## Hasil uji NYATA (GitHub Actions, 2026-11-20, tanpa key & tanpa LLM; rencana query dari heuristik)
 Workflow sementara `.github/workflows/refsearch-probe.yml` (jalan otomatis saat file itu diubah; boleh dihapus).

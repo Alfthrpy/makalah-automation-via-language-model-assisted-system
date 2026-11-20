@@ -60,6 +60,21 @@ def extract_citations(text: str) -> List[Citation]:
     return found
 
 
+_LEMBAGA = re.compile(
+    r"\b(badan|kementerian|kemenkes|kemendikbud|dinas|lembaga|pusat|universitas|institut|politeknik|sekolah tinggi|"
+    r"organisasi|asosiasi|komisi|dewan|bank|perusahaan|pemerintah|republik|world|organization|association|ministry|"
+    r"institute|university|bureau|agency|commission|council|foundation|department|office)\b", re.I)
+
+
+def is_institution(name: str) -> bool:
+    """Penulis berupa lembaga ("Badan Pusat Statistik"): ditulis utuh, bukan 'Statistik, B. P.'.
+
+    Nama satu kata ("Wikipedia") selalu dianggap lembaga; nama multi-kata hanya bila memuat kata kunci lembaga.
+    """
+    parts = name.split()
+    return len(parts) == 1 or (len(parts) > 1 and bool(_LEMBAGA.search(name)))
+
+
 def citation_label(ref: ReferenceItem) -> str:
     """Bentuk sitasi in-text yang benar untuk sebuah referensi, mis. '(Smith & Jones, 2024)'."""
     names = [_surname_display(a) for a in ref.authors if a.strip()]
@@ -76,6 +91,8 @@ def citation_label(ref: ReferenceItem) -> str:
 
 def _surname_display(author: str) -> str:
     author = author.strip()
+    if is_institution(author):
+        return author
     return author.split(",")[0].strip() if "," in author else author.split()[-1]
 
 

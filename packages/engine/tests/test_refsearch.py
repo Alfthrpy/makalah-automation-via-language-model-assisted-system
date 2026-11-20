@@ -402,3 +402,17 @@ def test_crossref_tanpa_mailto_dijeda_lebih_lama():
     c.get_text("https://api.crossref.org/works", {"a": 1})
     c.get_text("https://api.crossref.org/works", {"a": 2})
     assert sleeps and sleeps[0] >= 1.0
+
+
+def test_penulis_lembaga_multikata_label_apa_dan_sitasi_cocok():
+    from malas.citations import check_citations, citation_label, is_institution
+    from malas.crews.models.TaskOutput import Bab, ContentText, Makalah, SubBab
+    from malas.docx_converter import format_apa7
+    assert is_institution("Badan Pusat Statistik") and is_institution("Wikipedia") and not is_institution("Ada Lovelace")
+    ref = ReferenceItem(title="Statistik UMKM 2023", authors=["Badan Pusat Statistik"], year=2023, link="https://bps.go.id/x")
+    assert citation_label(ref) == "(Badan Pusat Statistik, 2023)"
+    assert format_apa7(ref.model_dump()).startswith("Badan Pusat Statistik. (2023).")
+    mk = Makalah(daftar_pustaka=[ref], bab={"II": Bab(judul="B", subbab=[SubBab(judul="2.1 X", content=[
+        ContentText(isi="UMKM tumbuh (Badan Pusat Statistik, 2023) dan menurut Badan Pusat Statistik (2023) naik.")])])})
+    rep = check_citations(mk)
+    assert rep.ok and rep.total_citations == 2
