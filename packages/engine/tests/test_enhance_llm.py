@@ -138,3 +138,54 @@ def test_cek_dukungan_hanya_kalimat_berisiko_berkutipan_rendah_overlap():
     fs = run_support_check(m, lambda p: verdict, Budget(100_000))
     assert len(fs) == 1 and fs[0].rule_id == "CIT-003" and fs[0].where.subbab == "2.2 Dampak studi"
     assert run_support_check(m, lambda p: "ngawur", Budget(100_000)) == []
+
+
+# ------------------------------------------------------------------ kartu bukti (S15)
+def test_kartu_praproses_regex_dan_kausal_dipaksa_kode():
+    from malas.enhance.evidence import card_from_llm, find_n, find_stats, guess_design, heuristic_card
+    teks = "Penelitian kuasi-eksperimen dengan kelompok kontrol pada 70 siswa. F(1,67) = 8.52, p = 0.005."
+    assert find_n(teks) == 70 and any("F(1,67)" in x for x in find_stats(teks))
+    assert guess_design(teks) == "kuasi_eksperimen"
+    assert guess_design("Pretest-posttest tanpa kelompok pembanding") == "pre_post"
+    assert heuristic_card("k", teks).causal_ok is True  # kuasi-eksperimen + kelompok kontrol tertulis di sumber
+    assert heuristic_card("k", "Studi pretest-posttest pada 30 siswa.").causal_ok is False
+    # LLM mengklaim RCT kausal, tetapi has_control tak terkonfirmasi -> kode menolak kausal
+    raw = json.dumps({"design": "rct", "has_control": None, "n": 70, "key_result": "F(1,67) = 8.52",
+                      "causal_ok": True, "outcome": "motivasi", "population": "siswa"})
+    c = card_from_llm(raw, "k", teks, "abstrak")
+    assert c is not None and c.causal_ok is False and c.confidence == "rendah"
+    # angka yang tidak ada di sumber dibuang
+    raw2 = json.dumps({"design": "survei", "key_result": "p = 0.001 (palsu)", "n": 999})
+    c2 = card_from_llm(raw2, "k", teks, "abstrak")
+    assert c2.key_result == "" and c2.n != 999
+
+
+def test_kartu_cache_budget_dan_fallback():
+    import tempfile
+
+    from malas.enhance.cache import KVCache
+    from malas.enhance.evidence import build_cards, extract_card
+    m = _m()
+    calls = []
+
+    def llm(p):
+        calls.append(p)
+        return json.dumps({"design": "survei", "n": 70, "key_result": "n = 70", "outcome": "persepsi"})
+    with tempfile.TemporaryDirectory() as d:
+        cache = KVCache(__import__("pathlib").Path(d))
+        r1 = {}
+        c1 = build_cards(m, None, llm, Budget(100_000), cache=cache, report=r1)
+        assert len(c1) == 3 and r1.get("llm", 0) >= 1
+        n = len(calls)
+        r2 = {}
+        build_cards(m, None, llm, Budget(100_000), cache=cache, report=r2)  # cache hit: tak memanggil LLM
+        assert len(calls) == n and r2.get("cached") == 1  # hanya kartu hasil LLM (referensi ber-abstrak) yang di-cache
+    # anggaran habis -> kartu heuristik, tanpa panggilan LLM
+    rep = {}
+    card = extract_card(REFS[0], "", lambda p: 1 / 0, Budget(0), report=rep)
+    assert rep.get("budget_skipped") == 1 and card.confidence == "rendah"
+    # galat non-fatal -> heuristik; galat fatal dilempar
+    assert extract_card(REFS[0], "", lambda p: 1 / 0, Budget(10_000), is_fatal=lambda e: False).design
+    import pytest
+    with pytest.raises(ZeroDivisionError):
+        extract_card(REFS[0], "", lambda p: 1 / 0, Budget(10_000), is_fatal=lambda e: True)
