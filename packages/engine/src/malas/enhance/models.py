@@ -71,3 +71,4 @@ class ContextPack(BaseModel):
     rq: list[str] = Field(default_factory=list)
     ledger: list[str] = Field(default_factory=list)  # ringkasan ekstraktif yang SUDAH dipakai
     digest_bab2: list[str] = Field(default_factory=list)  # hanya untuk Kesimpulan
+    blueprint_notes: list[str] = Field(default_factory=list)  # tugas argumen + checklist domain (dari Blueprint)

@@ -19,7 +19,7 @@ write_content_task:
     4. Pastikan setiap bagian mengalir secara logis ke bagian berikutnya.
     5. Gunakan bahasa Indonesia formal yang sesuai untuk karya ilmiah.
     6. output berupa content lengkap untuk subab {subbab_now} pada bab {bab_now} saja.
-    7. Khusus sub-bab "Rumusan Masalah" dan "Tujuan": keluarkan HANYA butir bernomor (satu butir per baris,
+    7. Khusus sub-bab "Rumusan Masalah", "Tujuan", "Manfaat", dan "Saran": keluarkan HANYA butir bernomor (satu butir per baris,
        format "1) ..."), tanpa kalimat pengantar dan tanpa paragraf penjelasan di akhir. Jumlah butir
        Tujuan sama dengan jumlah butir Rumusan Masalah dan saling berpasangan.
 

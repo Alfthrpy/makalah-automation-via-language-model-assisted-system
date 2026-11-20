@@ -6,7 +6,6 @@ Isi: iterasi sub-bab/paragraf, pemecah kalimat sederhana (sadar singkatan "dkk."
 """
 from __future__ import annotations
 
-import hashlib
 import math
 import re
 import unicodedata
@@ -177,14 +176,10 @@ def list_items(sub: SubBab) -> list[tuple[int, str]]:
 
 
 def ref_key(ref: ReferenceItem) -> str:
-    """Kunci kartu bukti: DOI (huruf kecil, tanpa prefiks URL) atau hash judul+tahun (sha1, 16 heksa)."""
-    doi = (ref.doi or "").strip()
-    if not doi and ref.link and "doi.org/" in ref.link:
-        doi = ref.link.split("doi.org/", 1)[1]
-    if doi:
-        return re.sub(r"^(?:https?://(?:dx\.)?doi\.org/|doi:)", "", doi.strip(), flags=re.IGNORECASE).lower()
-    raw = f"{fold(' '.join(ref.title.split()))}|{ref.year}"
-    return hashlib.sha1(raw.encode("utf-8")).hexdigest()[:16]
+    """Kunci kartu bukti: sama dengan `evidence.ref_key_of` ("doi:<doi>" atau "t:<hash judul+tahun>")."""
+    from malas.enhance.evidence import ref_key_of
+
+    return ref_key_of(ref)
 
 
 def card_for(makalah: Makalah, idx: int) -> EvidenceCard | None:

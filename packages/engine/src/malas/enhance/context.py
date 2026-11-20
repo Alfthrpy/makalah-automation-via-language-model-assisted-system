@@ -100,14 +100,33 @@ def build_context(state: Makalah, current: SubBab, bab_key: str) -> ContextPack:
         rq=research_questions(state),
         ledger=_ledger(done),
     )
+    pack.blueprint_notes = blueprint_notes(state, current)
     if bab_key not in ("I", "II") and "II" in state.bab:  # Bab III (Kesimpulan/Saran): ringkasan hasil Bab II
         pack.digest_bab2 = _digest([sb for sb in state.bab["II"].subbab if sb.content])
     return pack
 
 
+def blueprint_notes(state: Makalah, current: SubBab) -> list[str]:
+    """Potongan Blueprint untuk sub-bab yang ditulis (±250 token): tugas argumen, istilah wajib, yang dihindari."""
+    bp = state.blueprint
+    if not bp:
+        return []
+    notes = []
+    task = bp.subbab_tasks.get(current.judul)
+    if task:
+        notes.append(f"Tugas sub-bab ini: {task}")
+    if bp.domain_checklist:
+        notes.append("Istilah/contoh khas bidang yang perlu muncul bila relevan: " + ", ".join(bp.domain_checklist[:6]))
+    if bp.avoid_repeat:
+        notes.append("Jangan mengulang (sudah dialokasikan ke sub-bab lain): " + "; ".join(bp.avoid_repeat[:5]))
+    return notes
+
+
 def render_context(pack: ContextPack) -> str:
     """Teks untuk placeholder `{previous_subab_contents}` di prompt penulis."""
-    parts = ["Struktur makalah: " + " | ".join(pack.outline_titles)] if pack.outline_titles else []
+    parts = list(pack.blueprint_notes)
+    if pack.outline_titles:
+        parts.append("Struktur makalah: " + " | ".join(pack.outline_titles))
     if pack.rq:
         parts.append("Rumusan masalah makalah ini:\n" + "\n".join(f"{i}) {q}" for i, q in enumerate(pack.rq, 1)))
     if pack.ledger:
