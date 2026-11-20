@@ -298,6 +298,7 @@ class JobManager:
             for jid in list(self._pending_runtime) + list(self.vault._keys):
                 self._discard_secret(jid)
         self._worker.join(timeout=2)
+        self.db.dispose()  # lepas pool koneksi (kalau tidak, tiap instance menyisakan koneksi terbuka ke Postgres)
 
     def _discard_secret(self, job_id: str) -> None:
         self.vault.discard(job_id)
