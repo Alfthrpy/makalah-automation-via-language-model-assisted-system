@@ -20,7 +20,7 @@ for _k, _v in (("OTEL_SDK_DISABLED", "true"), ("CREWAI_DISABLE_TELEMETRY", "true
 DEFAULT_MODEL = "gemini/gemini-2.5-flash-lite"
 ROLES = ("planner", "writer", "reviewer")
 
-# Prefix model litellm -> env var API key yang dikenali (salah satu cukup)
+# Prefix model crewAI -> env var API key yang dikenali (salah satu cukup)
 _KEY_ENV: Dict[str, List[str]] = {
     "gemini": ["GEMINI_API_KEY", "GOOGLE_API_KEY"],
     "openrouter": ["OPENROUTER_API_KEY"],
@@ -90,7 +90,7 @@ def get_llm(role: str = "default"):
         if prov is None or not prov.enabled:
             raise RuntimeError("Penyedia model tidak tersedia")
         return LLM(
-            model=prov.litellm_prefix + _runtime.model_for(role),
+            model=prov.model_prefix + _runtime.model_for(role),
             api_key=_runtime.api_key,
             base_url=prov.base_url,
         )

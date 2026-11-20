@@ -5,7 +5,7 @@ description = "MALAS engine: pipeline crewAI penulis makalah + konverter .docx +
 requires-python = ">=3.10,<3.14"
 dependencies = [
     "crewai-tools>=0.75.0",
-    "crewai[tools]>=0.193.2,<1.0.0",
+    "crewai[tools,google-genai]>=1.15.44,<1.16",  # 1.x: provider native (tanpa litellm); lihat docs/enhancing-engine.md §5
     "docxtpl>=0.20.0",
     "duckduckgo-search>=8.1.1",
     "pillow>=10.1",
