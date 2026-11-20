@@ -75,17 +75,28 @@ function ClerkRoot({ children }: { children: ReactNode }) {
   );
 }
 
-/** Warna selaras token prototipe. Clerk tidak memakai var() di semua tempat, jadi nilai diturunkan dari tema aktif. */
+/**
+ * Warna selaras token prototipe. Clerk tidak memakai var() di semua tempat, jadi nilai diturunkan dari tema aktif.
+ * Nama variabel mengikuti Clerk >= 6 (colorForeground, colorInput, ...). Nama lama (colorText, colorInputText,
+ * colorInputBackground, colorTextSecondary) TIDAK dibaca lagi: bila hanya itu yang diisi, warna teks jatuh ke
+ * bawaan Clerk yang mengikuti mode gelap/terang OS, bukan tema aplikasi (teks putih di kartu putih).
+ */
 export function clerkAppearance(theme: "light" | "dark") {
   const d = theme === "dark";
   return {
     variables: {
       colorPrimary: d ? "#a3aeff" : "#2c3a9e",
+      colorPrimaryForeground: d ? "#10132a" : "#ffffff",
       colorBackground: d ? "#171b2b" : "#ffffff",
-      colorText: d ? "#e8eaf5" : "#161a2c",
-      colorTextSecondary: d ? "#a3a9c2" : "#545b73",
-      colorInputBackground: d ? "#171b2b" : "#ffffff",
-      colorInputText: d ? "#e8eaf5" : "#161a2c",
+      colorForeground: d ? "#e8eaf5" : "#161a2c",
+      colorMutedForeground: d ? "#a3a9c2" : "#545b73",
+      colorMuted: d ? "#20253a" : "#eceef4",
+      colorInput: d ? "#171b2b" : "#ffffff",
+      colorInputForeground: d ? "#e8eaf5" : "#161a2c",
+      colorNeutral: d ? "#e8eaf5" : "#161a2c",
+      colorBorder: d ? "#2c3249" : "#d9dce6",
+      colorRing: d ? "#a3aeff" : "#2c3a9e",
+      colorShadow: d ? "#000000" : "#161a2c",
       colorDanger: d ? "#ff8f86" : "#b3261e",
       colorSuccess: d ? "#61d08f" : "#14703a",
       borderRadius: "8px",
