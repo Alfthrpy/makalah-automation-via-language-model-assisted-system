@@ -32,7 +32,7 @@
 |---|---|---|
 | WP-1 | **Selesai di cabang `claude/epic-einstein-gthev3`** (belum di-merge) | S01 `malas/names.py` (bukan `refsearch/names.py`, agar tanpa efek samping impor); S02: referensi **tidak dipangkas bila ada `suspect`** (sitasi tak terurai), tetapi tetap dipangkas bila hanya ada `invalid` (perilaku lama, ada tesnya); S03 di `malas/apa.py` + italik lewat override `patch_xml` docxtpl (bukan `{{r ref}}`, karena RichText membuang format run template); dua penulis ditulis "A, X., & B, Y." (APA 7); tanpa tahun "t.t."; S04/S05 di `docx_converter.py`. Stats baru: `citations_suspect`, `refs_pruned_titles`. Uji nyata ke OpenAlex: `biblio` terisi dan APA benar; Crossref mengembalikan 0 hasil pada probe tunggal (belum diselidiki, bukan bagian perubahan ini). |
 | WP-2 | **Selesai** (cabang kerja) | template v3 default; loop generik Bab I/III, TOC, tanda tangan bernama, tabel (fragmen XML), `template_check.py` |
-| WP-3 | **Selesai** | `enhance/context.py`; penulis tanpa tool bila refsearch aktif; scope di API; kolom formulir web belum |
+| WP-3 | **Selesai** | `enhance/context.py`; penulis tanpa tool bila refsearch aktif; scope di API dan kolom formulir web |
 | WP-4 | **Selesai** | `enhance/lint` (20 aturan), autofix, CLI, tahap "Cek mutu" |
 | WP-5 | **Selesai** | retrieval v2 + benchmark nyata (lihat benchmark) |
 | WP-6 | **Selesai** | crewAI 1.15.44, tanpa litellm; belum diuji dengan LLM nyata |
