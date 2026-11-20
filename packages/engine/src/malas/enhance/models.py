@@ -1,17 +1,17 @@
 """Model data Enhancing Engine (docs/enhancing-engine.md §6.3). Hanya pydantic: aman diimpor dari mana saja."""
-from typing import Dict, List, Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
 Severity = Literal["blocker", "major", "minor", "info"]
 FixKind = Literal["auto", "patch", "human", "none"]
-SEVERITY_WEIGHT: Dict[str, int] = {"blocker": 8, "major": 3, "minor": 1, "info": 0}
+SEVERITY_WEIGHT: dict[str, int] = {"blocker": 8, "major": 3, "minor": 1, "info": 0}
 
 
 class Location(BaseModel):
-    bab: Optional[str] = None  # kunci Bab ("I", "II", ...)
-    subbab: Optional[str] = None  # judul sub-bab apa adanya (kunci stabil, termasuk nomor)
-    paragraph: Optional[int] = None  # indeks item konten
+    bab: str | None = None  # kunci Bab ("I", "II", ...)
+    subbab: str | None = None  # judul sub-bab apa adanya (kunci stabil, termasuk nomor)
+    paragraph: int | None = None  # indeks item konten
 
 
 class Finding(BaseModel):
@@ -25,7 +25,7 @@ class Finding(BaseModel):
     source: Literal["lint", "critic", "verifier"] = "lint"
 
 
-def score_findings(findings: List[Finding]) -> int:
+def score_findings(findings: list[Finding]) -> int:
     """Skor berbobot (blocker=8, major=3, minor=1): dasar penerimaan monoton tambalan."""
     return sum(SEVERITY_WEIGHT[f.severity] for f in findings)
 
@@ -36,8 +36,8 @@ class EvidenceCard(BaseModel):
     ref_key: str
     design: Literal["rct", "kuasi_eksperimen", "pre_post", "survei", "kualitatif", "slr", "konseptual",
                     "pengembangan_rnd", "lainnya", "tak_diketahui"] = "tak_diketahui"
-    has_control: Optional[bool] = None
-    n: Optional[int] = None
+    has_control: bool | None = None
+    n: int | None = None
     population: str = ""  # "siswa MTs", "mahasiswa", ...
     outcome: Literal["motivasi", "hasil_belajar", "persepsi", "lainnya", "tak_diketahui"] = "tak_diketahui"
     key_result: str = ""  # angka VERBATIM dari sumber
@@ -57,17 +57,17 @@ class Blueprint(BaseModel):
     """Kerangka argumen (1 panggilan planner); disimpan di Makalah.blueprint."""
 
     scope: Scope = Field(default_factory=Scope)
-    research_questions: List[str] = Field(default_factory=list)  # <=3 kalimat tanya utuh
-    rq_map: Dict[str, List[str]] = Field(default_factory=dict)  # RM -> judul sub-bab yang menjawab
-    subbab_tasks: Dict[str, str] = Field(default_factory=dict)  # judul sub-bab -> tugas argumen
-    domain_checklist: List[str] = Field(default_factory=list)  # 3-6 istilah/contoh wajib
-    avoid_repeat: List[str] = Field(default_factory=list)
+    research_questions: list[str] = Field(default_factory=list)  # <=3 kalimat tanya utuh
+    rq_map: dict[str, list[str]] = Field(default_factory=dict)  # RM -> judul sub-bab yang menjawab
+    subbab_tasks: dict[str, str] = Field(default_factory=dict)  # judul sub-bab -> tugas argumen
+    domain_checklist: list[str] = Field(default_factory=list)  # 3-6 istilah/contoh wajib
+    avoid_repeat: list[str] = Field(default_factory=list)
 
 
 class ContextPack(BaseModel):
     """Konteks penulis per sub-bab, dibangun KODE (bukan LLM)."""
 
-    outline_titles: List[str] = Field(default_factory=list)
-    rq: List[str] = Field(default_factory=list)
-    ledger: List[str] = Field(default_factory=list)  # ringkasan ekstraktif yang SUDAH dipakai
-    digest_bab2: List[str] = Field(default_factory=list)  # hanya untuk Kesimpulan
+    outline_titles: list[str] = Field(default_factory=list)
+    rq: list[str] = Field(default_factory=list)
+    ledger: list[str] = Field(default_factory=list)  # ringkasan ekstraktif yang SUDAH dipakai
+    digest_bab2: list[str] = Field(default_factory=list)  # hanya untuk Kesimpulan

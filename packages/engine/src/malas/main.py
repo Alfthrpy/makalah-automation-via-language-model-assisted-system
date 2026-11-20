@@ -25,7 +25,9 @@ from malas.citations import (
     check_citations, citation_label, content_text, prune_unused_references,
 )
 from malas.config import enhance_tier, get_llm, is_mock
-from malas.enhance.models import Blueprint, Scope
+from malas.enhance.autofix import apply_auto_fixes
+from malas.enhance.lint import LintContext, lint_report_stats, run_lints
+from malas.enhance.models import Blueprint, Scope, score_findings
 from malas.enhance.context import build_context, one_line_refs, render_context, scope_text
 from malas.crews.finishing_crew.finishing_crews import run_citation_fix, run_kata_pengantar
 from malas.crews.models.TaskOutput import Bab, Makalah, Penyusun, SubBab
@@ -455,6 +457,35 @@ class MalasFlow(Flow[Makalah]):
                        f"{dibuang} referensi tak terpakai dibuang")
 
     @listen(verify_citations)
+    def enhance_quality(self):
+        """Cek mutu deterministik (0 token): temuan lint + perbaikan otomatis yang aman. Laporan = temuan, bukan jaminan."""
+        tier = enhance_tier()
+        if tier == "off":
+            self._emit("enhance", "skipped", "dimatikan (MALAS_ENHANCE=off)")
+            return
+        with self._stage("enhance"):
+            ctx = LintContext(source="state", profile=self.state.jenis_makalah)
+            before = run_lints(self.state, tier=tier, ctx=ctx)
+            fixed, remaining, n_fix = apply_auto_fixes(self.state, ctx)
+            if n_fix:
+                for key, bab in fixed.bab.items():  # hanya isi sub-bab yang berubah; judul/kunci state tetap
+                    for sb_old, sb_new in zip(self.state.bab[key].subbab, bab.subbab):
+                        sb_old.content = sb_new.content
+            self.state.quality = remaining
+            qs = lint_report_stats(remaining)
+            qs.update(score_before=score_findings(before), auto_fixed=n_fix)
+            self.stats["quality"] = qs
+            self.stats["quality_findings"] = [
+                {"rule_id": f.rule_id, "severity": f.severity, "subbab": f.where.subbab or "", "message": f.message}
+                for f in remaining if f.severity in ("blocker", "major")][:30]
+            print(f"🧪 Cek mutu: {qs['total']} temuan ({qs['by_severity']['blocker']} blocker, "
+                  f"{qs['by_severity']['major']} major); {n_fix} perbaikan otomatis.")
+            self._emit("enhance", "info",
+                       f"{qs['total']} temuan ({qs['by_severity']['blocker']} blocker, {qs['by_severity']['major']} mayor) "
+                       f"· {n_fix} perbaikan otomatis")
+            self._save_checkpoint()
+
+    @listen(enhance_quality)
     def write_kata_pengantar(self):
         """Tulis Kata Pengantar dari data makalah."""
         with self._stage("pengantar"):

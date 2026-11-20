@@ -373,6 +373,14 @@ export interface components {
             fulltext_ok?: number | null;
             /** Fulltext Total */
             fulltext_total?: number | null;
+            /** Logo Placeholder */
+            logo_placeholder?: boolean | null;
+            /** Quality */
+            quality?: {
+                [key: string]: unknown;
+            } | null;
+            /** Quality Findings */
+            quality_findings?: components["schemas"]["QualityFinding"][] | null;
             /** Refs Final */
             refs_final?: number | null;
             /** Refs Found */
@@ -383,6 +391,29 @@ export interface components {
             refs_pruned_titles?: string[] | null;
             /** Subbab Count */
             subbab_count?: number | null;
+            /** Usage By Stage */
+            usage_by_stage?: {
+                [key: string]: {
+                    [key: string]: number;
+                };
+            } | null;
+        };
+        /** QualityFinding */
+        QualityFinding: {
+            /** Message */
+            message: string;
+            /** Rule Id */
+            rule_id: string;
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "blocker" | "major" | "minor" | "info";
+            /**
+             * Subbab
+             * @default
+             */
+            subbab: string;
         };
         /** JobStep */
         JobStep: {

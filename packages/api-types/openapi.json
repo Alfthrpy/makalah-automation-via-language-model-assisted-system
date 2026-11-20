@@ -680,6 +680,43 @@
             ],
             "title": "Fulltext Total"
           },
+          "logo_placeholder": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Logo Placeholder"
+          },
+          "quality": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quality"
+          },
+          "quality_findings": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/QualityFinding"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quality Findings"
+          },
           "refs_final": {
             "anyOf": [
               {
@@ -737,6 +774,23 @@
               }
             ],
             "title": "Subbab Count"
+          },
+          "usage_by_stage": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "additionalProperties": {
+                    "type": "integer"
+                  },
+                  "type": "object"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Usage By Stage"
           }
         },
         "title": "JobStats",
@@ -1241,6 +1295,40 @@
           "needs_model"
         ],
         "title": "ProviderInfo",
+        "type": "object"
+      },
+      "QualityFinding": {
+        "properties": {
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "rule_id": {
+            "title": "Rule Id",
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "blocker",
+              "major",
+              "minor",
+              "info"
+            ],
+            "title": "Severity",
+            "type": "string"
+          },
+          "subbab": {
+            "default": "",
+            "title": "Subbab",
+            "type": "string"
+          }
+        },
+        "required": [
+          "rule_id",
+          "severity",
+          "message"
+        ],
+        "title": "QualityFinding",
         "type": "object"
       },
       "Quota": {

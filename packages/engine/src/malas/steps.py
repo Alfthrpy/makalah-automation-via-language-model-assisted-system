@@ -7,6 +7,7 @@ STEPS = [
     ("fulltext", "Full-text referensi", "Mengunduh isi paper open-access (tanpa LLM)"),
     ("tulis", "Menulis sub-bab", "Menulis isi tiap sub-bab dengan sitasi APA"),
     ("sitasi", "Verifikasi sitasi", "Mencocokkan sitasi dengan daftar pustaka"),
+    ("enhance", "Cek mutu", "Pemeriksaan otomatis (struktur, sitasi, klaim) dan perbaikan yang aman"),
     ("pengantar", "Kata pengantar", "Menulis kata pengantar"),
     ("docx", "Membuat dokumen", "Merender ke template Word (.docx)"),
 ]

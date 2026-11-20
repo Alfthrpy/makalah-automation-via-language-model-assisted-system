@@ -7,6 +7,7 @@ export const FALLBACK_STEPS: StepInfo[] = [
   { key: "fulltext", label: "Full-text referensi", hint: "Mengunduh isi paper open-access (tanpa LLM)" },
   { key: "tulis", label: "Menulis sub-bab", hint: "Menulis isi tiap sub-bab dengan sitasi APA" },
   { key: "sitasi", label: "Verifikasi sitasi", hint: "Mencocokkan sitasi dengan daftar pustaka" },
+  { key: "enhance", label: "Cek mutu", hint: "Pemeriksaan otomatis (struktur, sitasi, klaim) dan perbaikan yang aman" },
   { key: "pengantar", label: "Kata pengantar", hint: "Menulis kata pengantar" },
   { key: "docx", label: "Membuat dokumen", hint: "Merender ke template Word (.docx)" },
 ];

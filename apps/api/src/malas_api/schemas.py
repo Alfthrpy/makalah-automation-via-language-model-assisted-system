@@ -64,6 +64,13 @@ class JobUsage(_Out):
     total: int = 0
 
 
+class QualityFinding(_Out):
+    rule_id: str
+    severity: Literal["blocker", "major", "minor", "info"]
+    subbab: str = ""
+    message: str
+
+
 class JobStats(_Out):
     subbab_count: int | None = None
     refs_found: int | None = None
@@ -76,6 +83,10 @@ class JobStats(_Out):
     refs_final: int | None = None
     refs_pruned: int | None = None
     refs_pruned_titles: list[str] | None = None  # judul referensi yang dibuang karena tak dikutip
+    quality: dict[str, Any] | None = None  # ringkasan lint (total, by_severity, by_rule, score, score_before, auto_fixed)
+    quality_findings: list[QualityFinding] | None = None  # temuan blocker/major (maks 30) untuk "Catatan mutu"
+    usage_by_stage: dict[str, dict[str, int]] | None = None  # token per tahap (taksiran untuk panggilan langsung)
+    logo_placeholder: bool | None = None  # True: sampul masih memakai penanda "LOGO"
 
 
 class Penyusun(_Out):

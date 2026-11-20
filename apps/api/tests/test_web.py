@@ -224,7 +224,7 @@ def test_ringkasan_riwayat_memuat_progres_dan_posisi_antrean(make):
             break
         time.sleep(0.02)
     assert row["mata_kuliah"] == "Kecerdasan Buatan"
-    assert row["progress"] == {"done": 1, "total": 7}
+    assert row["progress"] == {"done": 1, "total": 8}  # + tahap "enhance"
     assert row["current_detail"] == "menyusun outline"
     assert row["queue_position"] is None
 
