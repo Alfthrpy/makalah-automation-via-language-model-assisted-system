@@ -23,7 +23,7 @@ describe("halaman panduan", () => {
     at("/panduan");
     for (const g of data.guides) expect(screen.getByRole("link", { name: g.h1 })).toHaveAttribute("href", `/panduan/${g.slug}`);
     expect(document.title).toContain(data.index.title);
-    expect(document.head.querySelector('link[rel="canonical"]')).toHaveAttribute("href", "https://malas-app.netlify.app/panduan");
+    expect(document.head.querySelector('link[rel="canonical"]')).toHaveAttribute("href", "https://malas.alfthrpy.my.id/panduan");
   });
   it("artikel: h1, bagian, FAQ, judul dokumen, dan meta description", () => {
     const g = data.guides[0]!;

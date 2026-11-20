@@ -5,7 +5,7 @@
  *  - skrip build `scripts/prerender.mjs` (Node mengimpor berkas .ts langsung).
  *  Ganti SITE_URL bila domain berubah (juga di public/robots.txt dan netlify.toml). */
 
-export const SITE_URL = "https://malas-app.netlify.app";
+export const SITE_URL = "https://malas.alfthrpy.my.id";
 export const SITE_NAME = "MALAS";
 export const OG_IMAGE = `${SITE_URL}/og.png`;
 /** Tanggal ISO halaman Ketentuan/Privasi; samakan dengan LEGAL_UPDATED di features/legal/content.ts (dijaga tes). */
