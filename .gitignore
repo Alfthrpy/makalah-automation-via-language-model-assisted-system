@@ -22,3 +22,7 @@ dist/
 !packages/engine/src/malas/templates/*.docx
 ~$*
 .neon
+
+# Cloudflare Pages: folder hasil prepare.py
+deploy/cloudflare/.stage/
+.wrangler/

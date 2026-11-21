@@ -90,6 +90,8 @@ jobs:
       - run: pnpm --filter web typecheck
       - run: pnpm --filter web test
       - run: pnpm --filter web build
+      - name: Proxy Cloudflare (/api)
+        run: node --test deploy/cloudflare/proxy.test.mjs
 
   docker:
     name: Docker image
