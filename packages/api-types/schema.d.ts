@@ -99,7 +99,11 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put?: never;
+        /**
+         * Put Key
+         * @description Simpan/ganti key tanpa membuat job. Isi key tidak pernah dikembalikan.
+         */
+        put: operations["put_key_api_keys__provider__put"];
         post?: never;
         /** Delete Key */
         delete: operations["delete_key_api_keys__provider__delete"];
@@ -345,12 +349,12 @@ export interface components {
              * @default false
              */
             save_key: boolean;
-            /** Tahun */
             /**
              * Subjek
              * @default
              */
             subjek: string;
+            /** Tahun */
             tahun?: string;
             /** Template */
             template?: string | null;
@@ -408,23 +412,6 @@ export interface components {
                     [key: string]: number;
                 };
             } | null;
-        };
-        /** QualityFinding */
-        QualityFinding: {
-            /** Message */
-            message: string;
-            /** Rule Id */
-            rule_id: string;
-            /**
-             * Severity
-             * @enum {string}
-             */
-            severity: "blocker" | "major" | "minor" | "info";
-            /**
-             * Subbab
-             * @default
-             */
-            subbab: string;
         };
         /** JobStep */
         JobStep: {
@@ -503,6 +490,17 @@ export interface components {
              * @default 0
              */
             total: number;
+        };
+        /**
+         * KeyIn
+         * @description Isi PUT /api/keys/{provider}. SecretStr agar tidak ikut tercetak/ter-dump.
+         */
+        KeyIn: {
+            /**
+             * Api Key
+             * Format: password
+             */
+            api_key: string;
         };
         /** KeysOut */
         KeysOut: {
@@ -622,6 +620,23 @@ export interface components {
             models: string[];
             /** Needs Model */
             needs_model: boolean;
+        };
+        /** QualityFinding */
+        QualityFinding: {
+            /** Message */
+            message: string;
+            /** Rule Id */
+            rule_id: string;
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "blocker" | "major" | "minor" | "info";
+            /**
+             * Subbab
+             * @default
+             */
+            subbab: string;
         };
         /** Quota */
         Quota: {
@@ -868,6 +883,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["KeysOut"];
+                };
+            };
+        };
+    };
+    put_key_api_keys__provider__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KeyIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResultOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -48,6 +48,8 @@ Browser ──> Netlify (apps/web, statis)
 | `DATABASE_URL` | Secret | Neon pooled |
 | `DATABASE_URL_DIRECT` | Secret | Neon direct |
 | `MALAS_SECRET_KEY` | Secret | acak ≥ 32 karakter (`python -c "import secrets;print(secrets.token_urlsafe(48))"`). Aktifkan hanya bila fitur "simpan API key" dipakai; **jangan diganti sembarangan** (key tersimpan jadi tak terbaca; rotasi lewat `MALAS_SECRET_KEY_OLD`) |
+| `MALAS_KEY_TTL_DAYS` | Variable | key tersimpan yang tak dipakai N hari dihapus otomatis (default `90`; `0` = mati) |
+| `CLERK_WEBHOOK_SECRET` | Secret | Signing Secret webhook Clerk (`whsec_…`). Daftarkan endpoint `https://<situs-netlify>/api/webhooks/clerk` dengan event `user.deleted` agar data pengguna terhapus saat akunnya dihapus |
 | `CLERK_ISSUER` | Variable | Frontend API URL Clerk |
 | `CLERK_AUTHORIZED_PARTIES` | Variable | `https://<situs-netlify>` |
 | `MALAS_AUTH_REQUIRED` | Variable | `1` (server menolak start tanpa Clerk) |

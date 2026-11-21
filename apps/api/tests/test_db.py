@@ -340,7 +340,7 @@ def test_key_tersimpan_dipakai_job_tanpa_pernah_plaintext_di_db(managers):
         return {}
 
     m = managers(runner=runner, cipher=KeyCipher([SECRET]))
-    c = make_client(m)
+    c = make_client(m, hosted=False)
     assert c.get("/api/config").json()["key_storage"] is True
     r = c.post("/api/jobs", json={**BASE, "provider": "openrouter", "api_key": KEY, "save_key": True})
     assert r.status_code == 202 and KEY not in r.text
@@ -365,7 +365,7 @@ def test_key_tersimpan_dipakai_job_tanpa_pernah_plaintext_di_db(managers):
 
 def test_key_tersimpan_milik_pengguna_lain_tidak_terpakai(managers):
     m = managers(cipher=KeyCipher([SECRET]))
-    a, b = make_client(m), make_client(m)
+    a, b = make_client(m, hosted=False), make_client(m, hosted=False)
     assert a.post("/api/jobs", json={**BASE, "provider": "openrouter", "api_key": KEY, "save_key": True}).status_code == 202
     assert b.get("/api/keys").json()["keys"] == []
     assert b.post("/api/jobs", json={**BASE, "provider": "openrouter", "use_saved_key": True}).status_code == 422
@@ -373,7 +373,7 @@ def test_key_tersimpan_milik_pengguna_lain_tidak_terpakai(managers):
 
 def test_rahasia_server_berubah_job_gagal_ramah(managers):
     m = managers(cipher=KeyCipher([SECRET]))
-    c = make_client(m)
+    c = make_client(m, hosted=False)
     jid = c.post("/api/jobs", json={**BASE, "provider": "openrouter", "api_key": KEY, "save_key": True}).json()["id"]
     wait_for(c, jid, {"done", "error"})
     m.cipher = KeyCipher(["rahasia-berganti-yang-cukup-panjang-1111111"])
@@ -398,7 +398,7 @@ def test_lanjut_otomatis_bila_key_tersimpan(managers):
 
     cipher = KeyCipher([SECRET])
     m1 = managers(runner=runner, cipher=cipher, heartbeat_every=60)
-    c1 = make_client(m1)
+    c1 = make_client(m1, hosted=False)
     jid = c1.post("/api/jobs", json={**BASE, "provider": "openrouter", "api_key": KEY, "save_key": True}).json()["id"]
     end = time.time() + 3
     while not m1.repo.checkpoint_meta(jid):

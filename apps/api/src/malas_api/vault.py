@@ -11,8 +11,8 @@ import threading
 from typing import Dict, Optional
 
 REDACTED = "[KEY-DISEMBUNYIKAN]"
-# Pertahanan berlapis: pola bentuk key umum (sk-..., sk-or-v1-...), bila ikut bocor dari penyedia.
-_KEY_SHAPES = re.compile(r"\b(?:sk|pk|rk)-[A-Za-z0-9_\-]{12,}\b")
+# Pertahanan berlapis: pola bentuk key umum (sk-..., sk-or-v1-..., kn-...), bila ikut bocor dari penyedia.
+_KEY_SHAPES = re.compile(r"\b(?:sk|pk|rk|kn)-[A-Za-z0-9_\-]{12,}\b")
 
 
 class Vault:

@@ -18,6 +18,7 @@ import re
 import shutil
 import tempfile
 import threading
+import time
 import traceback
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -89,11 +90,12 @@ class JobManager:
                  retention_hours: Optional[float] = None, quiet: bool = False,
                  database_url: Optional[str] = None, migrate_url: Optional[str] = None, storage: Optional[Storage] = None,
                  cipher: Optional[KeyCipher] = None, stale_after: float = 90.0, heartbeat_every: float = 20.0,
-                 poll_interval: float = 0.5, auto_resume: bool = True):
+                 poll_interval: float = 0.5, auto_resume: bool = True, key_ttl_days: float = 0.0):
         """root: folder kerja sementara (+ lokasi SQLite bila database_url kosong).
         retention_hours: job selesai yang lebih tua dihapus otomatis (None = simpan).
         quiet: buang semua stdout/stderr saat job berjalan (mode hosting: tanpa jejak di log host).
-        stale_after: detik tanpa heartbeat sebelum job `running` dianggap mati."""
+        stale_after: detik tanpa heartbeat sebelum job `running` dianggap mati.
+        key_ttl_days: key tersimpan yang tak dipakai selama ini dihapus otomatis (0 = tidak pernah)."""
         self.root = Path(root)
         self.work_dir = self.root / "work"
         shutil.rmtree(self.work_dir, ignore_errors=True)  # sisa job yang proses-nya mati
@@ -109,6 +111,8 @@ class JobManager:
         self._heartbeat_every = heartbeat_every
         self._poll = poll_interval
         self._auto_resume = auto_resume
+        self._key_ttl = timedelta(days=key_ttl_days) if key_ttl_days and key_ttl_days > 0 else None
+        self._last_key_purge: Optional[float] = None
         self.vault = Vault()
         self._pending_runtime: Dict[str, Optional[Runtime]] = {}  # job_id -> kredensial sesi, hanya di memori
         self._lock = threading.Lock()
@@ -165,7 +169,8 @@ class JobManager:
             log.exception("Gagal melanjutkan otomatis job %s", job["id"])
 
     def purge(self) -> int:
-        """Hapus job selesai yang melewati masa simpan. Dipanggil lazy (tanpa thread latar)."""
+        """Hapus job selesai yang melewati masa simpan dan key tersimpan yang menganggur. Dipanggil lazy (tanpa thread latar)."""
+        self.purge_idle_keys()
         if not self._retention:
             return 0
         old = self.repo.expired(datetime.now(timezone.utc) - timedelta(hours=self._retention))
@@ -173,6 +178,32 @@ class JobManager:
             self.storage.delete(jid)
             self.repo.delete(jid)
         return len(old)
+
+    def purge_idle_keys(self, interval: float = 3600.0) -> int:
+        """Hapus key tersimpan yang tak dipakai selama TTL. Dibatasi sekali per `interval` detik per proses."""
+        if self._key_ttl is None:
+            return 0
+        now = time.monotonic()
+        if self._last_key_purge is not None and now - self._last_key_purge < interval:
+            return 0
+        self._last_key_purge = now
+        try:
+            n = self.repo.purge_idle_keys(datetime.now(timezone.utc) - self._key_ttl)
+        except Exception:  # noqa: BLE001 - pembersihan tidak boleh menggagalkan permintaan
+            log.warning("Pembersihan key menganggur gagal")
+            return 0
+        if n:
+            log.info("%d key tersimpan menganggur dihapus", n)
+        return n
+
+    def delete_user_data(self, owner: str) -> bool:
+        """Hapus pengguna dan semua datanya (mis. akun Clerk dihapus). Berkas hasil ikut dihapus dari storage."""
+        for jid in self.repo.job_ids_of(owner):
+            try:
+                self.storage.delete(jid)
+            except Exception:  # noqa: BLE001
+                log.warning("Berkas job %s gagal dihapus dari storage", jid)
+        return self.repo.delete_user(owner)
 
     # ------------------------------------------------------------------ API
     def submit(self, request: dict, mock: bool, template_path: str, template_name: str, *,
@@ -404,6 +435,10 @@ class JobManager:
             except CryptoError as e:
                 raise UserFacingError(str(e)) from e
             self.vault.put(job_id, key)  # agar ikut disaring dari log/error
+            try:
+                self.repo.touch_key(job["owner"], job["provider"])
+            except Exception:  # noqa: BLE001 - pencatatan pemakaian tidak boleh menggagalkan job
+                log.warning("Pencatatan pemakaian key gagal")
             m = job["models"] or {}
             return Runtime(job["provider"], key, m.get("planner", ""), m.get("writer", ""))
         with self._lock:
