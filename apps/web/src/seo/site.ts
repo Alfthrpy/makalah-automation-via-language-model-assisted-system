@@ -7,6 +7,8 @@
 
 export const SITE_URL = "https://malas.alfthrpy.my.id";
 export const SITE_NAME = "MALAS";
+export const BRAND_FULL = "MALAS by studiocerdas"; // nama merek lengkap (og:site_name, entitas JSON-LD)
+const STUDIO_NAME = "studiocerdas";
 export const OG_IMAGE = `${SITE_URL}/og.png`;
 /** Tanggal ISO halaman Ketentuan/Privasi; samakan dengan LEGAL_UPDATED di features/legal/content.ts (dijaga tes). */
 export const LEGAL_LASTMOD = "2026-11-20";
@@ -82,7 +84,7 @@ export function headHtml(p: PageMeta): string {
     `<link rel="canonical" href="${url}" />`,
     p.noindex ? `<meta name="robots" content="noindex,follow" />` : `<meta name="robots" content="index,follow,max-image-preview:large" />`,
     `<meta property="og:type" content="${p.ogType ?? "website"}" />`,
-    `<meta property="og:site_name" content="${SITE_NAME}" />`,
+    `<meta property="og:site_name" content="${BRAND_FULL}" />`,
     `<meta property="og:locale" content="id_ID" />`,
     `<meta property="og:title" content="${t}" />`,
     `<meta property="og:description" content="${d}" />`,
@@ -90,7 +92,7 @@ export function headHtml(p: PageMeta): string {
     `<meta property="og:image" content="${OG_IMAGE}" />`,
     `<meta property="og:image:width" content="1200" />`,
     `<meta property="og:image:height" content="630" />`,
-    `<meta property="og:image:alt" content="MALAS: Kamu mager, MALAS yang gerak. Penyusun draf makalah." />`,
+    `<meta property="og:image:alt" content="MALAS by studiocerdas: Kamu mager, MALAS yang gerak. Penyusun draf makalah." />`,
     `<meta name="twitter:card" content="summary_large_image" />`,
     `<meta name="twitter:title" content="${t}" />`,
     `<meta name="twitter:description" content="${d}" />`,
@@ -205,7 +207,7 @@ export function guideIndexBody(data: GuidesData): string {
 // --------------------------------------------------------------------------- daftar halaman + JSON-LD
 export function buildPages(input: { landing: LandingCopy; terms: LegalLike; privacy: LegalLike; legalUpdated: string; guides: GuidesData }): PageMeta[] {
   const { landing, terms, privacy, legalUpdated, guides } = input;
-  const org = { "@type": "Organization", name: SITE_NAME, url: `${SITE_URL}/` };
+  const org = { "@type": "Organization", name: BRAND_FULL, url: `${SITE_URL}/` };
   const faqLd = (faq: Faq[]) => ({
     "@context": "https://schema.org", "@type": "FAQPage",
     mainEntity: faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
@@ -215,7 +217,7 @@ export function buildPages(input: { landing: LandingCopy; terms: LegalLike; priv
       path: "/", title: LANDING_TITLE, description: LANDING_DESCRIPTION,
       jsonLd: [
         {
-          "@context": "https://schema.org", "@type": "WebApplication", name: SITE_NAME, url: `${SITE_URL}/`,
+          "@context": "https://schema.org", "@type": "WebApplication", name: SITE_NAME, url: `${SITE_URL}/`, author: { "@type": "Organization", name: STUDIO_NAME },
           description: LANDING_DESCRIPTION, inLanguage: "id", applicationCategory: "EducationalApplication",
           operatingSystem: "Web", isAccessibleForFree: true,
         },

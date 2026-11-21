@@ -265,7 +265,7 @@ function Footer() {
   return (
     <footer className="foot">
       <div className="wrap foot-in">
-        <span className="foot-brand">{L.footer.copy} <b>{t.brand.name}</b> · <span className="muted">{t.brand.full}</span></span>
+        <span className="foot-brand">{L.footer.copy} <b>{t.brand.name}</b> <span className="muted">{t.brand.by}</span> · <span className="muted">{t.brand.full}</span></span>
         <nav aria-label={L.footer.legal}>
           <a href="/panduan">Panduan</a>
           <a href="/ketentuan">{L.footer.terms}</a>

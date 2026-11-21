@@ -5,9 +5,11 @@
 export const id = {
   brand: {
     name: "MALAS",
+    by: "by studiocerdas",
+    studio: "studiocerdas",
     full: "Makalah Automation via Language-model Assisted System",
-    homeLabel: "MALAS, ke beranda",
-    dashLabel: "MALAS, ke dasbor",
+    homeLabel: "MALAS by studiocerdas, ke beranda",
+    dashLabel: "MALAS by studiocerdas, ke dasbor",
   },
   common: {
     cancel: "Batal",

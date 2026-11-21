@@ -40,7 +40,7 @@ export function PublicHeader() {
   return (
     <header className="topbar">
       <div className="wrap topbar-in">
-        <Link className="brand" to="/" aria-label={t.brand.homeLabel}><LogoMark /><b>{t.brand.name}</b></Link>
+        <Link className="brand" to="/" aria-label={t.brand.homeLabel}><LogoMark /><span className="brand-text"><b>{t.brand.name}</b><small className="brand-by">{t.brand.by}</small></span></Link>
         <nav className="nav" aria-label={t.nav.pageSections}>
           <a href="/#cara-kerja" onClick={(e) => jump(e, "cara-kerja")}>{t.nav.howItWorks}</a>
           <a href="/#privasi" onClick={(e) => jump(e, "privasi")}>{t.nav.privacy}</a>
@@ -125,7 +125,7 @@ export function AppHeader() {
   return (
     <header className="topbar">
       <div className="wrap topbar-in">
-        <Link className="brand" to="/dasbor" aria-label={t.brand.dashLabel}><LogoMark /><b>{t.brand.name}</b></Link>
+        <Link className="brand" to="/dasbor" aria-label={t.brand.dashLabel}><LogoMark /><span className="brand-text"><b>{t.brand.name}</b><small className="brand-by">{t.brand.by}</small></span></Link>
         <nav className="nav" aria-label={t.nav.main}>
           {NAV.map((n) => <NavLink key={n.to} to={n.to}><Icon name={n.icon} />{n.label}</NavLink>)}
         </nav>

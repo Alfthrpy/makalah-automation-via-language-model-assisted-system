@@ -1,4 +1,6 @@
-# Makalah Automation via Language-model Assisted System (MALAS)
+# MALAS by studiocerdas
+
+**M**akalah **A**utomation via **L**anguage-model **A**ssisted **S**ystem.
 MALAS (Makalah Automation via Language-model Assisted System) is a project designed to automate the process of writing academic papers ("makalah" in Indonesian). By leveraging a multi-agent system built with the `crewAI` framework, MALAS streamlines the entire workflow from research and content generation to final formatting. This system aims to assist users in producing well-structured and comprehensive academic documents efficiently.
 
 ## Fitur
