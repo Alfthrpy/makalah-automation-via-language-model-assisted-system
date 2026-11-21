@@ -100,7 +100,7 @@ class JobFile(Base):
 
 
 class UserApiKey(Base):
-    """API key BYOK yang SENGAJA disimpan pengguna; terenkripsi (Fernet). Tidak pernah dikembalikan lewat API."""
+    """API key BYOK yang SENGAJA disimpan pengguna; terenkripsi (AES-256-GCM v2; token lama Fernet dibaca lalu ditulis ulang). Tidak pernah dikembalikan lewat API."""
 
     __tablename__ = "user_api_keys"
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)

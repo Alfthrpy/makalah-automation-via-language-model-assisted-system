@@ -38,7 +38,7 @@ from malas_api.crypto import cipher_from_env
 from malas_api.db import database_url_from_env, migrate_url_from_env
 from malas_api.jobs import ID_RE, JobManager
 from malas_api.schemas import ConfigOut, JobOut, JobSummary, KeysOut, LogoOut, MeOut, ResultOut
-from malas_api import webhooks
+from malas_api import keycheck, webhooks
 from malas_api.storage import storage_from_env
 
 TEMPLATE_DIR = paths.TEMPLATES_DIR
@@ -80,6 +80,15 @@ def list_templates() -> List[str]:
 class PenyusunIn(BaseModel):
     nama: Str(100, 1)
     nim: Str(30) = ""
+
+
+def _reject_if_invalid(provider_id: str, key: str) -> str:
+    """Tolak key yang jelas salah (401 dari penyedia) sebelum disimpan. Mengembalikan hasil: valid|unknown."""
+    result = keycheck.check(provider_id, key)
+    if result == "invalid":
+        raise HTTPException(422, detail=[{"loc": ["body", "api_key"], "type": "key_rejected",
+                                          "msg": "API key ditolak penyedia (salah atau sudah dicabut). Periksa lagi key Anda."}])
+    return result
 
 
 def _clean_key(v):
@@ -380,6 +389,7 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
             data = resume_job["request"]
         try:
             if to_save:  # setelah semua pemeriksaan lolos: permintaan yang ditolak (429, dsb.) tidak menyimpan apa pun
+                _reject_if_invalid(*to_save)  # (kuota dikembalikan oleh handler di bawah bila ditolak)
                 mgr.save_user_key(owner, *to_save)
             job = mgr.submit(data, req.mock, str(TEMPLATE_DIR / name), name, owner=owner, runtime=runtime,
                              resume_from=resume_job["id"] if resume_job else None,
@@ -492,8 +502,10 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
             raise HTTPException(404, "Penyedia tidak tersedia")
         if not key_storage_ok():
             raise HTTPException(409, "Penyimpanan API key tidak aktif di server ini.")
-        mgr.save_user_key(request.state.owner, prov.id, body.api_key.get_secret_value())
-        return {"result": "saved"}
+        key = body.api_key.get_secret_value()
+        verified = _reject_if_invalid(prov.id, key)
+        mgr.save_user_key(request.state.owner, prov.id, key)
+        return {"result": "saved" if verified == "valid" else "saved_unverified"}
 
     @app.post("/api/webhooks/clerk", include_in_schema=False)
     async def clerk_webhook(request: Request) -> dict:

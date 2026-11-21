@@ -24,6 +24,7 @@ def _database(monkeypatch):
     for var in ("CLERK_ISSUER", "CLERK_JWKS_URL", "CLERK_AUTHORIZED_PARTIES", "MALAS_AUTH_REQUIRED", "MALAS_DAILY_QUOTA",
                 "DATABASE_URL", "DATABASE_URL_DIRECT", "MALAS_SECRET_KEY"):
         monkeypatch.delenv(var, raising=False)  # lingkungan pengembang tidak boleh mengubah hasil tes
+    monkeypatch.setenv("MALAS_KEY_VERIFY", "0")  # tes tidak boleh memanggil penyedia sungguhan
     if PG_URL:
         reset_postgres(PG_URL)
         monkeypatch.setattr(jobsmod, "default_database_url", lambda root: PG_URL)

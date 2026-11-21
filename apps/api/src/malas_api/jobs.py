@@ -7,7 +7,7 @@
   (proses mati) ditandai `interrupted` dan, bila key tersimpan, otomatis dilanjutkan dari checkpoint.
 - API key pengguna (BYOK) TIDAK PERNAH masuk job dict / database dalam bentuk polos. Dua jalur:
     session  key hanya di `Vault` (memori), dibuang pada semua jalur akhir.
-    saved    pengguna memilih menyimpan: terenkripsi (Fernet) di tabel `user_api_keys`; didekripsi hanya
+    saved    pengguna memilih menyimpan: terenkripsi (AES-256-GCM, AAD pemilik+penyedia) di tabel `user_api_keys`; didekripsi hanya
              saat job mulai, lalu masuk Vault (agar ikut disaring dari log/error).
 - Setiap job punya pemilik (id eksternal); job orang lain tidak terlihat.
 - `runner` bisa disuntik, jadi API dapat diuji tanpa menjalankan CrewAI.
@@ -23,7 +23,7 @@ import traceback
 import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Callable, Dict, List, Optional
+from typing import Callable, Dict, List, Optional, Tuple
 
 from malas import checkpoint
 from malas.config import Runtime
@@ -180,21 +180,62 @@ class JobManager:
         return len(old)
 
     def purge_idle_keys(self, interval: float = 3600.0) -> int:
-        """Hapus key tersimpan yang tak dipakai selama TTL. Dibatasi sekali per `interval` detik per proses."""
-        if self._key_ttl is None:
+        """Pemeliharaan key tersimpan: hapus yang menganggur selama TTL, lalu tulis ulang yang masih format/kunci lama.
+        Dibatasi sekali per `interval` detik per proses. Mengembalikan jumlah key yang dihapus."""
+        if self._key_ttl is None and self.cipher is None:
             return 0
         now = time.monotonic()
         if self._last_key_purge is not None and now - self._last_key_purge < interval:
             return 0
         self._last_key_purge = now
+        n = 0
+        if self._key_ttl is not None:
+            try:
+                n = self.repo.purge_idle_keys(datetime.now(timezone.utc) - self._key_ttl)
+            except Exception:  # noqa: BLE001 - pemeliharaan tidak boleh menggagalkan permintaan
+                log.warning("Pembersihan key menganggur gagal")
+            if n:
+                log.info("%d key tersimpan menganggur dihapus", n)
         try:
-            n = self.repo.purge_idle_keys(datetime.now(timezone.utc) - self._key_ttl)
-        except Exception:  # noqa: BLE001 - pembersihan tidak boleh menggagalkan permintaan
-            log.warning("Pembersihan key menganggur gagal")
-            return 0
-        if n:
-            log.info("%d key tersimpan menganggur dihapus", n)
+            self.rekey_keys()
+        except Exception:  # noqa: BLE001
+            log.warning("Penulisan ulang key gagal")
         return n
+
+    @staticmethod
+    def _aad(owner: str, provider: str) -> bytes:
+        """Data terautentikasi: mengikat ciphertext ke (pemilik, penyedia). Panjang di depan agar tak ambigu."""
+        return f"malas-key|{len(owner)}:{owner}|{provider}".encode()
+
+    def keys_needing_rekey(self) -> int:
+        """Jumlah key tersimpan yang belum memakai format v2 dengan kunci utama. 0 = rahasia lama aman dibuang."""
+        return self.repo.count_keys_to_rekey(self.cipher.current_prefix) if self.cipher else 0
+
+    def rekey_keys(self, batch: int = 500) -> Tuple[int, int]:
+        """Tulis ulang key lama (Fernet / kunci lama) ke AES-GCM v2 dengan kunci utama + AAD. (berhasil, gagal)."""
+        if not self.cipher:
+            return 0, 0
+        ok = bad = 0
+        while True:
+            rows = self.repo.keys_to_rekey(self.cipher.current_prefix, batch)
+            if not rows:
+                break
+            progressed = False
+            for owner, provider, token in rows:
+                try:
+                    new = self.cipher.encrypt(self.cipher.decrypt(token, self._aad(owner, provider)), self._aad(owner, provider))
+                    if self.repo.swap_key_ciphertext(owner, provider, token, new):
+                        ok += 1
+                        progressed = True
+                except CryptoError:
+                    bad += 1  # tak terbaca (rahasia hilang/diganti); biarkan, jangan merusak
+                except Exception:  # noqa: BLE001
+                    bad += 1
+            if not progressed or len(rows) < batch:
+                break
+        if ok or bad:
+            log.info("Key dire-enkripsi: %d berhasil, %d gagal, sisa %d", ok, bad, self.keys_needing_rekey())
+        return ok, bad
 
     def delete_user_data(self, owner: str) -> bool:
         """Hapus pengguna dan semua datanya (mis. akun Clerk dihapus). Berkas hasil ikut dihapus dari storage."""
@@ -317,7 +358,7 @@ class JobManager:
     def save_user_key(self, owner: str, provider: str, key: str) -> None:
         if not self.cipher:
             raise RuntimeError("Penyimpanan key tidak aktif di server ini")
-        self.repo.save_key(owner, provider, self.cipher.encrypt(key))
+        self.repo.save_key(owner, provider, self.cipher.encrypt(key, self._aad(owner, provider)))
 
     def has_user_key(self, owner: str, provider: str) -> bool:
         return self.repo.get_key(owner, provider) is not None
@@ -431,9 +472,15 @@ class JobManager:
             if not enc or not self.cipher:
                 raise UserFacingError("Key tersimpan tidak ditemukan. Masukkan API key lagi.")
             try:
-                key = self.cipher.decrypt(enc)
+                aad = self._aad(job["owner"], job["provider"])
+                key = self.cipher.decrypt(enc, aad)
             except CryptoError as e:
                 raise UserFacingError(str(e)) from e
+            if self.cipher.needs_rekey(enc):  # format/kunci lama: tulis ulang sekarang (compare-and-swap)
+                try:
+                    self.repo.swap_key_ciphertext(job["owner"], job["provider"], enc, self.cipher.encrypt(key, aad))
+                except Exception:  # noqa: BLE001
+                    log.warning("Penulisan ulang key gagal")
             self.vault.put(job_id, key)  # agar ikut disaring dari log/error
             try:
                 self.repo.touch_key(job["owner"], job["provider"])

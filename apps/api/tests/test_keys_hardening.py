@@ -111,7 +111,7 @@ def test_hosting_dengan_clerk_boleh_menyimpan(make):
     m = make()
     c = web(m, hosted=True, auth=authn(), tok=token("user_a"))
     assert c.get("/api/config").json()["key_storage"] is True
-    assert c.put("/api/keys/openrouter", json={"api_key": KEY}).json() == {"result": "saved"}
+    assert c.put("/api/keys/openrouter", json={"api_key": KEY}).json() == {"result": "saved_unverified"}  # verifikasi mati di tes
 
 
 def test_lokal_anonim_tetap_boleh(make):

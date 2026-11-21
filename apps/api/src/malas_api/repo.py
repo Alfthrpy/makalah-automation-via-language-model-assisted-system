@@ -249,6 +249,29 @@ class Repo:
         with self.db.session.begin() as s:
             return s.execute(delete(UserApiKey).where(UserApiKey.user_id == uid, UserApiKey.provider == provider)).rowcount > 0
 
+    def keys_to_rekey(self, current_prefix: str, limit: int = 500) -> List[Tuple[str, str, str]]:
+        """(owner, provider, ciphertext) yang belum memakai format/kunci utama saat ini."""
+        with self.db.session() as s:
+            rows = s.execute(select(User.external_id, UserApiKey.provider, UserApiKey.ciphertext)
+                             .join(User, User.id == UserApiKey.user_id)
+                             .where(~UserApiKey.ciphertext.startswith(current_prefix, autoescape=True)).limit(limit))
+            return [(r[0], r[1], r[2]) for r in rows]
+
+    def count_keys_to_rekey(self, current_prefix: str) -> int:
+        with self.db.session() as s:
+            return s.scalar(select(func.count()).select_from(UserApiKey)
+                            .where(~UserApiKey.ciphertext.startswith(current_prefix, autoescape=True))) or 0
+
+    def swap_key_ciphertext(self, owner: str, provider: str, old: str, new: str) -> bool:
+        """Ganti ciphertext hanya bila masih `old` (aman terhadap penulisan bersamaan oleh proses lain)."""
+        uid = self.user_id(owner)
+        if not uid:
+            return False
+        with self.db.session.begin() as s:
+            return s.execute(update(UserApiKey).where(UserApiKey.user_id == uid, UserApiKey.provider == provider,
+                                                      UserApiKey.ciphertext == old)
+                             .values(ciphertext=new)).rowcount > 0
+
     def touch_key(self, owner: str, provider: str) -> None:
         """Catat pemakaian (dasar kedaluwarsa key menganggur)."""
         uid = self.user_id(owner)
