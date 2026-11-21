@@ -1,0 +1,57 @@
+name: Deploy web ke Cloudflare Pages
+
+# Butuh secret repo CLOUDFLARE_API_TOKEN (izin: Account > Cloudflare Pages > Edit). Tanpa itu, job dilewati.
+# Dijalankan manual atau tiap push ke main yang mengubah web. Jalur Netlify (deploy/netlify) tetap ada.
+# Kunci publik Clerk (pk_...) bukan rahasia; bisa ditimpa lewat variable repo VITE_CLERK_PUBLISHABLE_KEY.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["apps/web/**", "netlify.toml", "deploy/cloudflare/**", "packages/api-types/**"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-cloudflare
+  cancel-in-progress: false
+
+env:
+  CLOUDFLARE_ACCOUNT_ID: 06d1ef1eefde39ac9bb79e459c54670e  # ID akun bukan rahasia (terlihat di URL dashboard)
+  PROJECT: malas-app
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - name: Cek secret
+        id: gate
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Secret CLOUDFLARE_API_TOKEN belum diisi; deploy dilewati."
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.ok == 'true'
+      - uses: pnpm/action-setup@v4
+        if: steps.gate.outputs.ok == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.gate.outputs.ok == 'true'
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+        if: steps.gate.outputs.ok == 'true'
+      - name: Build web
+        if: steps.gate.outputs.ok == 'true'
+        env:
+          VITE_AUTH_MODE: clerk
+          VITE_CLERK_PUBLISHABLE_KEY: ${{ vars.VITE_CLERK_PUBLISHABLE_KEY || 'pk_test_bW9yYWwtY2FtZWwtMzcxOS5jbGVyay5hY2NvdW50cy5kZXYk' }}
+        run: pnpm --filter web build
+      - name: Deploy
+        if: steps.gate.outputs.ok == 'true'
+        run: python3 deploy/cloudflare/deploy.py --project "$PROJECT" --branch main

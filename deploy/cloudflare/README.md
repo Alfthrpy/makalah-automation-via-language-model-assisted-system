@@ -21,6 +21,13 @@ CLOUDFLARE_API_TOKEN=... CLOUDFLARE_ACCOUNT_ID=... python3 deploy/cloudflare/dep
 Token API (Cloudflare > My Profile > API Tokens): izin **Account > Cloudflare Pages > Edit** (dan **Zone > DNS > Edit**
 bila DNS ingin diatur lewat API). Project dibuat sekali: `npx wrangler@4 pages project create malas-app --production-branch main`.
 
+## Deploy otomatis (GitHub Actions)
+
+`.github/workflows/deploy-cloudflare.yml` membangun dan men-deploy web (manual, atau tiap push ke `main` yang mengubah web).
+Satu-satunya yang perlu diisi: secret repo **`CLOUDFLARE_API_TOKEN`** (GitHub > Settings > Secrets and variables > Actions).
+Tanpa secret itu job dilewati, bukan gagal. ID akun ada di workflow (bukan rahasia). Deploy dari sandbox yang memaksa
+proxy kredensial tidak bisa dipakai: langkah upload aset wrangler memakai JWT sendiri di header `Authorization`.
+
 ## Domain `malas.alfthrpy.my.id`
 
 DNS `alfthrpy.my.id` ada di Cloudflare. Di project Pages: *Custom domains* > tambahkan `malas.alfthrpy.my.id`; Cloudflare
