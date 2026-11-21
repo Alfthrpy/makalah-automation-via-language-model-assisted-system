@@ -309,7 +309,7 @@ export const id = {
       kenariPrefix: "Key Kenari selalu diawali kn-.",
       saveKey: "Simpan key saya (terenkripsi)",
       saveKeyHint:
-        "Supaya job yang terputus bisa dilanjutkan otomatis. Key dienkripsi di server, tidak pernah ditampilkan lagi, dan bisa dihapus di Pengaturan. Bila tidak dicentang, key hanya ada di memori selama job berjalan.",
+        "Supaya job yang terputus bisa dilanjutkan otomatis. Key dienkripsi di server, tidak pernah ditampilkan lagi, bisa dihapus di Pengaturan, dan terhapus otomatis bila 90 hari tidak dipakai. Bila tidak dicentang, key hanya ada di memori selama job berjalan.",
       modelPlanner: "Model riset dan outline",
       modelWriter: "Model penulis",
       plannerHintDefault: (m: string) => `Kosongkan untuk memakai saran: ${m}.`,

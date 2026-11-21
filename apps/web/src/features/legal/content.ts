@@ -173,7 +173,7 @@ export const PRIVACY: LegalDoc = {
       blocks: [
         [
           "Key dikirim lewat HTTPS saat kamu membuat makalah, hanya disimpan di memori server selama prosesnya, dan dibuang setelah makalah selesai, gagal, atau dibatalkan. Key tidak ditulis ke disk atau log, dan dibersihkan dari pesan error.",
-          "Penyimpanan key bersifat opsional dan hanya berlaku bila fitur itu aktif di layanan dan kamu memilihnya. Key disimpan terenkripsi, tidak pernah ditampilkan kembali, dan bisa kamu hapus kapan saja di Pengaturan.",
+          "Penyimpanan key bersifat opsional dan hanya berlaku bila fitur itu aktif di layanan dan kamu memilihnya. Key disimpan terenkripsi, tidak pernah ditampilkan kembali, dan bisa kamu hapus kapan saja di Pengaturan. Key yang tidak dipakai selama 90 hari dihapus otomatis, dan menghapus akunmu juga menghapus key tersimpan.",
         ],
         "Batas yang jujur: kami tidak bisa menjamin string terhapus seketika dari memori. Karena itu pakai key khusus dengan batas kredit kecil dan cabut setelah selesai.",
       ],

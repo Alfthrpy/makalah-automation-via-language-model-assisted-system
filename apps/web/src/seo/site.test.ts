@@ -158,3 +158,21 @@ describe("guides.json (isi panduan)", () => {
     expect(html).toContain(`/panduan/${g.related[0]}`);
   });
 });
+
+describe("berkas statis SEO", () => {
+  it("index.html: satu meta description saja (di dalam blok seo)", async () => {
+    const { readFileSync } = await import("node:fs");
+    const html = readFileSync("index.html", "utf8");
+    const start = html.indexOf("<!--seo:start-->");
+    const end = html.indexOf("<!--seo:end-->");
+    expect(html.match(/name="description"/g)?.length).toBe(1);
+    expect(html.slice(0, start)).not.toContain('name="description"');
+    expect(html.slice(start, end)).toContain('name="description"');
+  });
+
+  it("robots.txt tidak melarang halaman yang memakai noindex (crawler harus bisa membaca noindex)", async () => {
+    const { readFileSync } = await import("node:fs");
+    const robots = readFileSync("public/robots.txt", "utf8");
+    expect(robots).not.toMatch(/Disallow:\s*\/(masuk|daftar)/);
+  });
+});

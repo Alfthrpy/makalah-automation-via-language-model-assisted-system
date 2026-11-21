@@ -1005,6 +1005,22 @@
         "title": "JobUsage",
         "type": "object"
       },
+      "KeyIn": {
+        "description": "Isi PUT /api/keys/{provider}. SecretStr agar tidak ikut tercetak/ter-dump.",
+        "properties": {
+          "api_key": {
+            "format": "password",
+            "title": "Api Key",
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "api_key"
+        ],
+        "title": "KeyIn",
+        "type": "object"
+      },
       "KeysOut": {
         "properties": {
           "enabled": {
@@ -1755,6 +1771,54 @@
           }
         },
         "summary": "Delete Key"
+      },
+      "put": {
+        "description": "Simpan/ganti key tanpa membuat job. Isi key tidak pernah dikembalikan.",
+        "operationId": "put_key_api_keys__provider__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "provider",
+            "required": true,
+            "schema": {
+              "title": "Provider",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KeyIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Put Key"
       }
     },
     "/api/logo": {

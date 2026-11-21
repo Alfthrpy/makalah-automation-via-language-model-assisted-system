@@ -100,7 +100,7 @@ class JobFile(Base):
 
 
 class UserApiKey(Base):
-    """API key BYOK yang SENGAJA disimpan pengguna; terenkripsi (Fernet). Tidak pernah dikembalikan lewat API."""
+    """API key BYOK yang SENGAJA disimpan pengguna; terenkripsi (AES-256-GCM v2; token lama Fernet dibaca lalu ditulis ulang). Tidak pernah dikembalikan lewat API."""
 
     __tablename__ = "user_api_keys"
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
@@ -108,6 +108,7 @@ class UserApiKey(Base):
     ciphertext: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(UtcDateTime, default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(UtcDateTime, default=utcnow)
+    last_used_at: Mapped[Optional[datetime]] = mapped_column(UtcDateTime, nullable=True)  # dasar kedaluwarsa key menganggur
 
 
 class UserLogo(Base):

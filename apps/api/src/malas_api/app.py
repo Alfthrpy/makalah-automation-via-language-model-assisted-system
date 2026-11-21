@@ -11,6 +11,7 @@ Env: MALAS_WEB_HOST, MALAS_WEB_PORT, MALAS_OUTPUT_DIR, MALAS_WEB_ALLOWED_HOSTS (
      MALAS_WEB_REQUIRE_KEY, MALAS_WEB_RETENTION_HOURS (default 6 di mode hosting), MALAS_WEB_MAX_QUEUE.
 """
 import hashlib
+import json
 import os
 import re
 import secrets
@@ -37,6 +38,7 @@ from malas_api.crypto import cipher_from_env
 from malas_api.db import database_url_from_env, migrate_url_from_env
 from malas_api.jobs import ID_RE, JobManager
 from malas_api.schemas import ConfigOut, JobOut, JobSummary, KeysOut, LogoOut, MeOut, ResultOut
+from malas_api import keycheck, webhooks
 from malas_api.storage import storage_from_env
 
 TEMPLATE_DIR = paths.TEMPLATES_DIR
@@ -49,7 +51,8 @@ MODEL_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/\-]{0,99}$")
 MAX_BODY = 100_000
 MAX_LOGO_UPLOAD = 300_000  # sama dengan malas.logo.MAX_INPUT_BYTES
 DEFAULT_RETENTION_HOURS = 48.0  # riwayat/berkas dihapus N jam setelah selesai (mode hosting); ubah di teks hukum juga
-PUBLIC_API = {"/api/config"}  # boleh diakses tanpa login (UI perlu tahu mode auth)
+PUBLIC_API = {"/api/config", "/api/webhooks/clerk"}  # tanpa login (UI perlu tahu mode auth; webhook memakai tanda tangan Svix)
+MAX_KEY_BODY = 2_000  # PUT /api/keys/{provider}: hanya satu key
 
 Str = lambda mx, mn=0: Annotated[str, StringConstraints(strip_whitespace=True, min_length=mn, max_length=mx)]  # noqa: E731
 
@@ -77,6 +80,36 @@ def list_templates() -> List[str]:
 class PenyusunIn(BaseModel):
     nama: Str(100, 1)
     nim: Str(30) = ""
+
+
+def _reject_if_invalid(provider_id: str, key: str) -> str:
+    """Tolak key yang jelas salah (401 dari penyedia) sebelum disimpan. Mengembalikan hasil: valid|unknown."""
+    result = keycheck.check(provider_id, key)
+    if result == "invalid":
+        raise HTTPException(422, detail=[{"loc": ["body", "api_key"], "type": "key_rejected",
+                                          "msg": "API key ditolak penyedia (salah atau sudah dicabut). Periksa lagi key Anda."}])
+    return result
+
+
+def _clean_key(v):
+    if v is None or (isinstance(v, str) and not v.strip()):
+        return None
+    if not isinstance(v, str) or not KEY_RE.match(v.strip()):
+        raise PydanticCustomError("key_format", "Format API key tidak valid (8–300 karakter, tanpa spasi).")
+    return v.strip()
+
+
+class KeyIn(BaseModel):
+    """Isi PUT /api/keys/{provider}. SecretStr agar tidak ikut tercetak/ter-dump."""
+    api_key: SecretStr
+
+    @field_validator("api_key", mode="before")
+    @classmethod
+    def _cek_key(cls, v):
+        key = _clean_key(v)
+        if key is None:
+            raise PydanticCustomError("key_format", "Format API key tidak valid (8–300 karakter, tanpa spasi).")
+        return key
 
 
 class JobRequest(BaseModel):
@@ -123,11 +156,7 @@ class JobRequest(BaseModel):
     @field_validator("api_key", mode="before")
     @classmethod
     def _cek_key(cls, v):
-        if v is None or (isinstance(v, str) and not v.strip()):
-            return None
-        if not isinstance(v, str) or not KEY_RE.match(v.strip()):
-            raise PydanticCustomError("key_format", "Format API key tidak valid (8–300 karakter, tanpa spasi).")
-        return v.strip()
+        return _clean_key(v)
 
     @field_validator("model_planner", "model_writer", mode="before")
     @classmethod
@@ -190,9 +219,11 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
             database_url=database_url_from_env(),
             migrate_url=migrate_url_from_env(),
             cipher=cipher_from_env(),
+            key_ttl_days=float(os.getenv("MALAS_KEY_TTL_DAYS", "90") or 0),  # key tersimpan menganggur dihapus; 0 = mati
             storage=storage_from_env(),  # R2 bila R2_* diisi, selain itu bytea di database
         )
     mgr = manager
+    webhook_secret = webhooks.secret_from_env(os.environ)  # gagal cepat bila format salah
     max_queue = int(os.getenv("MALAS_WEB_MAX_QUEUE", "5"))
 
     app = FastAPI(title="MALAS", docs_url=None, redoc_url=None, openapi_url=None)
@@ -226,7 +257,9 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
                 sid = secrets.token_urlsafe(32)
             request.state.owner = hashlib.sha256(sid.encode()).hexdigest()
 
-        if request.method == "POST" and int(request.headers.get("content-length") or 0) > MAX_BODY:
+        clen = int(request.headers.get("content-length") or 0)
+        if (request.method == "POST" and clen > MAX_BODY) or (
+                request.method == "PUT" and request.url.path.startswith("/api/keys/") and clen > MAX_KEY_BODY):
             return JSONResponse({"detail": "Permintaan terlalu besar."}, status_code=413)
 
         resp: Response = await call_next(request)
@@ -243,6 +276,11 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
         if path.startswith("/api/"):
             resp.headers["Cache-Control"] = "no-store"
         return resp
+
+    def key_storage_ok() -> bool:
+        """Simpan key hanya bila ada rahasia server DAN pemilik stabil: login Clerk, atau server lokal (bukan hosting).
+        Mode hosting tanpa login memakai cookie acak sebagai pemilik; key tersimpan akan yatim dan terikat ke cookie."""
+        return mgr.key_storage_enabled and (auth is not None or not hosted)
 
     def _own_job(job_id: str, request: Request) -> dict:
         job = mgr.get(job_id)
@@ -280,7 +318,7 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
             "active_job": mgr.active_job(request.state.owner) if request.state.owner else None,
             "auth": {"mode": "clerk" if auth else "anonymous", "required": auth is not None},
             "daily_quota": daily_quota or None,
-            "key_storage": mgr.key_storage_enabled,
+            "key_storage": key_storage_ok(),
             "retention_hours": mgr.retention_hours,
             "year": datetime.now().year,
             "enhance_max": config.enhance_max(),
@@ -304,6 +342,7 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
             raise HTTPException(422, detail=[{"loc": ["body", "use_logo"], "type": "missing", "msg": "Belum ada logo tersimpan"}])
 
         runtime = None
+        to_save = None
         key_source = provider_id = models = None
         if not req.mock:
             if req.api_key is not None or req.use_saved_key:
@@ -319,10 +358,10 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
                 if req.api_key is not None and not req.save_key:
                     runtime = config.Runtime(prov.id, req.api_key.get_secret_value(), planner, writer)
                 else:  # key tersimpan (terenkripsi) dipakai job
-                    if not mgr.key_storage_enabled:
+                    if not key_storage_ok():
                         raise HTTPException(409, "Penyimpanan API key tidak aktif di server ini.")
                     if req.api_key is not None:
-                        mgr.save_user_key(owner, prov.id, req.api_key.get_secret_value())
+                        to_save = (prov.id, req.api_key.get_secret_value())  # disimpan setelah kuota/antrean lolos
                     elif not mgr.has_user_key(owner, prov.id):
                         raise HTTPException(422, detail=[{"loc": ["body", "api_key"], "type": "missing", "msg": "Belum ada API key tersimpan untuk penyedia ini"}])
                     key_source = "saved"
@@ -349,6 +388,9 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
         if resume_job:  # data makalah harus sama dengan job asal agar checkpoint (outline/referensi) tetap cocok
             data = resume_job["request"]
         try:
+            if to_save:  # setelah semua pemeriksaan lolos: permintaan yang ditolak (429, dsb.) tidak menyimpan apa pun
+                _reject_if_invalid(*to_save)  # (kuota dikembalikan oleh handler di bawah bila ditolak)
+                mgr.save_user_key(owner, *to_save)
             job = mgr.submit(data, req.mock, str(TEMPLATE_DIR / name), name, owner=owner, runtime=runtime,
                              resume_from=resume_job["id"] if resume_job else None,
                              key_source=key_source, provider=provider_id, models=models, quota_day=consumed_day,
@@ -444,13 +486,46 @@ def create_app(manager: Optional[JobManager] = None, allowed_hosts: Optional[Lis
     # ---- API key tersimpan (opsi 3b): hanya daftar penyedia; nilai key TIDAK PERNAH dikembalikan
     @app.get("/api/keys", response_model=KeysOut)
     def list_keys(request: Request) -> dict:
-        return {"enabled": mgr.key_storage_enabled, "keys": mgr.list_user_keys(request.state.owner)}
+        return {"enabled": key_storage_ok(), "keys": mgr.list_user_keys(request.state.owner) if key_storage_ok() else []}
 
     @app.delete("/api/keys/{provider}", response_model=ResultOut)
     def delete_key(provider: str, request: Request) -> dict:
         if get_provider(provider) is None or not mgr.delete_user_key(request.state.owner, provider):
             raise HTTPException(404, "Key tersimpan tidak ditemukan")
         return {"result": "deleted"}
+
+    @app.put("/api/keys/{provider}", response_model=ResultOut)
+    def put_key(provider: str, body: KeyIn, request: Request) -> dict:
+        """Simpan/ganti key tanpa membuat job. Isi key tidak pernah dikembalikan."""
+        prov = get_provider(provider)
+        if prov is None or not prov.enabled:
+            raise HTTPException(404, "Penyedia tidak tersedia")
+        if not key_storage_ok():
+            raise HTTPException(409, "Penyimpanan API key tidak aktif di server ini.")
+        key = body.api_key.get_secret_value()
+        verified = _reject_if_invalid(prov.id, key)
+        mgr.save_user_key(request.state.owner, prov.id, key)
+        return {"result": "saved" if verified == "valid" else "saved_unverified"}
+
+    @app.post("/api/webhooks/clerk", include_in_schema=False)
+    async def clerk_webhook(request: Request) -> dict:
+        """Clerk `user.deleted` -> hapus semua data pengguna itu (job, berkas, key tersimpan, logo)."""
+        if webhook_secret is None:
+            raise HTTPException(404, "Not Found")
+        body = await request.body()
+        try:
+            webhooks.verify(webhook_secret, request.headers, body)
+        except webhooks.WebhookError:
+            raise HTTPException(400, "Tanda tangan tidak valid") from None
+        try:
+            event = json.loads(body)
+        except ValueError:
+            raise HTTPException(400, "Isi tidak valid") from None
+        data = event.get("data") if isinstance(event, dict) else None
+        uid = data.get("id") if isinstance(data, dict) else None
+        if isinstance(event, dict) and event.get("type") == "user.deleted" and isinstance(uid, str) and uid:
+            await run_in_threadpool(mgr.delete_user_data, uid)
+        return {"result": "ok"}
 
     return app
 

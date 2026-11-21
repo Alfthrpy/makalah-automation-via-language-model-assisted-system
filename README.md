@@ -90,10 +90,17 @@ restart/tidurnya host. Disk hanya dipakai sebagai folder kerja sementara. Detail
 - Skema dikelola Alembic dan dimigrasi otomatis saat server naik (aman dijalankan dua instance sekaligus).
 - Antrean = tabel `jobs`; pekerja mengambil job dengan claim atomik (`FOR UPDATE SKIP LOCKED` di Postgres) dan mengirim
   heartbeat. Job `running` yang heartbeat-nya basi (proses mati) ditandai **Terhenti** dan bisa dilanjutkan dari checkpoint.
-- **API key tersimpan (opsional, atas pilihan pengguna)**: kirim `save_key: true` bersama `api_key`; key dienkripsi (Fernet)
-  dan hanya didekripsi saat job jalan. Job berikutnya cukup `use_saved_key: true`. Dengan key tersimpan, job yang terputus
+- **API key tersimpan (opsional, atas pilihan pengguna)**: kirim `save_key: true` bersama `api_key`; key dienkripsi (AES-256-GCM; AAD = pemilik+penyedia,
+  sehingga ciphertext yang disalin ke pengguna lain tidak bisa dibuka) dan hanya didekripsi saat job jalan. Job berikutnya cukup `use_saved_key: true`. Dengan key tersimpan, job yang terputus
   **dilanjutkan otomatis** dari checkpoint sekali. `GET /api/keys` hanya menampilkan daftar penyedia (nilai key tidak pernah
-  dikembalikan); `DELETE /api/keys/{provider}` menghapus. Tanpa memilih menyimpan, key tetap hanya di memori selama job.
+  dikembalikan); `PUT /api/keys/{provider}` (`{"api_key": …}`) menyimpan/mengganti tanpa membuat job; `DELETE /api/keys/{provider}` menghapus. Tanpa memilih menyimpan, key tetap hanya di memori selama job.
+  Penyimpanan key hanya aktif bila login Clerk aktif (atau server lokal, bukan mode hosting): pemiliknya harus identitas stabil,
+  bukan cookie acak. Key yang tak dipakai `MALAS_KEY_TTL_DAYS` hari (default 90) dihapus otomatis; webhook Clerk `user.deleted`
+  (`CLERK_WEBHOOK_SECRET`, `POST /api/webhooks/clerk`) menghapus semua data pengguna yang akunnya dihapus.
+  Key dicek ke penyedia sebelum disimpan (hanya HTTP 401 yang menolak; gangguan jaringan tidak menghalangi; `MALAS_KEY_VERIFY=0` mematikan).
+  **Rotasi rahasia**: pasang rahasia baru di `MALAS_SECRET_KEY` dan yang lama di `MALAS_SECRET_KEY_OLD`, deploy; baris ditulis ulang
+  otomatis (saat dipakai dan berkala tiap jam; log `Key dire-enkripsi … sisa N`). Bila sisa = 0, `MALAS_SECRET_KEY_OLD` aman dibuang.
+  Token format lama (Fernet) tetap terbaca dan ikut ditulis ulang.
 - Tes: `uv run pytest` (SQLite). Untuk Postgres: `MALAS_TEST_DATABASE_URL=postgresql://… uv run pytest apps/api`
   (database itu **dikosongkan** tiap tes; pakai database khusus tes).
 
