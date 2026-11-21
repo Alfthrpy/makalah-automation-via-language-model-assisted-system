@@ -24,7 +24,7 @@ bila DNS ingin diatur lewat API). Project dibuat sekali: `npx wrangler@4 pages p
 ## Deploy otomatis (GitHub Actions)
 
 `.github/workflows/deploy-cloudflare.yml` membangun dan men-deploy web (manual, atau tiap push ke `main` yang mengubah web).
-Satu-satunya yang perlu diisi: secret repo **`CLOUDFLARE_API_TOKEN`** (GitHub > Settings > Secrets and variables > Actions).
+Satu-satunya yang perlu diisi: secret **`CLOUDFLARE_API_TOKEN`** di Environment **`main - malas`** (GitHub > Settings > Environments; nama harus persis sama dengan `environment:` di workflow).
 Tanpa secret itu job dilewati, bukan gagal. ID akun ada di workflow (bukan rahasia). Deploy dari sandbox yang memaksa
 proxy kredensial tidak bisa dipakai: langkah upload aset wrangler memakai JWT sendiri di header `Authorization`.
 

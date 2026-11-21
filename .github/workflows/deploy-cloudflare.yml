@@ -1,6 +1,7 @@
 name: Deploy web ke Cloudflare Pages
 
-# Butuh secret repo CLOUDFLARE_API_TOKEN (izin: Account > Cloudflare Pages > Edit). Tanpa itu, job dilewati.
+# Butuh secret CLOUDFLARE_API_TOKEN (izin: Account > Cloudflare Pages > Edit) di Environment "main - malas" (Settings > Environments).
+# Tanpa itu, job dilewati.
 # Dijalankan manual atau tiap push ke main yang mengubah web. Jalur Netlify (deploy/netlify) tetap ada.
 # Kunci publik Clerk (pk_...) bukan rahasia; bisa ditimpa lewat variable repo VITE_CLERK_PUBLISHABLE_KEY.
 on:
@@ -23,6 +24,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: "main - malas"  # nama environment persis; secret CLOUDFLARE_API_TOKEN ada di sini
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     steps:
