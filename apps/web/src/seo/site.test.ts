@@ -3,7 +3,7 @@ import { id } from "../copy/id";
 import { LEGAL_UPDATED, PRIVACY, TERMS } from "../features/legal/content";
 import guidesRaw from "./guides.json";
 import {
-  LANDING_DESCRIPTION, LANDING_TITLE, LEGACY_HOST, LEGAL_LASTMOD, SITE_URL, applyPage, buildPages, esc, formatDateId, fullTitle, guideBody, headHtml,
+  BRAND_FULL, LANDING_DESCRIPTION, LANDING_TITLE, LEGACY_HOST, LEGAL_LASTMOD, SITE_URL, applyPage, buildPages, esc, formatDateId, fullTitle, guideBody, headHtml,
   redirectsFile, sitemapXml, type GuidesData, type PageMeta,
 } from "./site";
 
@@ -174,5 +174,30 @@ describe("berkas statis SEO", () => {
     const { readFileSync } = await import("node:fs");
     const robots = readFileSync("public/robots.txt", "utf8");
     expect(robots).not.toMatch(/Disallow:\s*\/(masuk|daftar)/);
+  });
+});
+
+describe("merek: MALAS by studiocerdas", () => {
+  it("teks merek di UI konsisten", () => {
+    expect(id.brand.name).toBe("MALAS");
+    expect(id.brand.by).toBe("by studiocerdas");
+    expect(BRAND_FULL).toBe(`${id.brand.name} ${id.brand.by}`);
+    expect(id.brand.homeLabel).toContain(BRAND_FULL);
+    expect(id.brand.dashLabel).toContain(BRAND_FULL);
+  });
+
+  it("og:site_name, entitas JSON-LD, dan index.html memakai nama merek lengkap", () => {
+    const pages = buildPages({ landing: id.landing, terms: TERMS, privacy: PRIVACY, legalUpdated: LEGAL_UPDATED, guides });
+    const landing = pages.find((q) => q.path === "/")!;
+    expect(headHtml(landing)).toContain(`<meta property="og:site_name" content="${BRAND_FULL}" />`);
+    const app = (landing.jsonLd as Array<Record<string, any>>).find((j) => j["@type"] === "WebApplication")!;
+    expect(app.name).toBe("MALAS"); // nama produk tetap MALAS; pembuatnya studiocerdas
+    expect(app.author).toEqual({ "@type": "Organization", name: "studiocerdas" });
+    const article = pages.find((q) => q.path.startsWith("/panduan/"))!;
+    expect(JSON.stringify(article.jsonLd)).toContain(BRAND_FULL);
+  });
+
+  it("judul landing tetap berawalan MALAS (kesinambungan SEO)", () => {
+    expect(LANDING_TITLE.startsWith("MALAS")).toBe(true);
   });
 });
